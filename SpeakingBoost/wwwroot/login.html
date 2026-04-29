@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - SpeakingBoost</title>
+    <meta name="description" content="Đăng nhập vào hệ thống luyện IELTS Speaking SpeakingBoost">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4f46e5; --accent: #06b6d4; }
+        * { font-family: 'Inter', sans-serif; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-card {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px; padding: 2.5rem;
+            width: 100%; max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+        .brand-logo {
+            width:56px;height:56px;
+            background: linear-gradient(135deg,var(--primary),var(--accent));
+            border-radius:16px;display:flex;align-items:center;
+            justify-content:center;font-size:1.6rem;margin:0 auto 1rem;
+        }
+        .form-label { color:rgba(255,255,255,0.8);font-size:0.875rem;font-weight:500; }
+        .form-control {
+            background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+            border-radius:10px;color:#fff;padding:0.65rem 1rem;transition:all 0.2s;
+        }
+        .form-control:focus {
+            background:rgba(255,255,255,0.12);border-color:var(--primary);
+            box-shadow:0 0 0 3px rgba(79,70,229,0.25);color:#fff;
+        }
+        .form-control::placeholder { color:rgba(255,255,255,0.35); }
+        .input-group-text {
+            background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+            border-right:none;color:rgba(255,255,255,0.6);border-radius:10px 0 0 10px;
+        }
+        .input-group .form-control { border-left:none;border-radius:0 10px 10px 0; }
+        .eye-btn {
+            background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+            border-left:none;color:rgba(255,255,255,0.6);border-radius:0 10px 10px 0;
+            cursor:pointer;padding:0 0.75rem;
+        }
+        .btn-login {
+            background:linear-gradient(135deg,var(--primary),var(--accent));
+            border:none;border-radius:10px;color:#fff;font-weight:600;
+            padding:0.7rem;width:100%;transition:all 0.2s;
+        }
+        .btn-login:hover { opacity:0.9;transform:translateY(-1px);color:#fff; }
+        .btn-login:disabled { opacity:0.6;transform:none; }
+        .forgot-link { color:var(--accent);text-decoration:none;font-size:0.85rem; }
+        .forgot-link:hover { text-decoration:underline;color:var(--accent); }
+        .alert-err {
+            border-radius:10px;font-size:0.875rem;
+            background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;
+            padding:0.75rem 1rem;
+        }
+        .alert-ok {
+            border-radius:10px;font-size:0.875rem;
+            background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;
+            padding:0.75rem 1rem;
+        }
+        .modal-content {
+            background:#1e1b4b;border:1px solid rgba(255,255,255,0.15);border-radius:16px;
+        }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div class="text-center mb-4">
+        <div class="brand-logo"><i class="bi bi-mic-fill text-white"></i></div>
+        <h1 class="text-white fw-bold fs-4 mt-2">SpeakingBoost</h1>
+        <p class="mb-0" style="color:rgba(255,255,255,0.55);font-size:0.88rem;">Hệ thống luyện IELTS Speaking</p>
+    </div>
+
+    <div id="alertBox" class="d-none mb-3"></div>
+
+    <form id="loginForm" novalidate>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control" id="email"
+                       placeholder="example@email.com" autocomplete="email" required>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input type="password" class="form-control" id="password"
+                       placeholder="Nhập mật khẩu" autocomplete="current-password" required>
+                <button type="button" class="eye-btn" onclick="togglePw()" id="eyeBtn">
+                    <i class="bi bi-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-login" id="loginBtn">
+            <span id="btnText"><i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập</span>
+            <span id="btnSpinner" class="d-none">
+                <span class="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...
+            </span>
+        </button>
+
+        <div class="text-center mt-3">
+            <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotModal">
+                <i class="bi bi-key me-1"></i>Quên mật khẩu?
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Modal quên mật khẩu -->
+<div class="modal fade" id="forgotModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white"><i class="bi bi-key me-2"></i>Quên mật khẩu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;">Nhập email, hệ thống sẽ gửi mật khẩu mới về hộp thư của bạn.</p>
+                <div id="forgotAlert" class="d-none mb-3"></div>
+                <label for="forgotEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="forgotEmail" placeholder="example@email.com">
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-login px-4" style="width:auto;" id="forgotBtn" onclick="handleForgot()">
+                    Gửi mật khẩu mới
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+    // ─── Auto-redirect nếu đã đăng nhập ─────────────────────────────
+    // Gọi /api/auth/me, nếu token còn hợp lệ → redirect đúng dashboard
+    (async () => {
+        const token = AuthGuard.getToken();
+        if (!token) return; // Chưa có token → hiện form bình thường
+
+        try {
+            const res  = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const json = await res.json();
+                if (json.success && json.data?.redirectUrl) {
+                    window.location.href = json.data.redirectUrl;
+                }
+            }
+        } catch { /* Bỏ qua lỗi network — hiện form bình thường */ }
+    })();
+</script>
+<script>
+    function togglePw() {
+        const pw = document.getElementById('password');
+        const icon = document.getElementById('eyeIcon');
+        pw.type = pw.type === 'password' ? 'text' : 'password';
+        icon.className = pw.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+    }
+
+    function setAlert(id, msg, ok = false) {
+        const el = document.getElementById(id);
+        el.className = ok ? 'alert-ok mb-3' : 'alert-err mb-3';
+        el.innerHTML = `<i class="bi bi-${ok ? 'check-circle' : 'exclamation-triangle'}-fill me-2"></i>${msg}`;
+    }
+
+    // ─── Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email    = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        if (!email || !password) { setAlert('alertBox', 'Vui lòng nhập đầy đủ email và mật khẩu.'); return; }
+
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        document.getElementById('btnText').classList.add('d-none');
+        document.getElementById('btnSpinner').classList.remove('d-none');
+        document.getElementById('alertBox').className = 'd-none mb-3';
+
+        try {
+            const res  = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const json = await res.json();
+
+            if (res.ok && json.success) {
+                const d = json.data;
+                localStorage.setItem('token',    d.token);
+                localStorage.setItem('role',     d.role);
+                localStorage.setItem('userId',   d.userId);
+                localStorage.setItem('fullName', d.fullName);
+                localStorage.setItem('email',    d.email);
+                setAlert('alertBox', 'Đăng nhập thành công! Đang chuyển trang...', true);
+                setTimeout(() => window.location.href = d.redirectUrl, 900);
+            } else {
+                setAlert('alertBox', json.message || 'Tài khoản hoặc mật khẩu không chính xác.');
+            }
+        } catch {
+            setAlert('alertBox', 'Không thể kết nối đến server. Vui lòng thử lại.');
+        } finally {
+            btn.disabled = false;
+            document.getElementById('btnText').classList.remove('d-none');
+            document.getElementById('btnSpinner').classList.add('d-none');
+        }
+    });
+
+    // ─── Quên mật khẩu
+    async function handleForgot() {
+        const email = document.getElementById('forgotEmail').value.trim();
+        const btn   = document.getElementById('forgotBtn');
+        if (!email) { setAlert('forgotAlert', 'Vui lòng nhập email.'); return; }
+        btn.disabled = true; btn.textContent = 'Đang gửi...';
+        try {
+            const res  = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const json = await res.json();
+            setAlert('forgotAlert', json.message, res.ok);
+        } catch {
+            setAlert('forgotAlert', 'Lỗi kết nối. Vui lòng thử lại.');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Gửi mật khẩu mới';
+        }
+    }
+</script>
+</body>
+</html>

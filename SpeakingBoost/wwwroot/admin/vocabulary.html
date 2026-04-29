@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Từ vựng - SpeakingBoost</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin-layout.css" rel="stylesheet">
+</head>
+<body>
+<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang xác thực...</p></div>
+<div id="sidebarPlaceholder"></div>
+<div id="topbarPlaceholder"></div>
+
+<main id="main"><div class="page-content">
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="page-title">Quản lý Từ vựng</h1>
+        <p class="text-muted mb-0" style="font-size:.85rem;">Thêm, xóa từ vựng theo từng chủ đề</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalImport">
+          <i class="bi bi-file-earmark-excel me-1"></i>Import Excel
+        </button>
+        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalWord" onclick="openAddWord()">
+          <i class="bi bi-plus-circle-fill me-2"></i>Thêm từ
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Topics Sidebar -->
+      <div class="col-md-3">
+        <div class="card-panel p-0 overflow-hidden">
+          <div class="p-3 border-bottom fw-600" style="font-size:.85rem;">
+            <i class="bi bi-collection me-2 text-primary"></i>Chủ đề
+          </div>
+          <div id="topicsList">
+            <div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Words table -->
+      <div class="col-md-9">
+        <div class="card-panel mb-3 p-3 d-flex gap-2 align-items-center">
+          <i class="bi bi-search text-muted"></i>
+          <input type="text" id="searchWord" class="form-control border-0 shadow-none p-0" placeholder="Tìm từ vựng..." oninput="filterWords()" style="outline:none;">
+          <span class="text-muted" style="font-size:.8rem;" id="wordCountLabel">0 từ</span>
+        </div>
+        <div class="card-panel p-0 overflow-hidden">
+          <table class="table table-hover mb-0">
+            <thead class="table-head"><tr><th>Từ vựng</th><th>Nghĩa</th><th>Ví dụ</th><th>Chủ đề</th><th class="text-center">Xóa</th></tr></thead>
+            <tbody id="wordsBody">
+              <tr><td colspan="5" class="text-center py-4 text-muted">Chọn chủ đề để xem từ vựng</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+</div></main>
+
+<!-- Modal Thêm từ -->
+<div class="modal fade" id="modalWord" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content admin-modal">
+      <div class="modal-header border-0"><h5 class="modal-title">Thêm từ vựng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label fw-500">Chủ đề <span class="text-danger">*</span></label>
+          <select class="form-select" id="wordTopicId"><option value="">-- Chọn chủ đề --</option></select></div>
+        <div class="mb-3"><label class="form-label fw-500">Từ vựng <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="wordText" placeholder="VD: environment"></div>
+        <div class="mb-3"><label class="form-label fw-500">Nghĩa</label>
+          <input type="text" class="form-control" id="wordMeaning" placeholder="VD: môi trường"></div>
+        <div class="mb-3"><label class="form-label fw-500">Ví dụ</label>
+          <textarea class="form-control" id="wordExample" rows="2" placeholder="VD: We need to protect our environment."></textarea></div>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-primary rounded-pill px-4" onclick="addWord()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Import -->
+<div class="modal fade" id="modalImport" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content admin-modal">
+      <div class="modal-header border-0"><h5 class="modal-title">Import Từ vựng từ Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label fw-500">Chủ đề <span class="text-danger">*</span></label>
+          <select class="form-select" id="importTopicId"><option value="">-- Chọn chủ đề --</option></select></div>
+        <div class="p-3 rounded-3 mb-3" style="background:#f0f9ff;border:1px solid #bae6fd;">
+          <p class="mb-1 fw-500" style="font-size:.85rem;color:#0369a1;"><i class="bi bi-info-circle me-1"></i>Định dạng:</p>
+          <small class="text-muted">Cột A: Từ vựng* | Cột B: Nghĩa | Cột C: Ví dụ</small>
+        </div>
+        <a href="/templates/Mau_Import_Tu_Vung.xlsx" class="btn btn-sm btn-outline-secondary rounded-pill mb-3">
+          <i class="bi bi-download me-1"></i>Tải file mẫu
+        </a>
+        <input type="file" class="form-control" id="importFile" accept=".xlsx,.xls">
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-success rounded-pill px-4" id="btnImport" onclick="doImport()"><i class="bi bi-upload me-1"></i>Import</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script><script src="/js/admin.js"></script>
+<script>
+  initAdminPage('nav-vocab', 'Quản lý Từ vựng');
+
+  let allTopics = [], allWords = [], activeTopicId = null;
+
+  async function loadTopics() {
+    const res = await Api.get('/api/admin/vocabulary/topics');
+    if (!res.success) { Toast.err('Lỗi tải chủ đề!'); return; }
+    allTopics = res.data;
+
+    // Render sidebar
+    const list = document.getElementById('topicsList');
+    list.innerHTML = allTopics.length
+      ? allTopics.map(t => `
+        <button class="w-100 text-start border-0 bg-transparent p-3 topic-btn" style="font-size:.875rem;border-bottom:1px solid #f1f5f9;transition:background .15s;" id="topicBtn${t.topicId}" onclick="selectTopic(${t.topicId})">
+          <span class="fw-500">${t.name}</span>
+          <span class="float-end badge bg-light text-muted rounded-pill">${t.wordCount}</span>
+        </button>`).join('')
+      : '<div class="text-center py-4 text-muted" style="font-size:.85rem;">Chưa có chủ đề</div>';
+
+    // Populate dropdowns
+    const opts = allTopics.map(t => `<option value="${t.topicId}">${t.name}</option>`).join('');
+    document.getElementById('wordTopicId').innerHTML = '<option value="">-- Chọn chủ đề --</option>' + opts;
+    document.getElementById('importTopicId').innerHTML = '<option value="">-- Chọn chủ đề --</option>' + opts;
+  }
+
+  async function selectTopic(topicId) {
+    activeTopicId = topicId;
+
+    // Highlight active
+    document.querySelectorAll('.topic-btn').forEach(b => b.style.background = '');
+    const btn = document.getElementById(`topicBtn${topicId}`);
+    if (btn) btn.style.background = '#ede9fe';
+
+    const res = await Api.get(`/api/admin/vocabulary/topics/${topicId}`);
+    if (!res.success) { Toast.err('Lỗi tải từ vựng!'); return; }
+    allWords = res.data.words || [];
+    filterWords();
+  }
+
+  function filterWords() {
+    const q = document.getElementById('searchWord').value.toLowerCase();
+    const filtered = allWords.filter(w =>
+      w.word.toLowerCase().includes(q) || (w.meaning||'').toLowerCase().includes(q)
+    );
+    document.getElementById('wordCountLabel').textContent = `${filtered.length} từ`;
+    renderWords(filtered);
+  }
+
+  function renderWords(words) {
+    const tbody = document.getElementById('wordsBody');
+    if (!words.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Không có từ vựng nào</td></tr>';
+      return;
+    }
+    tbody.innerHTML = words.map(w => `
+      <tr>
+        <td><span class="fw-600" style="color:#6366f1;">${w.word}</span></td>
+        <td>${w.meaning || '<span class="text-muted">—</span>'}</td>
+        <td style="font-size:.82rem;color:#64748b;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${w.example||''}">${w.example || '—'}</td>
+        <td><span class="badge bg-light text-muted" style="font-size:.72rem;">${w.topicName || '—'}</span></td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-light rounded-pill" onclick="deleteWord(${w.vocabId},'${w.word}')" title="Xóa">
+            <i class="bi bi-trash-fill text-danger"></i>
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+
+  function openAddWord() {
+    document.getElementById('wordText').value = '';
+    document.getElementById('wordMeaning').value = '';
+    document.getElementById('wordExample').value = '';
+    if (activeTopicId) document.getElementById('wordTopicId').value = activeTopicId;
+  }
+
+  async function addWord() {
+    const topicId = document.getElementById('wordTopicId').value;
+    const word    = document.getElementById('wordText').value.trim();
+    const meaning = document.getElementById('wordMeaning').value.trim();
+    const example = document.getElementById('wordExample').value.trim();
+
+    if (!topicId) { Toast.err('Vui lòng chọn chủ đề.'); return; }
+    if (!word) { Toast.err('Vui lòng nhập từ vựng.'); return; }
+
+    const res = await Api.post('/api/admin/vocabulary', { word, meaning: meaning||null, example: example||null, topicId: parseInt(topicId) });
+    if (res.success) {
+      Toast.ok('Thêm từ thành công!');
+      bootstrap.Modal.getInstance(document.getElementById('modalWord'))?.hide();
+      if (activeTopicId == topicId) selectTopic(activeTopicId);
+      loadTopics();
+    } else Toast.err(res.message || 'Lỗi!');
+  }
+
+  async function deleteWord(id, word) {
+    if (!await adminConfirm(`Xóa từ "${word}"?`)) return;
+    const res = await Api.del(`/api/admin/vocabulary/${id}`);
+    if (res.success) { Toast.ok('Đã xóa!'); if (activeTopicId) selectTopic(activeTopicId); loadTopics(); }
+    else Toast.err(res.message || 'Xóa thất bại.');
+  }
+
+  async function doImport() {
+    const topicId = document.getElementById('importTopicId').value;
+    const file    = document.getElementById('importFile').files[0];
+    if (!topicId) { Toast.err('Vui lòng chọn chủ đề.'); return; }
+    if (!file)    { Toast.err('Vui lòng chọn file.'); return; }
+
+    const btn = document.getElementById('btnImport');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang import...';
+
+    const fd = new FormData();
+    fd.append('excelFile', file);
+    fd.append('importTopicId', topicId);
+    const res = await Api.postForm('/api/admin/vocabulary/import', fd);
+
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-upload me-1"></i>Import';
+    if (res.success) {
+      Toast.ok(res.message || 'Import thành công!');
+      bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
+      loadTopics();
+      if (activeTopicId == topicId) selectTopic(activeTopicId);
+    } else Toast.err(res.message || 'Import thất bại.');
+  }
+
+  AuthGuard.onReady(() => loadTopics());
+</script>
+</body></html>

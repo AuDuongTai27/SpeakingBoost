@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Chủ đề - SpeakingBoost</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin-layout.css" rel="stylesheet">
+</head>
+<body>
+<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang xác thực...</p></div>
+<div id="sidebarPlaceholder"></div>
+<div id="topbarPlaceholder"></div>
+
+<main id="main"><div class="page-content">
+    <nav class="mb-3"><ol class="breadcrumb mb-0" style="font-size:.83rem;">
+      <li class="breadcrumb-item"><a href="/admin/tests.html" class="text-decoration-none text-muted">Đề thi</a></li>
+      <li class="breadcrumb-item active" id="breadName">Chi tiết</li>
+    </ol></nav>
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="page-title" id="pageTitle">Đang tải...</h1>
+        <p class="text-muted mb-0" style="font-size:.85rem;" id="pageDesc"></p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-success rounded-pill px-3" onclick="openImport()">
+          <i class="bi bi-file-earmark-excel me-1"></i>Import Excel
+        </button>
+        <button class="btn btn-primary rounded-pill px-4" onclick="openAddExercise()">
+          <i class="bi bi-plus-circle-fill me-2"></i>Thêm câu hỏi
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card-panel mb-3 p-3 d-flex gap-2 align-items-center flex-wrap">
+      <select id="partFilter" class="form-select form-select-sm w-auto" onchange="filterExercises()">
+        <option value="">Tất cả Part</option>
+        <option value="Part1">Part 1</option>
+        <option value="Part2">Part 2</option>
+        <option value="Part3">Part 3</option>
+      </select>
+      <input type="text" id="searchQ" class="form-control form-control-sm" style="max-width:300px;" placeholder="Tìm câu hỏi..." oninput="filterExercises()">
+    </div>
+
+    <!-- Exercises list -->
+    <div id="exercisesList"></div>
+
+</div></main>
+
+<!-- Modal Thêm/Sửa Câu hỏi -->
+<div class="modal fade" id="modalExercise" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content admin-modal">
+      <div class="modal-header border-0"><h5 class="modal-title" id="modalExTitle">Thêm câu hỏi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body row g-3">
+        <input type="hidden" id="exId">
+        <div class="col-12"><label class="form-label fw-500">Tiêu đề <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="exTitle" placeholder="VD: Describe your hometown"></div>
+        <div class="col-md-6"><label class="form-label fw-500">Loại <span class="text-danger">*</span></label>
+          <select class="form-select" id="exType">
+            <option value="Part1">Part 1 — Short answers</option>
+            <option value="Part2">Part 2 — Long turn</option>
+            <option value="Part3">Part 3 — Discussion</option>
+          </select></div>
+        <div class="col-md-6"><label class="form-label fw-500">Số lần làm tối đa</label>
+          <input type="number" class="form-control" id="exMaxAttempts" value="3" min="1" max="10"></div>
+        <div class="col-12"><label class="form-label fw-500">Câu hỏi <span class="text-danger">*</span></label>
+          <textarea class="form-control" id="exQuestion" rows="3" placeholder="Nhập nội dung câu hỏi..."></textarea></div>
+        <div class="col-12"><label class="form-label fw-500">Câu trả lời mẫu</label>
+          <textarea class="form-control" id="exSample" rows="3" placeholder="Gợi ý câu trả lời..."></textarea></div>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-primary rounded-pill px-4" onclick="saveExercise()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Import -->
+<div class="modal fade" id="modalImport" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content admin-modal">
+      <div class="modal-header border-0"><h5 class="modal-title">Import câu hỏi từ Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="p-3 rounded-3 mb-3" style="background:#f0f9ff;border:1px solid #bae6fd;">
+          <p class="mb-1 fw-500" style="font-size:.85rem;color:#0369a1;"><i class="bi bi-info-circle me-1"></i>Định dạng:</p>
+          <small class="text-muted">Cột A: Tiêu đề | Cột B: Part (1/2/3) | Cột C: Câu hỏi* | Cột D: Câu trả lời mẫu | Cột E: Số lần làm</small>
+        </div>
+        <a href="/templates/Mau_Import_Cau_Hoi.xlsx" class="btn btn-sm btn-outline-secondary rounded-pill mb-3"><i class="bi bi-download me-1"></i>Tải file mẫu</a>
+        <input type="file" class="form-control" id="importFile" accept=".xlsx,.xls">
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-success rounded-pill px-4" id="btnImport" onclick="doImport()"><i class="bi bi-upload me-1"></i>Import</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script><script src="/js/admin.js"></script>
+<script>
+  const topicId = new URLSearchParams(location.search).get('id');
+  if (!topicId) location.href = '/admin/tests.html';
+
+  initAdminPage('nav-tests', 'Chi tiết Chủ đề');
+  let allExercises = [];
+
+  async function loadTopic() {
+    const res = await Api.get(`/api/admin/tests/topics/${topicId}`);
+    if (!res.success) { Toast.err('Không tải được dữ liệu!'); return; }
+    const d = res.data;
+    document.getElementById('pageTitle').textContent = d.name;
+    document.getElementById('pageDesc').textContent  = d.description || '';
+    document.getElementById('breadName').textContent = d.name;
+    allExercises = d.exercises || [];
+    filterExercises();
+  }
+
+  function filterExercises() {
+    const part = document.getElementById('partFilter').value.toLowerCase();
+    const q    = document.getElementById('searchQ').value.toLowerCase();
+    const filtered = allExercises.filter(e =>
+      (!part || e.type.toLowerCase() === part) &&
+      (!q    || e.title.toLowerCase().includes(q) || e.question.toLowerCase().includes(q))
+    );
+    renderExercises(filtered);
+  }
+
+  const partColors = { part1:['#dbeafe','#1d4ed8'], part2:['#fef3c7','#d97706'], part3:['#dcfce7','#16a34a'] };
+
+  function renderExercises(exercises) {
+    const container = document.getElementById('exercisesList');
+    if (!exercises.length) {
+      container.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-journal-x" style="font-size:3rem;opacity:.3;"></i><p class="mt-2">Không có câu hỏi nào</p></div>';
+      return;
+    }
+    container.innerHTML = exercises.map((e,i) => {
+      const [bg,tc] = partColors[e.type?.toLowerCase()] || ['#f1f5f9','#64748b'];
+      return `<div class="card-panel mb-3 p-4">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span style="background:${bg};color:${tc};padding:.15rem .6rem;border-radius:20px;font-size:.72rem;font-weight:700;">${e.type}</span>
+              <span class="text-muted" style="font-size:.78rem;">Câu ${i+1} &middot; Tối đa ${e.maxAttempts} lần làm</span>
+            </div>
+            <h6 class="fw-600 mb-1">${e.title}</h6>
+            <p class="mb-0 text-muted" style="font-size:.875rem;">${e.question}</p>
+            ${e.sampleAnswer ? `<div class="mt-2 p-2 rounded-2" style="background:#f8fafc;font-size:.8rem;color:#475569;"><i class="bi bi-lightbulb text-warning me-1"></i>${e.sampleAnswer}</div>` : ''}
+          </div>
+          <div class="d-flex gap-1 flex-shrink-0">
+            <button class="btn btn-sm btn-light rounded-pill" onclick="openEditExercise(${e.exerciseId})" title="Sửa"><i class="bi bi-pencil-fill text-primary"></i></button>
+            <button class="btn btn-sm btn-light rounded-pill" onclick="deleteExercise(${e.exerciseId},'${e.title.replace(/'/g,"\\'")}',)" title="Xóa"><i class="bi bi-trash-fill text-danger"></i></button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function openAddExercise() {
+    document.getElementById('modalExTitle').textContent = 'Thêm câu hỏi';
+    document.getElementById('exId').value = '';
+    document.getElementById('exTitle').value = '';
+    document.getElementById('exType').value = 'Part1';
+    document.getElementById('exQuestion').value = '';
+    document.getElementById('exSample').value = '';
+    document.getElementById('exMaxAttempts').value = 3;
+    new bootstrap.Modal(document.getElementById('modalExercise')).show();
+  }
+
+  function openEditExercise(id) {
+    const e = allExercises.find(x => x.exerciseId === id);
+    if (!e) return;
+    document.getElementById('modalExTitle').textContent = 'Chỉnh sửa câu hỏi';
+    document.getElementById('exId').value = e.exerciseId;
+    document.getElementById('exTitle').value = e.title;
+    document.getElementById('exType').value = e.type;
+    document.getElementById('exQuestion').value = e.question;
+    document.getElementById('exSample').value = e.sampleAnswer || '';
+    document.getElementById('exMaxAttempts').value = e.maxAttempts;
+    new bootstrap.Modal(document.getElementById('modalExercise')).show();
+  }
+
+  async function saveExercise() {
+    const id  = document.getElementById('exId').value;
+    const body = {
+      title: document.getElementById('exTitle').value.trim(),
+      type:  document.getElementById('exType').value,
+      question: document.getElementById('exQuestion').value.trim(),
+      sampleAnswer: document.getElementById('exSample').value.trim() || null,
+      maxAttempts: parseInt(document.getElementById('exMaxAttempts').value),
+      topicId: parseInt(topicId)
+    };
+    if (!body.title || !body.question) { Toast.err('Vui lòng điền tiêu đề và câu hỏi.'); return; }
+    const res = id
+      ? await Api.put(`/api/admin/tests/exercises/${id}`, body)
+      : await Api.post(`/api/admin/tests/topics/${topicId}/exercises`, body);
+    if (res.success) {
+      Toast.ok(id ? 'Cập nhật thành công!' : 'Thêm câu hỏi thành công!');
+      bootstrap.Modal.getInstance(document.getElementById('modalExercise'))?.hide();
+      loadTopic();
+    } else Toast.err(res.message || 'Lỗi!');
+  }
+
+  async function deleteExercise(id, title) {
+    if (!await adminConfirm(`Xóa câu hỏi "${title}"?`)) return;
+    const res = await Api.del(`/api/admin/tests/exercises/${id}`);
+    if (res.success) { Toast.ok('Đã xóa câu hỏi!'); loadTopic(); }
+    else Toast.err(res.message || 'Xóa thất bại.');
+  }
+
+  function openImport() { new bootstrap.Modal(document.getElementById('modalImport')).show(); }
+
+  async function doImport() {
+    const file = document.getElementById('importFile').files[0];
+    if (!file) { Toast.err('Vui lòng chọn file.'); return; }
+    const btn = document.getElementById('btnImport');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang import...';
+    const fd = new FormData(); fd.append('excelFile', file);
+    const res = await Api.postForm(`/api/admin/tests/topics/${topicId}/import`, fd);
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-upload me-1"></i>Import';
+    if (res.success) {
+      Toast.ok(res.message || 'Import thành công!');
+      bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
+      loadTopic();
+    } else Toast.err(res.message || 'Import thất bại.');
+  }
+
+  AuthGuard.onReady(() => loadTopic());
+</script>
+</body></html>

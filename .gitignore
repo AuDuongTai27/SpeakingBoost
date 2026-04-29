@@ -1,0 +1,22 @@
+# Bỏ qua các thư mục build của .NET
+[Bb]in/
+[Oo]bj/
+
+# Bỏ qua thư mục cấu hình của Visual Studio / VSCode
+.vs/
+*.user
+*.suo
+
+# Bỏ qua file hệ điều hành
+[Tt]humbs.db
+.DS_Store
+
+# Log + Temp + Recording
+*.log
+*.temp
+*.webm
+*.json
+/IeltsSpeakingAI/wwwroot/audio/92e5bc32-d017-4ba9-9f73-429d5f26c066.wav
+/SpeakingBoost/appsettings.json
+/SpeakingBoost/appsettings.Production.json
+/SpeakingBoost/appsettings.Development.json

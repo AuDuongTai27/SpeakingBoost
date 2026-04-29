@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Lớp học - SpeakingBoost</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin-layout.css" rel="stylesheet">
+</head>
+<body>
+<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang xác thực...</p></div>
+<div id="sidebarPlaceholder"></div>
+<div id="topbarPlaceholder"></div>
+
+<main id="main"><div class="page-content">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-3"><ol class="breadcrumb mb-0" style="font-size:.83rem;">
+      <li class="breadcrumb-item"><a href="/admin/classes.html" class="text-decoration-none text-muted">Lớp học</a></li>
+      <li class="breadcrumb-item active" id="breadCrumbName">Chi tiết</li>
+    </ol></nav>
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="page-title" id="pageTitle">Đang tải...</h1>
+        <p class="text-muted mb-0" style="font-size:.85rem;" id="pageSubtitle">Giáo viên: —</p>
+      </div>
+      <a href="/admin/classes.html" class="btn btn-light rounded-pill px-3">
+        <i class="bi bi-arrow-left me-1"></i>Quay lại
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="detailTabs">
+      <li class="nav-item"><button class="nav-link active" onclick="showTab('students')"><i class="bi bi-people me-1"></i>Học sinh (<span id="studentCount">0</span>)</button></li>
+      <li class="nav-item"><button class="nav-link" onclick="showTab('exercises')"><i class="bi bi-journal-text me-1"></i>Bài tập (<span id="exerciseCount">0</span>)</button></li>
+    </ul>
+
+    <!-- Tab: Students -->
+    <div id="tabStudents">
+      <div class="card-panel mb-3 p-3 d-flex gap-2 flex-wrap align-items-center">
+        <select class="form-select form-select-sm w-auto" id="addStudentSelect"><option value="">-- Chọn học sinh để thêm --</option></select>
+        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="addStudent()"><i class="bi bi-person-plus me-1"></i>Thêm vào lớp</button>
+      </div>
+      <div class="card-panel p-0 overflow-hidden">
+        <table class="table table-hover mb-0">
+          <thead class="table-head"><tr><th>Họ tên</th><th>Email</th><th>Bài đã nộp</th><th class="text-center">Xóa khỏi lớp</th></tr></thead>
+          <tbody id="studentsBody"><tr><td colspan="4" class="text-center py-4 text-muted">Đang tải...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Exercises -->
+    <div id="tabExercises" style="display:none;">
+      <div class="card-panel mb-3 p-3 d-flex gap-2 flex-wrap align-items-center">
+        <select class="form-select form-select-sm" style="max-width:320px;" id="addExerciseSelect"><option value="">-- Chọn bài tập để gán --</option></select>
+        <input type="datetime-local" class="form-control form-control-sm" style="max-width:220px;" id="addDeadline">
+        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="addExercise()"><i class="bi bi-plus-circle me-1"></i>Gán bài tập</button>
+      </div>
+      <div class="card-panel p-0 overflow-hidden">
+        <table class="table table-hover mb-0">
+          <thead class="table-head"><tr><th>Bài tập</th><th>Loại</th><th>Deadline</th><th>Trạng thái</th><th class="text-center">Hành động</th></tr></thead>
+          <tbody id="exercisesBody"><tr><td colspan="5" class="text-center py-4 text-muted">Đang tải...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+</div></main>
+
+<!-- Modal cập nhật deadline -->
+<div class="modal fade" id="modalDeadline" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content admin-modal">
+      <div class="modal-header border-0"><h5 class="modal-title">Cập nhật Deadline</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="editCeId">
+        <label class="form-label fw-500">Ngày hết hạn</label>
+        <input type="datetime-local" class="form-control" id="editDeadline">
+        <small class="text-muted">Để trống = không có hạn</small>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-primary rounded-pill px-3" onclick="saveDeadline()">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script><script src="/js/admin.js"></script>
+<script>
+  const classId = new URLSearchParams(location.search).get('id');
+  if (!classId) location.href = '/admin/classes.html';
+
+  initAdminPage('nav-classes', 'Chi tiết Lớp học');
+
+  let detail = null, allStudents = [], allExercises = [];
+  let activeTab = 'students';
+
+  function showTab(tab) {
+    activeTab = tab;
+    document.getElementById('tabStudents').style.display  = tab === 'students'  ? '' : 'none';
+    document.getElementById('tabExercises').style.display = tab === 'exercises' ? '' : 'none';
+    document.querySelectorAll('#detailTabs .nav-link').forEach((b,i) => b.classList.toggle('active', (i===0 && tab==='students')||(i===1 && tab==='exercises')));
+  }
+
+  async function loadDetail() {
+    const [detailRes, usersRes, exRes] = await Promise.all([
+      Api.get(`/api/admin/classes/${classId}/details`),
+      Api.get('/api/admin/users'),
+      Api.get('/api/admin/tests/topics')
+    ]);
+
+    if (!detailRes.success) { Toast.err('Không tải được dữ liệu!'); return; }
+    detail = detailRes.data;
+
+    document.getElementById('pageTitle').textContent     = detail.className;
+    document.getElementById('pageSubtitle').textContent  = `Giáo viên: ${detail.teacherName || '—'}`;
+    document.getElementById('breadCrumbName').textContent = detail.className;
+    document.getElementById('studentCount').textContent  = detail.students.length;
+    document.getElementById('exerciseCount').textContent = detail.assignedExercises.length;
+
+    renderStudents(detail.students);
+    renderExercises(detail.assignedExercises);
+
+    // Populate student dropdown (students NOT in class)
+    if (usersRes.success) {
+      const inClass = new Set(detail.students.map(s => s.studentId));
+      allStudents = usersRes.data.filter(u => u.role === 'Student' && !inClass.has(u.userId));
+      document.getElementById('addStudentSelect').innerHTML = '<option value="">-- Chọn học sinh để thêm --</option>' +
+        allStudents.map(s => `<option value="${s.userId}">${s.fullName} (${s.email})</option>`).join('');
+    }
+
+    // Populate exercise dropdown
+    if (exRes.success) {
+      const inClass = new Set(detail.assignedExercises.map(e => e.exerciseId));
+      const topicsWithExercises = exRes.data;
+      // Fetch all exercises from topics
+      let opts = '';
+      for (const topic of topicsWithExercises) {
+        const td = await Api.get(`/api/admin/tests/topics/${topic.topicId}`);
+        if (td.success) {
+          const avail = td.data.exercises.filter(e => !inClass.has(e.exerciseId));
+          if (avail.length) {
+            opts += `<optgroup label="${topic.name}">${avail.map(e=>`<option value="${e.exerciseId}">[${e.type}] ${e.title}</option>`).join('')}</optgroup>`;
+          }
+        }
+      }
+      document.getElementById('addExerciseSelect').innerHTML = '<option value="">-- Chọn bài tập để gán --</option>' + opts;
+    }
+  }
+
+  function renderStudents(students) {
+    const tbody = document.getElementById('studentsBody');
+    if (!students.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Chưa có học sinh trong lớp</td></tr>'; return; }
+    tbody.innerHTML = students.map(s => `
+      <tr>
+        <td class="fw-500">${s.fullName}</td>
+        <td class="text-muted">${s.email}</td>
+        <td><span class="badge bg-light text-dark">${s.submissionCount} bài</span></td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-light rounded-pill" onclick="removeStudent(${s.studentClassId},'${s.fullName}')" title="Xóa khỏi lớp">
+            <i class="bi bi-person-x-fill text-danger"></i>
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+
+  function renderExercises(exercises) {
+    const tbody = document.getElementById('exercisesBody');
+    if (!exercises.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Chưa gán bài tập nào</td></tr>'; return; }
+    tbody.innerHTML = exercises.map(e => {
+      const overdue = e.deadline && new Date(e.deadline) < new Date();
+      return `<tr>
+        <td class="fw-500">${e.title}</td>
+        <td><span class="badge bg-light text-secondary">${e.type}</span></td>
+        <td>${e.deadline ? fmtDateTime(e.deadline) : '<span class="text-muted">Không giới hạn</span>'}</td>
+        <td>${overdue ? '<span style="color:#dc2626;font-size:.78rem;font-weight:600;">Đã hết hạn</span>' : '<span style="color:#16a34a;font-size:.78rem;font-weight:600;">Đang mở</span>'}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-light rounded-pill me-1" onclick="openDeadlineModal(${e.classExerciseId},'${e.deadline||''}')" title="Sửa deadline"><i class="bi bi-calendar-event text-primary"></i></button>
+          <button class="btn btn-sm btn-light rounded-pill" onclick="removeExercise(${e.classExerciseId},'${e.title}')" title="Gỡ bài tập"><i class="bi bi-x-circle-fill text-danger"></i></button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function addStudent() {
+    const sid = document.getElementById('addStudentSelect').value;
+    if (!sid) { Toast.err('Vui lòng chọn học sinh.'); return; }
+    const res = await Api.post(`/api/admin/classes/${classId}/students`, { studentId: parseInt(sid) });
+    if (res.success) { Toast.ok('Đã thêm học sinh!'); loadDetail(); }
+    else Toast.err(res.message || 'Lỗi!');
+  }
+
+  async function removeStudent(scId, name) {
+    if (!await adminConfirm(`Xóa "${name}" khỏi lớp này?`)) return;
+    const res = await Api.del(`/api/admin/classes/${classId}/students/${scId}`);
+    if (res.success) { Toast.ok('Đã xóa khỏi lớp!'); loadDetail(); }
+    else Toast.err(res.message || 'Lỗi!');
+  }
+
+  async function addExercise() {
+    const eid      = document.getElementById('addExerciseSelect').value;
+    const deadline = document.getElementById('addDeadline').value;
+    if (!eid) { Toast.err('Vui lòng chọn bài tập.'); return; }
+    const res = await Api.post(`/api/admin/classes/${classId}/exercises`, { exerciseId: parseInt(eid), deadline: deadline || null });
+    if (res.success) { Toast.ok('Gán bài tập thành công!'); loadDetail(); }
+    else Toast.err(res.message || 'Lỗi!');
+  }
+
+  async function removeExercise(ceId, title) {
+    if (!await adminConfirm(`Gỡ bài tập "${title}" khỏi lớp?`)) return;
+    const res = await Api.del(`/api/admin/classes/${classId}/exercises/${ceId}`);
+    if (res.success) { Toast.ok('Đã gỡ bài tập!'); loadDetail(); }
+    else Toast.err(res.message || 'Lỗi!');
+  }
+
+  function openDeadlineModal(ceId, deadline) {
+    document.getElementById('editCeId').value = ceId;
+    document.getElementById('editDeadline').value = deadline ? deadline.substring(0,16) : '';
+    new bootstrap.Modal(document.getElementById('modalDeadline')).show();
+  }
+
+  async function saveDeadline() {
+    const ceId     = document.getElementById('editCeId').value;
+    const deadline = document.getElementById('editDeadline').value;
+    const res = await Api.patch(`/api/admin/classes/exercises/${ceId}/deadline`, { deadline: deadline || null });
+    if (res.success) {
+      Toast.ok('Cập nhật deadline thành công!');
+      bootstrap.Modal.getInstance(document.getElementById('modalDeadline'))?.hide();
+      loadDetail();
+    } else Toast.err(res.message || 'Lỗi!');
+  }
+
+  AuthGuard.onReady(() => loadDetail());
+</script>
+</body></html>

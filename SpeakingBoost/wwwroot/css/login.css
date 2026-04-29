@@ -1,0 +1,306 @@
+﻿body {
+    background: url('/img/backgroundLogin.jpg') no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', 'Poppins', sans-serif;
+    position: relative;
+}
+
+    /* Overlay tối để text dễ đọc hơn */
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 0;
+    }
+
+.login-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 35px 35px 45px 35px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    color: #1a1a1a;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Logo */
+.logo-container {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.login-logo {
+    width: 120px;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+    .login-logo:hover {
+        transform: scale(1.05);
+    }
+
+.login-card h2 {
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 32px;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.login-card p {
+    color: #f0f0f0;
+    margin-bottom: 28px;
+    font-size: 15px;
+    font-weight: 400;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #1a1a1a;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 1);
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15);
+        outline: none;
+        color: #1a1a1a;
+    }
+
+    .form-control::placeholder {
+        color: #888;
+        font-weight: 400;
+    }
+
+/* Forgot Password */
+.forgot-password {
+    text-align: right;
+    margin-top: 12px;
+    margin-bottom: 20px;
+}
+
+    .forgot-password a {
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+        .forgot-password a:hover {
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+        }
+
+/* Button Login với Gradient Xanh Neon */
+.btn-login {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 20px rgba(0, 153, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+    /* Hiệu ứng sáng lướt qua */
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 212, 255, 0.6), 0 0 40px rgba(0, 153, 255, 0.4);
+        background: linear-gradient(135deg, #00e5ff 0%, #00b8ff 100%);
+    }
+
+    .btn-login:active {
+        transform: translateY(-1px);
+    }
+
+/* Divider - đường gạch ngang ngăn cách */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0 20px 0;
+    color: #f0f0f0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .divider span {
+        padding: 0 16px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+/* Google Sign-in Button */
+.btn-google {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1a1a1a;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .btn-google:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-google:active {
+        transform: translateY(0);
+    }
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    color: #f0f0f0;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.reset-text {
+    margin-top: 20px;
+    color: #f0f0f0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+    .reset-text a {
+        color: #ffffff;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+        .reset-text a:hover {
+            text-decoration: underline;
+            color: #00d4ff;
+        }
+
+/* Responsive cho màn hình lớn (Laptop) */
+@media (min-width: 992px) {
+    .login-card {
+        max-width: 460px;
+        padding: 40px 45px 50px 45px;
+    }
+
+        .login-card h2 {
+            font-size: 36px;
+        }
+
+    .login-logo {
+        width: 140px;
+    }
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 30px 25px 35px 25px;
+        border-radius: 20px;
+    }
+
+        .login-card h2 {
+            font-size: 28px;
+        }
+
+    .login-logo {
+        width: 100px;
+    }
+
+    .form-control {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .btn-login,
+    .btn-google {
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .forgot-password a {
+        font-size: 13px;
+    }
+}

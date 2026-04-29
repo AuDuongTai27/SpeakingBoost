@@ -1,0 +1,777 @@
+/* =========================
+                   GLOBAL
+                   ========================= */
+body {
+    background: linear-gradient(135deg, #dfe8ff, #f5f7ff);
+    font-family: 'Poppins', sans-serif;
+}
+
+.practice-scroll-area {
+    height: calc(100vh - 120px);
+    padding: 20px 40px;
+}
+
+.practice-area {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    align-items: stretch;
+    height: 100%;
+}
+
+/* =========================
+                   LEFT TOPIC BOX
+                   ========================= */
+.topic-box {
+    background: linear-gradient(180deg, #e5edff 0%, #d4e2ff 100%);
+    border: 3px solid #0b4cc3;
+    border-radius: 25px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 6px 25px rgba(10, 88, 202, 0.12);
+}
+
+.topic-title {
+    position: relative;
+    font-weight: 700;
+    text-align: center;
+    color: #fff;
+    font-size: 1.25rem;
+    letter-spacing: .5px;
+    padding: 18px;
+    border-radius: 25px 25px 0 0;
+    overflow: hidden;
+    z-index: 1;
+}
+
+    .topic-title::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, #0a58ca 0%, #3b82f6 100%);
+        z-index: -1;
+    }
+
+.question-list {
+    flex: 1;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-weight: 600;
+    overflow-y: auto;
+    background: #f9fbff;
+    border-top: 1px solid rgba(11, 76, 195, 0.2);
+}
+
+    .question-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .question-list::-webkit-scrollbar-thumb {
+        background-color: #c3d4ff;
+        border-radius: 6px;
+    }
+
+.question-item {
+    background: #ffffff;
+    border: 2px solid #c3d4ff;
+    color: #0b4cc3;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    /* Q + Title layout */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    text-align: left;
+}
+
+    .question-item:hover {
+        background: #ebf3ff;
+        border-color: #7daaff;
+        transform: translateY(-1px);
+    }
+
+    .question-item.active {
+        background: linear-gradient(90deg, #0a58ca 0%, #3b82f6 100%);
+        color: #fff;
+        border: none;
+        box-shadow: 0 3px 8px rgba(10, 88, 202, 0.3);
+        transform: translateY(-2px);
+    }
+
+.q-num {
+    flex: 0 0 auto;
+    font-weight: 800;
+}
+
+.q-title {
+    flex: 1 1 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0%, #000 78%, transparent 100%);
+}
+
+.question-item:hover .q-title {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+.q-title-inner {
+    display: inline-block;
+    transform: translateX(0);
+    will-change: transform;
+}
+
+.question-item.marquee .q-title-inner {
+    animation: qmarquee var(--marquee-duration) linear infinite;
+}
+
+@keyframes qmarquee {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(calc(-1 * var(--marquee-distance)));
+    }
+}
+
+/* =========================
+                   RIGHT QUESTION BOX
+                   ========================= */
+.question-box {
+    box-sizing: border-box;
+    flex: 1;
+    background: #fff;
+    border: 3px solid #0a58ca;
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+/* TOPIC HOLOGRAM */
+.topic-holo {
+    width: 100%;
+    margin: -6px 0 14px;
+    padding: 10px 14px;
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: .3px;
+    color: #fff;
+    border-radius: 18px;
+    background: linear-gradient(90deg, rgba(10,88,202,.95) 0%, rgba(47,134,255,.95) 100%);
+    border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 10px 20px rgba(10,88,202,.20);
+    position: relative;
+    overflow: hidden;
+}
+
+    .topic-holo::after {
+        content: "";
+        position: absolute;
+        top: -60%;
+        left: -40%;
+        width: 140%;
+        height: 140%;
+        background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,.28) 48%, transparent 62%);
+        transform: rotate(12deg);
+        opacity: .55;
+        pointer-events: none;
+    }
+
+#questionText {
+    flex: 1;
+    overflow-y: auto;
+    margin: 20px 0;
+    font-size: 1.2rem;
+    color: #0a58ca;
+    max-height: calc(100% - 300px);
+    padding-right: 10px;
+    text-align: center;
+    white-space: pre-line;
+    line-height: 1.55;
+    width: 100%;
+}
+
+    #questionText::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #questionText::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 6px;
+    }
+
+    /* Part 2 formatting */
+    #questionText.part2 {
+        text-align: left;
+        padding: 0 10px;
+    }
+
+        #questionText.part2 .p2-head {
+            font-weight: 800;
+            font-size: 1.15em;
+            margin-bottom: 14px;
+        }
+
+        #questionText.part2 .p2-bullets {
+            margin: 0;
+            padding-left: 22px;
+        }
+
+            #questionText.part2 .p2-bullets li {
+                margin: 8px 0;
+            }
+/* ✅ Desktop: canh “nhẹ” vào giữa (giữ bullet dễ đọc) */
+@media (min-width: 992px) {
+    /* canh giữa cả phần Part 2 */
+    #questionText.part2 {
+        max-width: 760px;
+        margin: 20px auto;
+        padding: 0 22px;
+        text-align: center; /* để ul inline-block được canh giữa */
+    }
+        /* ✅ title cũng canh giữa cho đồng bộ */
+        #questionText.part2 h2,
+        #questionText.part2 .p2-head {
+            text-align: center;
+        }
+        /* ✅ CỤM bullet ở giữa nhưng chữ thẳng hàng đẹp */
+        #questionText.part2 ul {
+            display: inline-block; /* quan trọng */
+            text-align: left; /* mỗi dòng canh trái */
+            margin: 14px auto 0;
+            padding-left: 1.4em; /* thụt để thấy bullet */
+            list-style-position: outside;
+        }
+
+        #questionText.part2 li {
+            margin: 14px 0;
+        }
+}
+
+
+
+/* Record button */
+.record-btn {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-left: 0; /* ✅ không lệch trục */
+    border: 5px solid #0a58ca;
+    background: #ff3b3b;
+    box-shadow: 0 6px 15px rgba(255, 0, 0, 0.3);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.recording {
+    background: radial-gradient(circle, #ffd54f 40%, #ffca28 100%) !important;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+    animation: pulse 0.8s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0.7;
+    }
+}
+
+/* Control dock (default: inside flow) */
+#recordArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+    #recordArea p {
+        text-align: center;
+    }
+
+.control-dock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.audio-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.redo-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: #0a58ca;
+    color: #fff;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Timer */
+#timerContainer {
+    display: none;
+    margin-top: 20px;
+    width: 80%;
+}
+
+#timerLabel, #timeRemaining {
+    font-weight: 600;
+    color: #0a58ca;
+}
+
+#timerBarContainer {
+    width: 100%;
+    background: #e0e0e0;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 12px;
+    margin-top: 5px;
+}
+
+#timerBar {
+    height: 100%;
+    background: #0a58ca;
+    width: 100%;
+    transition: width 1s linear;
+}
+
+/* Max attempt notice (inside question box) */
+#maxAttemptBtn {
+    display: none; /* JS sẽ bật */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 8px auto 0;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 16px;
+    background: rgba(148, 163, 184, 0.75);
+    color: #fff;
+    font-weight: 800;
+    max-width: 92%;
+    width: auto;
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    cursor: not-allowed;
+}
+
+    #maxAttemptBtn .ma-icon {
+        flex: 0 0 auto;
+    }
+
+    #maxAttemptBtn .ma-text {
+        flex: 0 1 auto;
+    }
+
+/* Submit */
+.submit-btn {
+    font-size: 1.1rem;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all .25s ease;
+}
+
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+/* OFFCANVAS: Exercise Picker */
+.exercise-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.exercise-picker-item {
+    width: 100%;
+    border: 1px solid rgba(11, 76, 195, 0.25);
+    background: #fff;
+    border-radius: 14px;
+    padding: 10px 12px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+    .exercise-picker-item.active {
+        border-color: #0a58ca;
+        box-shadow: 0 6px 18px rgba(10, 88, 202, 0.18);
+    }
+
+    .exercise-picker-item .ep-left {
+        flex: 0 0 auto;
+        font-weight: 800;
+        color: #0a58ca;
+    }
+
+    .exercise-picker-item .ep-title {
+        flex: 1 1 auto;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .exercise-picker-item .ep-badge {
+        flex: 0 0 auto;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(10, 88, 202, 0.10);
+        color: #0a58ca;
+    }
+
+/* FAB menu (mobile only) */
+.fab-menu {
+    position: fixed;
+    left: 14px;
+    bottom: 120px; /* tránh đè bottom nav */
+    z-index: 8000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none; /* đóng thì không bắt click */
+}
+
+    .fab-menu.open {
+        pointer-events: auto;
+    }
+
+    .fab-menu .fab-main {
+        pointer-events: auto;
+    }
+
+.fab-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.15);
+    transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.fab-main {
+    background: linear-gradient(180deg, #0a58ca 0%, #2f86ff 100%);
+    color: #fff;
+}
+
+.fab-action {
+    background: #fff;
+    color: #111827;
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+    pointer-events: none;
+}
+
+.fab-menu.open .fab-action {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+    .fab-menu.open .fab-action:nth-child(1) {
+        transition-delay: 0ms;
+    }
+
+    .fab-menu.open .fab-action:nth-child(2) {
+        transition-delay: 60ms;
+    }
+
+.fab-main.spin {
+    animation: fabSpin 420ms ease;
+}
+
+@keyframes fabSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fab-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
+/* =========================
+                   RESPONSIVE – MOBILE
+                   ========================= */
+@media (max-width: 991.98px) {
+    /* timer mini nằm ngay trên record */
+    #recordArea {
+        position: relative;
+        padding-top: 80px; /* chừa chỗ vừa đủ cho pill */
+    }
+    /* ✅ Timer đẹp + nhỏ vừa phải (pill/glass) */
+    #timerContainer {
+        position: absolute !important;
+        top: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 230px !important; /* nhỏ hơn nhưng vẫn đọc rõ */
+        padding: 6px 10px !important;
+        margin: 0 !important;
+        border-radius: 999px !important;
+        background: rgba(255,255,255,0.72) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(10,88,202,0.18);
+        box-shadow: 0 10px 22px rgba(0,0,0,0.10) !important;
+        z-index: 2;
+    }
+        /* Row trên: label nhỏ + time rõ */
+        #timerContainer > div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 5px !important;
+        }
+
+    #timerLabel {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        opacity: .75;
+        white-space: nowrap;
+    }
+
+    #timeRemaining {
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+    }
+    /* Thanh progress mảnh + bo tròn */
+    #timerBarContainer {
+        height: 5px !important;
+        border-radius: 999px !important;
+        background: rgba(10,88,202,0.10) !important;
+        overflow: hidden;
+        margin-top: 0 !important;
+    }
+
+    #timerBar {
+        height: 100% !important;
+        border-radius: 999px !important;
+    }
+
+    @media (max-width: 991.98px) {
+        /* 1) Giảm lề 2 bên của trang */
+        .practice-scroll-area {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+
+        /* 2) Cho box được phép nở hết (không bị chặn max-width) */
+        .topic-box,
+        .question-box {
+            width: 100% !important;
+            max-width: none !important; /* ✅ quan trọng */
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+
+    .practice-area {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 14px !important;
+        height: auto !important;
+    }
+    /* ✅ Mobile: ẩn danh sách câu hỏi (chỉ giữ tiêu đề Topic) */
+    .topic-box {
+        width: 100% !important;
+        max-width: 440px !important;
+        margin: 0 auto !important;
+    }
+
+    .topic-box {
+        border: none !important;
+        box-shadow: none !important; /* tuỳ: bỏ bóng luôn cho gọn */
+    }
+    .topic-box .question-list {
+        display: none !important;
+    }
+
+    .topic-title {
+        border-radius: 25px !important;
+    }
+
+#historyBtn {
+        display: none !important;
+    }
+    /* QUESTION BOX: luôn ở giữa, không tràn */
+    .question-box {
+        width: 100% !important; /* hoặc 100% nếu bạn muốn full trong parent */
+        max-width: 440px !important; /* tăng/giảm tùy bạn */
+        margin: -10px !important; /* căn giữa */
+        box-sizing: border-box !important; /* tránh tràn vì padding/border */
+    }
+    /* topic hologram gọn lại */
+    .topic-holo {
+        width: 100%;
+        max-width: 420px;
+        margin: 2px auto 12px;
+        font-size: 14px;
+        border-radius: 16px;
+    }
+    /* text câu hỏi */
+    #questionText {
+        width: 100%;
+        flex: 1 1 auto;
+        margin: 10px 0 0;
+        padding: 0 6px;
+        text-align: center;
+        font-size: 16px; /* JS sẽ fit nhỏ xuống nếu dài */
+        line-height: 1.55;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+        /* Part 2: center theo nhóm */
+        #questionText.part2 {
+            text-align: center !important;
+        }
+
+            #questionText.part2 .p2-head {
+                text-align: center !important;
+            }
+
+            #questionText.part2 .p2-bullets {
+                display: inline-block;
+                text-align: left;
+                margin: 10px auto 0;
+                padding-left: 22px;
+            }
+    /* DOCK: cố định dưới, luôn center (record + text không bao giờ nhảy) */
+    .control-dock {
+        position: fixed !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        bottom: 96px !important; /* khoảng cách với bottom bar */
+        width: 100% !important;
+        max-width: 440px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        z-index: 6500 !important;
+    }
+
+    #recordArea {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .record-btn {
+        width: 90px;
+        height: 90px;
+        border-width: 4px;
+        margin: 0 !important;
+    }
+
+    #recordArea p {
+        margin: 0 !important;
+        text-align: center !important;
+    }
+
+    #maxAttemptBtn {
+        max-width: 92%;
+        width: auto;
+        border-radius: 16px;
+        padding: 10px 12px;
+        font-weight: 800;
+    }
+
+    .audio-controls {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 0;
+    }
+
+    audio {
+        width: 100%;
+    }
+
+    #timerContainer {
+        width: 100%;
+    }
+
+    .submit-btn {
+        width: 100%;
+        max-width: 440px;
+        margin-top: 14px;
+    }
+    /* FAB menu chỉ mobile */
+    .fab-menu {
+        display: flex !important;
+        bottom: 110px; /* tránh bottom nav */
+    }
+    /* FORCE bottom bar fixed */
+    #mobileBottomNav,
+    #mobile-bottom-nav,
+    .mobile-bottom-nav,
+    .mobile-bottom-bar,
+    .student-bottom-nav,
+    .bottom-nav,
+    .bottom-bar,
+    nav.mobile-bottom-nav {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        z-index: 10000 !important;
+    }
+
+    body {
+        padding-bottom: 78px;
+    }
+}

@@ -1,0 +1,901 @@
+.card-soft {
+            border-radius: 16px;
+            background: #ffffff !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: none !important;
+        }
+
+        .band-big {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #0a58ca;
+            line-height: 1;
+        }
+
+
+
+        /* ===== Force 2-column layout ===== */
+        /* ===== Force 2-column layout ===== */
+        /* ===== Force 2-column layout (override global CSS) ===== */
+        .attempt-layout {
+            width: 100%;
+            display: flex !important;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .attempt-layout {
+                flex-direction: row !important; /* ✅ desktop: 2 cột */
+                align-items: flex-start;
+                flex-wrap: nowrap;
+            }
+
+            
+            /* nếu có attempt-right thì dùng cái này */
+            .attempt-right {
+                flex: 1 1 0;
+                min-width: 100px; /* ✅ để transcript co lại, không rớt hàng */
+            }
+            /* nếu bạn KHÔNG có attempt-right thì thay bằng right-stack */
+            /* .right-stack{ flex: 1 1 0; min-width:0; } */
+        }
+
+
+     
+
+
+
+
+        /* Tabs base */
+        .tab-custom {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            gap: 6px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .tab-custom::-webkit-scrollbar {
+                display: none;
+            }
+
+            .tab-custom .nav-item {
+                flex: 1;
+            }
+
+            .tab-custom .nav-link {
+                width: 100%;
+                text-align: center;
+                white-space: nowrap;
+                background: #ffffff;
+                border-radius: 10px 10px 0 0;
+                font-weight: 600;
+                padding: 10px 18px;
+            }
+
+                .tab-custom .nav-link.active {
+                    color: #0a58ca;
+                    background: #ffffff;
+                    border-bottom: 3px solid #0a58ca;
+                }
+
+        .score-tile {
+            border: 1px solid rgba(13,110,253,.25);
+            border-radius: 12px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .ph-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: .35rem .55rem;
+            border-radius: 999px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            font-size: .875rem;
+        }
+
+            .ph-chip .score {
+                font-weight: 800;
+            }
+
+        /* Suggest box */
+        .suggest-box {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 2px solid #0a58ca;
+            padding: 18px;
+            white-space: pre-line;
+        }
+
+        /* Transcript panel */
+        .transcript-panel {
+            border: 2px solid transparent !important;
+            background: linear-gradient(#fff,#fff) padding-box, linear-gradient(90deg,#0a58ca,#3b82f6) border-box;
+            position: relative; /* for popover overlay */
+        }
+
+        .transcript-text {
+            white-space: pre-line;
+            line-height: 1.6;
+            color: #111827;
+            max-height: 180px;
+            overflow: auto;
+            padding-right: 6px;
+        }
+
+        /* ===== 5 equal tab boxes + colored borders ===== */
+        .tab-custom .nav-link.tab-box {
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            border: 2px solid rgba(10,88,202,.18);
+        }
+
+        .tab-custom .nav-link.active.tab-box {
+            border-bottom: 3px solid currentColor !important;
+        }
+
+        .tab-fluency {
+            border-color: #198754 !important;
+            color: #198754 !important;
+        }
+        /* green */
+        .tab-lexical {
+            border-color: #dc3545 !important;
+            color: #dc3545 !important;
+        }
+        /* red */
+        .tab-grammar {
+            border-color: #ffc107 !important;
+            color: #b08900 !important;
+        }
+        /* yellow */
+        .tab-pronun {
+            border-color: #6f42c1 !important;
+            color: #6f42c1 !important;
+        }
+        /* purple */
+        .tab-suggest {
+            border-color: #0a58ca !important;
+            color: #0a58ca !important;
+        }
+        /* blue */
+
+        /* ===== Underline highlight on transcript ===== */
+        .hl {
+            text-decoration: underline;
+            text-decoration-thickness: 3px;
+            text-underline-offset: 4px;
+        }
+
+        .hl-flu {
+            text-decoration-color: #198754;
+        }
+
+        .hl-lex {
+            text-decoration-color: #dc3545;
+        }
+
+        .hl-gra {
+            text-decoration-color: #ffc107;
+        }
+
+        .hl-pro {
+            text-decoration-color: #6f42c1;
+        }
+
+        .hl-tap {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .hl-active {
+            background: rgba(255, 230, 128, .30);
+            border-radius: 6px;
+            padding: 0 2px;
+        }
+
+        /* ===== Popover note (overlay on transcript) ===== */
+        .hl-popover {
+            position: absolute;
+            z-index: 50;
+            min-width: 240px;
+            max-width: 360px;
+            padding: 10px 10px 9px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(219,234,254,.96), rgba(239,246,255,.96));
+            border: 1px solid rgba(59,130,246,.35);
+            box-shadow: 0 16px 32px rgba(0,0,0,.18);
+            color: #0b1b39;
+            font-size: .82rem; /* small text */
+        }
+
+            .hl-popover::before {
+                content: "";
+                position: absolute;
+                width: 12px;
+                height: 12px;
+                background: linear-gradient(135deg, rgba(219,234,254,.96), rgba(239,246,255,.96));
+                border-left: 1px solid rgba(59,130,246,.35);
+                border-top: 1px solid rgba(59,130,246,.35);
+                transform: rotate(45deg);
+                top: -7px;
+                left: 18px;
+            }
+
+        .hl-pop-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .hl-pop-title {
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .hl-pop-close {
+            border: 0;
+            background: transparent;
+            font-size: 1.15rem;
+            line-height: 1;
+            padding: 0 6px;
+            border-radius: 10px;
+            opacity: .7;
+        }
+
+            .hl-pop-close:hover {
+                opacity: 1;
+            }
+
+        .hl-pop-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .hl-pop-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: .18rem .45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,.10);
+            background: rgba(255,255,255,.86);
+            font-weight: 800;
+            font-size: .74rem;
+        }
+
+        .hl-pop-row {
+            margin-top: 6px;
+        }
+
+        .hl-wrong {
+            color: #dc3545;
+            font-weight: 900;
+            background: rgba(220,53,69,.10);
+            border-radius: 8px;
+            padding: 0 6px;
+        }
+
+        .hl-correct {
+            color: #198754;
+            font-weight: 900;
+            background: rgba(25,135,84,.12);
+            border-radius: 8px;
+            padding: 0 6px;
+        }
+
+        .hl-explain {
+            margin-top: 6px;
+            white-space: pre-line;
+            color: #1f2937;
+        }
+
+        .hl-desc-title {
+            margin-top: 8px;
+            font-weight: 900;
+            color: #0b1b39;
+            opacity: .85;
+        }
+
+        .hl-pop-pron {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(59,130,246,.35);
+        }
+
+            .hl-pop-pron .ph-wrap {
+                margin-top: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+        
+        /* action group (listen + correct) - no visible container */
+        .pron-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+
+        @media (max-width: 767.98px){
+            .pron-actions{
+                flex-direction: column;
+                gap: 6px;
+                align-items: center;
+            }
+        }
+
+/* play button next to items / in popover */
+        .play-seg-btn {
+            border-radius: 10px;
+            font-weight: 800;
+            padding: 6px 10px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        /* correct-pronunciation button (TTS / dictionary) */
+        .play-correct-btn {
+            border-radius: 10px;
+            font-weight: 800;
+            padding: 6px 10px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+            .play-correct-btn.is-speaking {
+                opacity: .7;
+                transform: translateY(0.5px);
+            }
+
+        /* ===== Mobile: shrink listen buttons + hide time in pronunciation list ===== */
+        @media (max-width: 767.98px) {
+            .js-seg-time {
+                display: none !important;
+            }
+
+            .play-seg-btn,
+            .play-correct-btn {
+                width: 34px;
+                height: 34px;
+                padding: 0 !important;
+                border-radius: 10px;
+                display: grid;
+                place-items: center;
+                font-size: .85rem;
+            }
+
+            .accordion-button {
+                white-space: normal;
+                flex-wrap: wrap;
+                padding-left: .85rem;
+                padding-right: .85rem;
+                padding-top: .70rem;
+                padding-bottom: .70rem;
+            }
+
+                .accordion-button .ms-auto {
+                    flex: 0 0 100%;
+                    margin-left: 0 !important;
+                    margin-top: .25rem;
+                }
+            /* Transcript: collapsed with fade; expanded = full text, NO internal scroll */
+            .transcript-panel.is-collapsed #transcriptText {
+                max-height: 10.5rem;
+                overflow: hidden;
+            }
+
+            .transcript-panel:not(.is-collapsed) #transcriptText {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            .transcript-panel.is-collapsed::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 56px;
+                pointer-events: none;
+                background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+                border-radius: 0 0 16px 16px;
+            }
+            /* Tabs: layout like sketch (2x2 + Suggested full width), no horizontal scroll */
+            .tab-custom.nav-tabs {
+                border-bottom: 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: .55rem;
+                overflow: visible;
+                padding-bottom: 0;
+            }
+
+            .tab-custom .nav-item {
+                flex: initial;
+            }
+
+                .tab-custom .nav-item:last-child {
+                    grid-column: 1 / -1;
+                }
+
+            .tab-custom .nav-link {
+                border: 1px solid #e9ecef !important;
+                border-radius: 14px !important;
+                padding: .55rem .55rem !important;
+                font-size: .80rem;
+                line-height: 1.15;
+                white-space: normal;
+                background: #f8f9fa !important;
+                height: 46px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .tab-custom .nav-item:last-child .nav-link {
+                height: 50px;
+            }
+
+            .tab-custom .nav-link.active {
+                background: #0a58ca !important;
+                border-color: #0a58ca !important;
+                color: #fff !important;
+            }
+            /* Popover slightly narrower on phone */
+            .hl-popover {
+                max-width: 320px;
+                min-width: 220px;
+                font-size: .80rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .band-big {
+                font-size: 2.6rem;
+            }
+        }
+
+        /* =========================
+                   SCORE CARD (from test (2).html) — used on ALL devices
+                   ========================= */
+        .mobile-scorecard {
+            --blue1: #1f6fe7;
+            --blue2: #1351c6;
+            --blue3: #0f3da7;
+            --green1: #20df7a;
+            --green2: #0bbf63;
+            --cardRadius: 28px;
+            --shadow: 0 18px 40px rgba(0,0,0,.25);
+        }
+
+            .mobile-scorecard .score-card {
+                width: 100%;
+                max-width: 460px;
+                margin: 0 auto 10px;
+                border-radius: var(--cardRadius);
+                background: linear-gradient(145deg, var(--blue1), var(--blue2) 50%, var(--blue3));
+                box-shadow: var(--shadow);
+                padding: 22px 18px 18px;
+                position: relative;
+                overflow: hidden;
+                color: #fff;
+            }
+
+                .mobile-scorecard .score-card::before {
+                    content: "";
+                    position: absolute;
+                    inset: -120px -160px auto auto;
+                    width: 360px;
+                    height: 360px;
+                    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%);
+                    transform: rotate(18deg);
+                    pointer-events: none;
+                }
+
+                .mobile-scorecard .score-card::after {
+                    content: "";
+                    position: absolute;
+                    inset: auto auto -170px -160px;
+                    width: 420px;
+                    height: 420px;
+                    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.12), rgba(255,255,255,0) 65%);
+                    pointer-events: none;
+                }
+
+            .mobile-scorecard .top {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 16px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .mobile-scorecard .overall {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                min-width: 140px;
+            }
+
+                .mobile-scorecard .overall small {
+                    opacity: .85;
+                    font-weight: 700;
+                    letter-spacing: .3px;
+                }
+
+                .mobile-scorecard .overall .value {
+                    font-size: clamp(54px, 4.6vw, 82px);
+                    line-height: 1;
+                    font-weight: 900;
+                    color: #fff;
+                    text-shadow: 0 8px 18px rgba(0,0,0,.25);
+                }
+
+            .mobile-scorecard .replay-wrap {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .mobile-scorecard .replay-btn {
+                width: 86px;
+                height: 86px;
+                border-radius: 999px;
+                border: none;
+                cursor: pointer;
+                background: linear-gradient(145deg, var(--green1), var(--green2));
+                box-shadow: 0 14px 26px rgba(0,0,0,.25), inset 0 0 0 3px rgba(255,255,255,.18);
+                display: grid;
+                place-items: center;
+                transition: transform .15s ease, filter .15s ease;
+                position: relative;
+            }
+
+                .mobile-scorecard .replay-btn:hover {
+                    transform: translateY(-2px);
+                    filter: brightness(1.03);
+                }
+
+                .mobile-scorecard .replay-btn:active {
+                    transform: translateY(0px) scale(.98);
+                }
+
+                /* play icon */
+                .mobile-scorecard .replay-btn::before {
+                    content: "";
+                    width: 0;
+                    height: 0;
+                    border-left: 26px solid rgba(255,255,255,.95);
+                    border-top: 16px solid transparent;
+                    border-bottom: 16px solid transparent;
+                    transform: translateX(3px);
+                    filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
+                }
+                /* pause when playing */
+                .mobile-scorecard .replay-btn.is-playing::before {
+                    width: 26px;
+                    height: 28px;
+                    border: none;
+                    transform: none;
+                    background: linear-gradient(90deg, rgba(255,255,255,.95) 0 38%, transparent 38% 62%, rgba(255,255,255,.95) 62% 100%);
+                    border-radius: 3px;
+                    filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
+                }
+
+                /* inner soft glow */
+                .mobile-scorecard .replay-btn::after {
+                    content: "";
+                    position: absolute;
+                    inset: 10px;
+                    border-radius: 999px;
+                    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), rgba(255,255,255,0) 55%);
+                    pointer-events: none;
+                }
+
+                .mobile-scorecard .replay-btn:disabled {
+                    opacity: .6;
+                    filter: grayscale(.2);
+                    cursor: not-allowed;
+                    transform: none !important;
+                }
+
+            .mobile-scorecard .mid {
+                margin-top: 16px;
+                position: relative;
+                z-index: 1;
+                padding: 16px 14px 10px;
+                border-radius: 18px;
+                background: rgba(255,255,255,.14);
+                box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
+            }
+
+            .mobile-scorecard .range-row {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+
+            .mobile-scorecard .range {
+                width: 100%;
+                appearance: none;
+                height: 14px;
+                border-radius: 999px;
+                outline: none;
+                background: linear-gradient(90deg, rgba(255,255,255,.95) 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.35) 100%);
+                box-shadow: inset 0 3px 8px rgba(0,0,0,.18);
+            }
+
+                .mobile-scorecard .range:disabled {
+                    opacity: .7;
+                    cursor: not-allowed;
+                }
+
+                .mobile-scorecard .range::-webkit-slider-thumb {
+                    appearance: none;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 999px;
+                    background: #fff;
+                    border: 3px solid rgba(16,83,193,.55);
+                    box-shadow: 0 10px 16px rgba(0,0,0,.25);
+                    cursor: pointer;
+                }
+
+                .mobile-scorecard .range::-moz-range-thumb {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 999px;
+                    background: #fff;
+                    border: 3px solid rgba(16,83,193,.55);
+                    box-shadow: 0 10px 16px rgba(0,0,0,.25);
+                    cursor: pointer;
+                }
+
+            .mobile-scorecard .bottom {
+                margin-top: 16px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .mobile-scorecard .mini {
+                background: rgba(255,255,255,.95);
+                color: #0e2e7a;
+                border-radius: 18px;
+                padding: 12px 10px 10px;
+                box-shadow: 0 12px 24px rgba(0,0,0,.18);
+                border: 3px solid rgba(255,255,255,.30);
+                text-align: center;
+                min-height: 88px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 6px;
+            }
+
+                .mobile-scorecard .mini .label {
+                    font-size: 12.5px;
+                    font-weight: 900;
+                    letter-spacing: .2px;
+                    color: #0a2a72;
+                    opacity: .95;
+                }
+
+                .mobile-scorecard .mini .score {
+                    font-size: clamp(28px, 2.2vw, 34px);
+                    line-height: 1;
+                    font-weight: 900;
+                    color: #061f55;
+                }
+
+            .mobile-scorecard .qinfo {
+                margin-top: 14px;
+                position: relative;
+                z-index: 1;
+                padding: 14px 14px 12px;
+                border-radius: 18px;
+                background: rgba(255,255,255,.14);
+                box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
+            }
+
+                .mobile-scorecard .qinfo .qtitle {
+                    font-weight: 900;
+                    font-size: 13.5px;
+                    letter-spacing: .2px;
+                }
+
+                .mobile-scorecard .qinfo .qtext {
+                    margin-top: 6px;
+                    font-size: 13.5px;
+                    line-height: 1.35;
+                    opacity: .95;
+                }
+
+                .mobile-scorecard .qinfo .qmeta {
+                    margin-top: 10px;
+                    font-size: 12px;
+                    opacity: .82;
+                }
+
+        /* ===== On phone: make the blue score card a bit smaller ===== */
+        @media (max-width: 576px) {
+            .mobile-scorecard .score-card {
+                max-width: 520px;
+                padding: 18px 14px 14px;
+                border-radius: 24px;
+            }
+
+            .mobile-scorecard .overall {
+                min-width: 120px;
+            }
+
+                .mobile-scorecard .overall .value {
+                    font-size: clamp(46px, 12vw, 70px);
+                }
+
+            .mobile-scorecard .replay-btn {
+                width: 72px;
+                height: 72px;
+            }
+
+            .mobile-scorecard .mid {
+                margin-top: 14px;
+                padding: 14px 12px 10px;
+                border-radius: 16px;
+            }
+
+            .mobile-scorecard .mini {
+                min-height: 78px;
+                border-radius: 16px;
+                padding: 10px 10px 10px;
+            }
+
+            .mobile-scorecard .qinfo {
+                padding: 12px 12px 10px;
+                border-radius: 16px;
+            }
+
+                .mobile-scorecard .qinfo .qtitle {
+                    font-size: 13px;
+                }
+
+                .mobile-scorecard .qinfo .qtext {
+                    font-size: 13px;
+                }
+        }
+
+
+
+        /* ✅ Tabs tự xuống hàng khi thu nhỏ cửa sổ (override rules cũ) */
+        .tab-custom.nav-tabs {
+            border-bottom: 0;
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            overflow: visible !important;
+        }
+
+            /* giữ tab là 1 nút full width */
+            .tab-custom.nav-tabs .nav-item {
+                margin: 0;
+            }
+
+            .tab-custom.nav-tabs .nav-link {
+                width: 100%;
+                white-space: nowrap;
+            }
+
+
+
+        /* ===== New icon buttons style ===== */
+        .play-seg-btn,
+        .play-correct-btn{
+            width: 40px;
+            height: 40px;
+            padding: 0 !important;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            line-height: 1;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .play-seg-btn{
+            background: #0d6efd !important;
+            border: 1px solid #0d6efd !important;
+            color: #ffffff !important;
+        }
+
+        .play-correct-btn{
+            background: #ffffff !important;
+            border: 1px solid #0d6efd !important;
+            color: #0d6efd !important;
+        }
+
+        .play-seg-btn svg{
+            width: 18px;
+            height: 18px;
+            fill: #ffffff;
+        }
+
+        .play-correct-btn svg{
+            width: 18px;
+            height: 18px;
+            fill: #0d6efd;
+        }
+
+        .play-correct-btn.is-speaking{
+            opacity: .75;
+            transform: translateY(0.5px);
+        }
+
+        /* Mobile: slightly smaller */
+        @media (max-width: 767.98px){
+            .play-seg-btn,
+            .play-correct-btn{
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+            }
+        }
+
+        /* ===== Mobile: tabs above transcript + 2-2-1 layout ===== */
+        .right-stack{
+            display:flex;
+            flex-direction: column;
+        }
+        .right-stack > .transcript-panel{ order: 1; }
+        .right-stack > .attempt-tabs{ order: 2; }
+        .right-stack > .tab-content{ order: 3; }
+
+        @media (max-width: 991.98px){
+            .right-stack > .attempt-tabs{ order: 1; }
+            .right-stack > .transcript-panel{ order: 2; }
+
+            .attempt-tabs{
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                overflow: visible !important;
+                border-bottom: 0 !important;
+            }
+
+            .attempt-tabs .nav-item{
+                flex: initial !important;
+            }
+
+            .attempt-tabs .nav-link{
+                border-radius: 14px !important;
+                padding: 10px 10px !important;
+                white-space: normal !important;
+                border: 1px solid rgba(13,110,253,.15) !important;
+            }
+
+            .attempt-tabs .nav-item:last-child{
+                grid-column: 1 / -1;
+            }
+        }

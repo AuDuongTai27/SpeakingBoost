@@ -1,0 +1,455 @@
+@host  = https://localhost:7001
+
+# ================================================================
+#  Biến dùng chung — điền token sau khi đăng nhập
+# ================================================================
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+@auth  = Bearer {{token}}
+
+
+# ================================================================
+#  🔑  AUTH
+# ================================================================
+
+### [1] Đăng nhập → lấy JWT token
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "123456"
+}
+
+###
+
+### [2] Kiểm tra token còn hợp lệ + lấy thông tin user
+GET {{host}}/api/auth/me
+Authorization: {{auth}}
+
+###
+
+### [3] Quên mật khẩu — gửi mật khẩu mới về email
+POST {{host}}/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "student@gmail.com"
+}
+
+
+# ================================================================
+#  👤  ADMIN — Users  (api/admin/users)
+# ================================================================
+
+### [4] Danh sách tất cả người dùng
+GET {{host}}/api/admin/users
+Authorization: {{auth}}
+
+###
+
+### [5] Lấy 1 người dùng theo ID
+GET {{host}}/api/admin/users/1
+Authorization: {{auth}}
+
+###
+
+### [6] Tạo người dùng mới
+POST {{host}}/api/admin/users
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "fullName": "Nguyễn Văn Test",
+  "email": "test@gmail.com",
+  "role": "Student",
+  "password": "123456"
+}
+
+###
+
+### [7] Cập nhật thông tin người dùng
+PUT {{host}}/api/admin/users/2
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "fullName": "Nguyễn Văn A (updated)",
+  "email": "updated@gmail.com",
+  "role": "Student"
+}
+
+###
+
+### [8] Xóa người dùng
+DELETE {{host}}/api/admin/users/5
+Authorization: {{auth}}
+
+
+# ================================================================
+#  🏫  ADMIN — Classes  (api/admin/classes)
+# ================================================================
+
+### [9] Danh sách tất cả lớp học
+GET {{host}}/api/admin/classes
+Authorization: {{auth}}
+
+###
+
+### [10] Lấy 1 lớp theo ID
+GET {{host}}/api/admin/classes/1
+Authorization: {{auth}}
+
+###
+
+### [11] Tạo lớp mới
+POST {{host}}/api/admin/classes
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "className": "IELTS Speaking A1",
+  "teacherId": 1
+}
+
+###
+
+### [12] Cập nhật lớp học
+PUT {{host}}/api/admin/classes/1
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "className": "IELTS Speaking A1 (Updated)",
+  "teacherId": 1
+}
+
+###
+
+### [13] Xóa lớp học
+DELETE {{host}}/api/admin/classes/3
+Authorization: {{auth}}
+
+###
+
+### [14] Chi tiết lớp (danh sách học sinh + bài tập đã gán)
+GET {{host}}/api/admin/classes/1/details
+Authorization: {{auth}}
+
+###
+
+### [15] Thêm học sinh vào lớp
+POST {{host}}/api/admin/classes/1/students
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "studentId": 4
+}
+
+###
+
+### [16] Xóa học sinh khỏi lớp (studentClassId)
+DELETE {{host}}/api/admin/classes/1/students/7
+Authorization: {{auth}}
+
+###
+
+### [17] Gán bài tập cho lớp
+POST {{host}}/api/admin/classes/1/exercises
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "exerciseId": 2,
+  "deadline": "2025-05-31T23:59:00"
+}
+
+###
+
+### [18] Gỡ bài tập khỏi lớp (classExerciseId)
+DELETE {{host}}/api/admin/classes/1/exercises/5
+Authorization: {{auth}}
+
+###
+
+### [19] Cập nhật deadline của bài tập trong lớp
+PATCH {{host}}/api/admin/classes/exercises/5/deadline
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "deadline": "2025-06-15T23:59:00"
+}
+
+
+# ================================================================
+#  👩‍🎓  ADMIN — Students  (api/admin/students)
+# ================================================================
+
+### [20] Tổng quan tất cả học sinh (bài nộp, trễ, thiếu)
+GET {{host}}/api/admin/students
+Authorization: {{auth}}
+
+###
+
+### [21] Chi tiết 1 học sinh
+GET {{host}}/api/admin/students/3/details
+Authorization: {{auth}}
+
+###
+
+### [22] Lịch sử nộp bài của học sinh theo bài tập
+GET {{host}}/api/admin/students/3/exercises/2/history
+Authorization: {{auth}}
+
+###
+
+### [23] Chi tiết 1 bài nộp (admin view)
+GET {{host}}/api/admin/submissions/10
+Authorization: {{auth}}
+
+
+# ================================================================
+#  📝  ADMIN — Tests / Topics  (api/admin/tests)
+# ================================================================
+
+### [24] Danh sách tất cả chủ đề
+GET {{host}}/api/admin/tests/topics
+Authorization: {{auth}}
+
+###
+
+### [25] Chi tiết 1 chủ đề (kèm danh sách câu hỏi)
+GET {{host}}/api/admin/tests/topics/1
+Authorization: {{auth}}
+
+###
+
+### [26] Tạo chủ đề mới
+POST {{host}}/api/admin/tests/topics
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "name": "Environment & Nature",
+  "description": "Bộ đề dự đoán Q2/2025"
+}
+
+###
+
+### [27] Xóa chủ đề
+DELETE {{host}}/api/admin/tests/topics/3
+Authorization: {{auth}}
+
+###
+
+### [28] Lấy 1 câu hỏi (exercise) theo ID
+GET {{host}}/api/admin/tests/exercises/5
+Authorization: {{auth}}
+
+###
+
+### [29] Thêm câu hỏi vào chủ đề
+POST {{host}}/api/admin/tests/topics/1/exercises
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "title": "Describe your hometown",
+  "type": "Part2",
+  "question": "Describe the town or city where you grew up. You should say: where it is, what it looks like, what people do there and explain what you like or dislike about it.",
+  "sampleAnswer": "I grew up in Hanoi, the capital of Vietnam...",
+  "maxAttempts": 3,
+  "topicId": 1
+}
+
+###
+
+### [30] Cập nhật câu hỏi
+PUT {{host}}/api/admin/tests/exercises/5
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "title": "Describe your hometown (updated)",
+  "type": "Part2",
+  "question": "Updated question content...",
+  "sampleAnswer": null,
+  "maxAttempts": 5,
+  "topicId": 1
+}
+
+###
+
+### [31] Xóa câu hỏi
+DELETE {{host}}/api/admin/tests/exercises/5
+Authorization: {{auth}}
+
+###
+
+### [32] Import câu hỏi từ Excel (multipart — dùng curl hoặc Postman)
+# POST {{host}}/api/admin/tests/topics/1/import
+# Authorization: {{auth}}
+# Content-Type: multipart/form-data; boundary=----boundary
+# Body: file=@Mau_Import_Cau_Hoi.xlsx
+
+
+# ================================================================
+#  ⏰  ADMIN — Deadlines  (api/admin/deadlines)
+# ================================================================
+
+### [33] Danh sách deadline đang chạy + dropdowns
+GET {{host}}/api/admin/deadlines
+Authorization: {{auth}}
+
+###
+
+### [34] Gán bài hàng loạt theo chủ đề
+POST {{host}}/api/admin/deadlines/bulk
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "classId": 1,
+  "deadline": "2025-05-31T23:59:00",
+  "assignMode": "Topic",
+  "selectedTopicId": 2,
+  "selectedExerciseIds": []
+}
+
+###
+
+### [35] Gán bài hàng loạt — tùy chọn bài tập
+POST {{host}}/api/admin/deadlines/bulk
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "classId": 1,
+  "deadline": "2025-05-31T23:59:00",
+  "assignMode": "Custom",
+  "selectedTopicId": null,
+  "selectedExerciseIds": [3, 5, 7]
+}
+
+###
+
+### [36] Xóa 1 deadline (classExerciseId)
+DELETE {{host}}/api/admin/deadlines/4
+Authorization: {{auth}}
+
+###
+
+### [37] Xem tất cả lớp đã gán cho 1 bài tập
+GET {{host}}/api/admin/deadlines/exercise/2
+Authorization: {{auth}}
+
+###
+
+### [38] Upsert deadline cho (exerciseId, classId)
+POST {{host}}/api/admin/deadlines/exercise/2/class
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "classId": 1,
+  "deadline": "2025-06-30T23:59:00"
+}
+
+
+# ================================================================
+#  📖  ADMIN — Vocabulary  (api/admin/vocabulary)
+# ================================================================
+
+### [39] Danh sách từ vựng (tất cả hoặc theo topicId)
+GET {{host}}/api/admin/vocabulary
+Authorization: {{auth}}
+
+###
+
+### [40] Lọc từ vựng theo chủ đề
+GET {{host}}/api/admin/vocabulary?topicId=1
+Authorization: {{auth}}
+
+###
+
+### [41] Thêm từ vựng mới
+POST {{host}}/api/admin/vocabulary
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "word": "environment",
+  "meaning": "môi trường",
+  "example": "We must protect our environment.",
+  "note": null,
+  "topicId": 1
+}
+
+###
+
+### [42] Xóa từ vựng
+DELETE {{host}}/api/admin/vocabulary/8
+Authorization: {{auth}}
+
+###
+
+### [43] Danh sách chủ đề từ vựng (kèm số lượng từ)
+GET {{host}}/api/admin/vocabulary/topics
+Authorization: {{auth}}
+
+###
+
+### [44] Từ vựng của 1 chủ đề
+GET {{host}}/api/admin/vocabulary/topics/1
+Authorization: {{auth}}
+
+###
+
+### [45] Import từ vựng từ Excel (multipart — dùng curl hoặc Postman)
+# POST {{host}}/api/admin/vocabulary/import
+# Authorization: {{auth}}
+# Content-Type: multipart/form-data
+# Body: excelFile=@Mau_Import_Tu_Vung.xlsx, importTopicId=1
+
+
+# ================================================================
+#  📊  ADMIN — Dashboard  (api/admin/dashboard)
+# ================================================================
+
+### [46] Dashboard tổng quan (lớp mới nhất)
+GET {{host}}/api/admin/dashboard
+Authorization: {{auth}}
+
+###
+
+### [47] Dashboard theo lớp cụ thể
+GET {{host}}/api/admin/dashboard?classId=1
+Authorization: {{auth}}
+
+
+# ================================================================
+#  🎙️  STUDENT — Practice  (api/student/practice)
+# ================================================================
+
+### [48] Danh sách chủ đề luyện tập
+GET {{host}}/api/student/practice/topics
+Authorization: {{auth}}
+
+###
+
+### [49] Danh sách chủ đề theo Part
+GET {{host}}/api/student/practice/topics?part=1
+Authorization: {{auth}}
+
+###
+
+### [50] Câu hỏi của 1 chủ đề
+GET {{host}}/api/student/practice/topics/1
+Authorization: {{auth}}
+
+###
+
+### [51] Trạng thái bài nộp (polling sau khi upload audio)
+GET {{host}}/api/student/submissions/10/status
+Authorization: {{auth}}
