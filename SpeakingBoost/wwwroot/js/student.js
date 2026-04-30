@@ -81,7 +81,7 @@ function renderStudentSidebar(activeId = '') {
     ];
 
     let html = `<nav id="sidebar">
-        <div class="sidebar-brand">
+        <div class="sidebar-brand" style="cursor:pointer;" onclick="window.location.href='/student/profile.html'">
             <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
             <div><span>SpeakingBoost</span><small>Học sinh</small></div>
         </div>`;
@@ -99,13 +99,13 @@ function renderStudentSidebar(activeId = '') {
     }
 
     html += `<div class="sidebar-footer">
-            <div class="user-card">
+            <div class="user-card" style="cursor:pointer;" onclick="window.location.href='/student/profile.html'">
                 <div class="user-avatar" id="sidebarAvatar">S</div>
                 <div class="user-info">
                     <div class="name" id="sidebarName">...</div>
                     <span class="role-badge">Học sinh</span>
                 </div>
-                <button class="btn-logout" onclick="AuthGuard.logout()" title="Đăng xuất">
+                <button class="btn-logout" onclick="event.stopPropagation(); AuthGuard.logout()" title="Đăng xuất">
                     <i class="bi bi-box-arrow-right"></i>
                 </button>
             </div>
@@ -122,7 +122,7 @@ function renderStudentTopbar(title = '') {
         </button>
         <span class="topbar-title">${title}</span>
         <div class="topbar-right">
-            <div class="topbar-user">
+            <div class="topbar-user" style="cursor:pointer;" onclick="window.location.href='/student/profile.html'">
                 <div class="topbar-avatar" id="topbarAvatar">S</div>
                 <span id="topbarName">...</span>
             </div>

@@ -42,4 +42,17 @@ namespace SpeakingBoost.Models.DTOs.Auth
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
         public string Email { get; set; } = string.Empty;
     }
+
+    /// <summary>
+    /// Body gửi lên khi cập nhật profile cá nhân
+    /// PUT /api/profile
+    /// </summary>
+    public class UpdateProfileRequest
+    {
+        [Required(ErrorMessage = "Họ tên là bắt buộc")]
+        [StringLength(100, ErrorMessage = "Họ tên quá dài")]
+        public string FullName { get; set; } = string.Empty;
+
+        public string? Password { get; set; }
+    }
 }

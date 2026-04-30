@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,145 +11,292 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sidebar-bg:    #0f172a;
-            --sidebar-w:     260px;
-            --accent:        #6366f1;
-            --accent-2:      #06b6d4;
-            --navbar-h:      64px;
-            --text-muted:    rgba(255,255,255,0.45);
-            --item-hover:    rgba(255,255,255,0.07);
-            --item-active:   rgba(99,102,241,0.25);
+            --sidebar-bg: #0f172a;
+            --sidebar-w: 260px;
+            --accent: #6366f1;
+            --accent-2: #06b6d4;
+            --navbar-h: 64px;
+            --text-muted: rgba(255, 255, 255, 0.45);
+            --item-hover: rgba(255, 255, 255, 0.07);
+            --item-active: rgba(99, 102, 241, 0.25);
         }
-        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-        body { background: #f1f5f9; margin: 0; overflow-x: hidden; }
+
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f1f5f9;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
         /* ── Overlay loading ── */
         #pageLoader {
-            position: fixed; inset: 0; z-index: 9999;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
             background: #0f172a;
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column; gap: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
             transition: opacity 0.4s;
         }
+
         #pageLoader .logo-spin {
-            width: 56px; height: 56px;
+            width: 56px;
+            height: 56px;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem; color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #fff;
             animation: pulse 1.2s ease-in-out infinite;
         }
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-        #pageLoader p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0; }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.08)
+            }
+        }
+
+        #pageLoader p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin: 0;
+        }
 
         /* ── Sidebar ── */
         #sidebar {
-            position: fixed; top: 0; left: 0;
-            width: var(--sidebar-w); height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
             background: var(--sidebar-bg);
-            z-index: 1040; overflow-y: auto;
-            display: flex; flex-direction: column;
+            z-index: 1040;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
             transition: transform 0.3s ease;
-            border-right: 1px solid rgba(255,255,255,0.06);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
         }
-        #sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
+
+        #sidebar.collapsed {
+            transform: translateX(calc(-1 * var(--sidebar-w)));
+        }
+
         .sidebar-brand {
             padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            display: flex; align-items: center; gap: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
+
         .sidebar-brand .brand-icon {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: #fff; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #fff;
+            flex-shrink: 0;
         }
-        .sidebar-brand span { color: #fff; font-weight: 700; font-size: 1.05rem; }
-        .sidebar-brand small { color: var(--text-muted); font-size: 0.72rem; display: block; }
+
+        .sidebar-brand span {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .sidebar-brand small {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            display: block;
+        }
 
         .nav-section {
             padding: 1.25rem 1rem 0.5rem;
-            font-size: 0.68rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.08em;
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
             color: var(--text-muted);
         }
+
         .nav-item-link {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.65rem 1rem; margin: 0.1rem 0.5rem;
-            border-radius: 8px; color: rgba(255,255,255,0.65);
-            text-decoration: none; font-size: 0.9rem; font-weight: 450;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 1rem;
+            margin: 0.1rem 0.5rem;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 450;
             transition: all 0.18s;
         }
-        .nav-item-link:hover { background: var(--item-hover); color: #fff; }
+
+        .nav-item-link:hover {
+            background: var(--item-hover);
+            color: #fff;
+        }
+
         .nav-item-link.active {
             background: var(--item-active);
-            color: #fff; font-weight: 600;
+            color: #fff;
+            font-weight: 600;
             border-left: 3px solid var(--accent);
             padding-left: calc(1rem - 3px);
         }
-        .nav-item-link i { font-size: 1rem; flex-shrink: 0; }
+
+        .nav-item-link i {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
 
         .sidebar-footer {
-            margin-top: auto; padding: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.07);
+            margin-top: auto;
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
         }
+
         .user-card {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.75rem; border-radius: 10px;
-            background: rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
         }
+
         .user-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem; color: #fff; font-weight: 600; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #fff;
+            font-weight: 600;
+            flex-shrink: 0;
         }
-        .user-info .name { color: #fff; font-size: 0.875rem; font-weight: 600; }
+
+        .user-info .name {
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
         .user-info .role-badge {
-            font-size: 0.7rem; padding: 0.15rem 0.45rem;
-            border-radius: 4px; background: rgba(99,102,241,0.3);
-            color: #a5b4fc; font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            font-weight: 600;
         }
+
         .btn-logout {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; padding: 0.25rem; transition: color 0.2s;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s;
             margin-left: auto;
         }
-        .btn-logout:hover { color: #f87171; }
+
+        .btn-logout:hover {
+            color: #f87171;
+        }
 
         /* ── Topbar ── */
         #topbar {
-            position: fixed; top: 0; right: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
             left: var(--sidebar-w);
-            height: var(--navbar-h); z-index: 1030;
+            height: var(--navbar-h);
+            z-index: 1030;
             background: #fff;
-            box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-            display: flex; align-items: center;
-            padding: 0 1.5rem; gap: 1rem;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            gap: 1rem;
             transition: left 0.3s ease;
         }
-        #topbar.sidebar-collapsed { left: 0; }
+
+        #topbar.sidebar-collapsed {
+            left: 0;
+        }
+
         .topbar-toggle {
-            background: none; border: none;
-            color: #64748b; font-size: 1.2rem;
-            cursor: pointer; padding: 0.3rem;
-            border-radius: 6px; transition: background 0.2s;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: 6px;
+            transition: background 0.2s;
         }
-        .topbar-toggle:hover { background: #f1f5f9; }
+
+        .topbar-toggle:hover {
+            background: #f1f5f9;
+        }
+
         .topbar-title {
-            font-weight: 600; color: #1e293b; font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
         }
-        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
         .topbar-user {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-size: 0.875rem; color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #475569;
         }
+
         .topbar-avatar {
-            width: 34px; height: 34px; border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; color: #fff; font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #fff;
+            font-weight: 600;
         }
 
         /* ── Main content ── */
@@ -158,332 +306,434 @@
             min-height: 100vh;
             transition: margin-left 0.3s ease;
         }
-        #main.sidebar-collapsed { margin-left: 0; }
-        .page-content { padding: 1.75rem; }
+
+        #main.sidebar-collapsed {
+            margin-left: 0;
+        }
+
+        .page-content {
+            padding: 1.75rem;
+        }
 
         /* ── Stats cards ── */
         .stat-card {
-            background: #fff; border-radius: 14px;
+            background: #fff;
+            border-radius: 14px;
             padding: 1.25rem 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-            display: flex; align-items: center; gap: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .stat-icon {
-            width: 52px; height: 52px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; flex-shrink: 0;
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        .stat-value { font-size: 1.8rem; font-weight: 700; color: #0f172a; line-height: 1; }
-        .stat-label { font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; }
-        .stat-delta { font-size: 0.75rem; font-weight: 600; margin-top: 0.3rem; }
-        .delta-up   { color: #10b981; }
-        .delta-dn   { color: #ef4444; }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.2rem;
+        }
+
+        .stat-delta {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.3rem;
+        }
+
+        .delta-up {
+            color: #10b981;
+        }
+
+        .delta-dn {
+            color: #ef4444;
+        }
 
         /* ── Quick links ── */
         .quick-card {
-            background: #fff; border-radius: 14px; padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            display: flex; align-items: center; gap: 1rem;
-            text-decoration: none; color: inherit;
-            transition: all 0.2s; border: 1px solid transparent;
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
+
         .quick-card:hover {
             border-color: var(--accent);
-            box-shadow: 0 4px 20px rgba(99,102,241,0.12);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12);
             transform: translateY(-2px);
         }
+
         .quick-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.25rem; flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
         }
-        .quick-label { font-weight: 600; color: #1e293b; font-size: 0.9rem; }
-        .quick-desc  { font-size: 0.78rem; color: #64748b; }
+
+        .quick-label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+
+        .quick-desc {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
 
         /* ── Welcome banner ── */
         .welcome-banner {
             background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
-            border-radius: 16px; padding: 1.75rem 2rem;
-            color: #fff; margin-bottom: 1.75rem;
-            display: flex; align-items: center; justify-content: space-between;
-            position: relative; overflow: hidden;
+            border-radius: 16px;
+            padding: 1.75rem 2rem;
+            color: #fff;
+            margin-bottom: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
         }
+
         .welcome-banner::before {
-            content: ''; position: absolute; right: -40px; top: -40px;
-            width: 200px; height: 200px; border-radius: 50%;
-            background: rgba(255,255,255,0.08);
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
         }
-        .welcome-banner h2 { font-size: 1.35rem; font-weight: 700; margin: 0; }
-        .welcome-banner p  { margin: 0.25rem 0 0; opacity: 0.8; font-size: 0.875rem; }
-        .welcome-icon { font-size: 3.5rem; opacity: 0.25; }
+
+        .welcome-banner h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .welcome-banner p {
+            margin: 0.25rem 0 0;
+            opacity: 0.8;
+            font-size: 0.875rem;
+        }
+
+        .welcome-icon {
+            font-size: 3.5rem;
+            opacity: 0.25;
+        }
 
         /* ── Responsive ── */
         @media (max-width: 768px) {
-            #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
-            #sidebar.open { transform: translateX(0); }
-            #topbar { left: 0 !important; }
-            #main   { margin-left: 0 !important; }
+            #sidebar {
+                transform: translateX(calc(-1 * var(--sidebar-w)));
+            }
+
+            #sidebar.open {
+                transform: translateX(0);
+            }
+
+            #topbar {
+                left: 0 !important;
+            }
+
+            #main {
+                margin-left: 0 !important;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<!-- Loading overlay -->
-<div id="pageLoader">
-    <div class="logo-spin"><i class="bi bi-mic-fill"></i></div>
-    <p>Đang xác thực...</p>
-</div>
+    <!-- Loading overlay -->
+    <div id="pageLoader">
+        <div class="logo-spin"><i class="bi bi-mic-fill"></i></div>
+        <p>Đang xác thực...</p>
+    </div>
 
-<!-- ═══════════════════════════════════════
+    <!-- ═══════════════════════════════════════
      SIDEBAR
 ═══════════════════════════════════════ -->
-<nav id="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
-        <div>
-            <span>SpeakingBoost</span>
-            <small>Admin Portal</small>
-        </div>
-    </div>
-
-    <div class="nav-section">Tổng quan</div>
-    <a href="/admin/dashboard.html" class="nav-item-link active" id="nav-dashboard">
-        <i class="bi bi-speedometer2"></i> Dashboard
-    </a>
-
-    <div class="nav-section">Quản lý</div>
-    <a href="/admin/users.html" class="nav-item-link" id="nav-users">
-        <i class="bi bi-people-fill"></i> Người dùng
-    </a>
-    <a href="/admin/classes.html" class="nav-item-link" id="nav-classes">
-        <i class="bi bi-building"></i> Lớp học
-    </a>
-    <a href="/admin/tests.html" class="nav-item-link" id="nav-tests">
-        <i class="bi bi-journal-text"></i> Đề thi
-    </a>
-    <a href="/admin/deadlines.html" class="nav-item-link" id="nav-deadlines">
-        <i class="bi bi-clock-history"></i> Deadline
-    </a>
-
-    <div class="nav-section">Nội dung</div>
-    <a href="/admin/vocabulary.html" class="nav-item-link" id="nav-vocab">
-        <i class="bi bi-book"></i> Từ vựng
-    </a>
-
-    <div class="sidebar-footer">
-        <div class="user-card">
-            <div class="user-avatar" id="sidebarAvatar">A</div>
-            <div class="user-info">
-                <div class="name" id="sidebarName">...</div>
-                <span class="role-badge" id="sidebarRole">Admin</span>
+    <nav id="sidebar">
+        <div class="sidebar-brand" style="cursor:pointer;" onclick="window.location.href='/admin/profile.html'">
+            <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
+            <div>
+                <span>SpeakingBoost</span>
+                <small>Admin Portal</small>
             </div>
-            <button class="btn-logout" onclick="AuthGuard.logout()" title="Đăng xuất">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
         </div>
-    </div>
-</nav>
 
-<!-- ═══════════════════════════════════════
+        <div class="nav-section">Tổng quan</div>
+        <a href="/admin/dashboard.html" class="nav-item-link active" id="nav-dashboard">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <div class="nav-section">Quản lý</div>
+        <a href="/admin/users.html" class="nav-item-link" id="nav-users">
+            <i class="bi bi-people-fill"></i> Người dùng
+        </a>
+        <a href="/admin/classes.html" class="nav-item-link" id="nav-classes">
+            <i class="bi bi-building"></i> Lớp học
+        </a>
+        <a href="/admin/tests.html" class="nav-item-link" id="nav-tests">
+            <i class="bi bi-journal-text"></i> Đề thi
+        </a>
+        <a href="/admin/deadlines.html" class="nav-item-link" id="nav-deadlines">
+            <i class="bi bi-clock-history"></i> Deadline
+        </a>
+
+        <div class="nav-section">Nội dung</div>
+        <a href="/admin/vocabulary.html" class="nav-item-link" id="nav-vocab">
+            <i class="bi bi-book"></i> Từ vựng
+        </a>
+
+        <div class="sidebar-footer">
+            <div class="user-card" style="cursor:pointer;" onclick="window.location.href='/admin/profile.html'">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="name" id="sidebarName">...</div>
+                    <span class="role-badge" id="sidebarRole">Admin</span>
+                </div>
+                <button class="btn-logout" onclick="event.stopPropagation(); AuthGuard.logout()" title="Đăng xuất">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════
      TOPBAR
 ═══════════════════════════════════════ -->
-<header id="topbar">
-    <button class="topbar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-        <i class="bi bi-list"></i>
-    </button>
-    <span class="topbar-title" id="topbarTitle">Dashboard</span>
-    <div class="topbar-right">
-        <div class="topbar-user">
-            <div class="topbar-avatar" id="topbarAvatar">A</div>
-            <span id="topbarName">...</span>
+    <header id="topbar">
+        <button class="topbar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="bi bi-list"></i>
+        </button>
+        <span class="topbar-title" id="topbarTitle">Dashboard</span>
+        <div class="topbar-right">
+            <div class="topbar-user" style="cursor:pointer;" onclick="window.location.href='/admin/profile.html'">
+                <div class="topbar-avatar" id="topbarAvatar">A</div>
+                <span id="topbarName">...</span>
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<!-- ═══════════════════════════════════════
+    <!-- ═══════════════════════════════════════
      MAIN CONTENT
 ═══════════════════════════════════════ -->
-<main id="main">
-    <div class="page-content">
+    <main id="main">
+        <div class="page-content">
 
-        <!-- Welcome Banner -->
-        <div class="welcome-banner">
-            <div>
-                <h2 id="welcomeMsg">Chào mừng trở lại! 👋</h2>
-                <p id="welcomeSubMsg">Quản lý hệ thống luyện IELTS Speaking</p>
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div>
+                    <h2 id="welcomeMsg">Chào mừng trở lại! 👋</h2>
+                    <p id="welcomeSubMsg">Quản lý hệ thống luyện IELTS Speaking</p>
+                </div>
+                <i class="bi bi-shield-check welcome-icon"></i>
             </div>
-            <i class="bi bi-shield-check welcome-icon"></i>
+
+            <!-- Stat Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#ede9fe;">
+                            <i class="bi bi-people-fill" style="color:#6366f1;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Người dùng</div>
+                            <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#e0f2fe;">
+                            <i class="bi bi-building" style="color:#0284c7;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Lớp học</div>
+                            <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fef3c7;">
+                            <i class="bi bi-journal-text" style="color:#d97706;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Bài tập</div>
+                            <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#dcfce7;">
+                            <i class="bi bi-file-earmark-check" style="color:#16a34a;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Bài nộp hôm nay</div>
+                            <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h6 class="fw-600 text-secondary mb-3"
+                style="font-size:0.8rem;letter-spacing:0.05em;text-transform:uppercase;">
+                Truy cập nhanh
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-4 col-lg-3">
+                    <a href="/admin/users.html" class="quick-card">
+                        <div class="quick-icon" style="background:#ede9fe;">
+                            <i class="bi bi-person-plus-fill" style="color:#6366f1;"></i>
+                        </div>
+                        <div>
+                            <div class="quick-label">Người dùng</div>
+                            <div class="quick-desc">Tạo tài khoản student / teacher</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="/admin/classes.html" class="quick-card">
+                        <div class="quick-icon" style="background:#e0f2fe;">
+                            <i class="bi bi-plus-circle-fill" style="color:#0284c7;"></i>
+                        </div>
+                        <div>
+                            <div class="quick-label">Lớp học</div>
+                            <div class="quick-desc">Thêm lớp mới và phân công giáo viên</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="/admin/tests.html" class="quick-card">
+                        <div class="quick-icon" style="background:#fef3c7;">
+                            <i class="bi bi-file-earmark-plus-fill" style="color:#d97706;"></i>
+                        </div>
+                        <div>
+                            <div class="quick-label">Đề thi</div>
+                            <div class="quick-desc">Quản lý chủ đề và câu hỏi</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="/admin/deadlines.html" class="quick-card">
+                        <div class="quick-icon" style="background:#fce7f3;">
+                            <i class="bi bi-clock-history" style="color:#db2777;"></i>
+                        </div>
+                        <div>
+                            <div class="quick-label">Deadline</div>
+                            <div class="quick-desc">Gán bài tập và theo dõi hạn nộp</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="/admin/vocabulary.html" class="quick-card">
+                        <div class="quick-icon" style="background:#dcfce7;">
+                            <i class="bi bi-book-fill" style="color:#16a34a;"></i>
+                        </div>
+                        <div>
+                            <div class="quick-label">Từ vựng</div>
+                            <div class="quick-desc">Quản lý từ vựng theo chủ đề</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
         </div>
+    </main>
 
-        <!-- Stat Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-sm-6 col-xl-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#ede9fe;">
-                        <i class="bi bi-people-fill" style="color:#6366f1;"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Người dùng</div>
-                        <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-xl-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#e0f2fe;">
-                        <i class="bi bi-building" style="color:#0284c7;"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Lớp học</div>
-                        <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-xl-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#fef3c7;">
-                        <i class="bi bi-journal-text" style="color:#d97706;"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Bài tập</div>
-                        <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-xl-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#dcfce7;">
-                        <i class="bi bi-file-earmark-check" style="color:#16a34a;"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Bài nộp hôm nay</div>
-                        <div class="stat-delta delta-up"><i class="bi bi-arrow-up-short"></i>Đang tải...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        // ── 1. Auth Guard ─────────────────────────────────────────────────
+        // Chỉ cho phép teacher và superadmin vào trang này
+        AuthGuard.require(['teacher', 'superadmin']);
 
-        <!-- Quick Actions -->
-        <h6 class="fw-600 text-secondary mb-3" style="font-size:0.8rem;letter-spacing:0.05em;text-transform:uppercase;">
-            Truy cập nhanh
-        </h6>
-        <div class="row g-3">
-            <div class="col-md-4 col-lg-3">
-                <a href="/admin/users.html" class="quick-card">
-                    <div class="quick-icon" style="background:#ede9fe;">
-                        <i class="bi bi-person-plus-fill" style="color:#6366f1;"></i>
-                    </div>
-                    <div>
-                        <div class="quick-label">Người dùng</div>
-                        <div class="quick-desc">Tạo tài khoản student / teacher</div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <a href="/admin/classes.html" class="quick-card">
-                    <div class="quick-icon" style="background:#e0f2fe;">
-                        <i class="bi bi-plus-circle-fill" style="color:#0284c7;"></i>
-                    </div>
-                    <div>
-                        <div class="quick-label">Lớp học</div>
-                        <div class="quick-desc">Thêm lớp mới và phân công giáo viên</div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <a href="/admin/tests.html" class="quick-card">
-                    <div class="quick-icon" style="background:#fef3c7;">
-                        <i class="bi bi-file-earmark-plus-fill" style="color:#d97706;"></i>
-                    </div>
-                    <div>
-                        <div class="quick-label">Đề thi</div>
-                        <div class="quick-desc">Quản lý chủ đề và câu hỏi</div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <a href="/admin/deadlines.html" class="quick-card">
-                    <div class="quick-icon" style="background:#fce7f3;">
-                        <i class="bi bi-clock-history" style="color:#db2777;"></i>
-                    </div>
-                    <div>
-                        <div class="quick-label">Deadline</div>
-                        <div class="quick-desc">Gán bài tập và theo dõi hạn nộp</div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <a href="/admin/vocabulary.html" class="quick-card">
-                    <div class="quick-icon" style="background:#dcfce7;">
-                        <i class="bi bi-book-fill" style="color:#16a34a;"></i>
-                    </div>
-                    <div>
-                        <div class="quick-label">Từ vựng</div>
-                        <div class="quick-desc">Quản lý từ vựng theo chủ đề</div>
-                    </div>
-                </a>
-            </div>
-        </div>
+        // ── 2. Sau khi guard pass, cập nhật UI ───────────────────────────
+        AuthGuard.onReady(user => {
+            const name = user.fullName || 'Admin';
+            const role = (user.role || '').trim().toLowerCase();
+            const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            const roleLabel = role === 'superadmin' ? 'Super Admin' : 'Giáo viên';
 
-    </div>
-</main>
+            // Sidebar
+            document.getElementById('sidebarName').textContent = name;
+            document.getElementById('sidebarRole').textContent = roleLabel;
+            document.getElementById('sidebarAvatar').textContent = initials;
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/auth.js"></script>
-<script>
-    // ── 1. Auth Guard ─────────────────────────────────────────────────
-    // Chỉ cho phép teacher và superadmin vào trang này
-    AuthGuard.require(['teacher', 'superadmin']);
+            // Topbar
+            document.getElementById('topbarName').textContent = name;
+            document.getElementById('topbarAvatar').textContent = initials;
 
-    // ── 2. Sau khi guard pass, cập nhật UI ───────────────────────────
-    AuthGuard.onReady(user => {
-        const name   = user.fullName || 'Admin';
-        const role   = (user.role || '').trim().toLowerCase();
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
-        const roleLabel = role === 'superadmin' ? 'Super Admin' : 'Giáo viên';
+            // Welcome
+            document.getElementById('welcomeMsg').textContent = `Chào mừng, ${name}! 👋`;
+            document.getElementById('welcomeSubMsg').textContent = `Bạn đang đăng nhập với quyền ${roleLabel}`;
 
-        // Sidebar
-        document.getElementById('sidebarName').textContent   = name;
-        document.getElementById('sidebarRole').textContent   = roleLabel;
-        document.getElementById('sidebarAvatar').textContent = initials;
+            // Ẩn loading overlay
+            const loader = document.getElementById('pageLoader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 400);
+        });
 
-        // Topbar
-        document.getElementById('topbarName').textContent   = name;
-        document.getElementById('topbarAvatar').textContent = initials;
+        // ── 3. Toggle Sidebar ─────────────────────────────────────────────
+        let sidebarOpen = window.innerWidth >= 768;
 
-        // Welcome
-        document.getElementById('welcomeMsg').textContent    = `Chào mừng, ${name}! 👋`;
-        document.getElementById('welcomeSubMsg').textContent = `Bạn đang đăng nhập với quyền ${roleLabel}`;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const topbar = document.getElementById('topbar');
+            const main = document.getElementById('main');
 
-        // Ẩn loading overlay
-        const loader = document.getElementById('pageLoader');
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 400);
-    });
-
-    // ── 3. Toggle Sidebar ─────────────────────────────────────────────
-    let sidebarOpen = window.innerWidth >= 768;
-
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const topbar  = document.getElementById('topbar');
-        const main    = document.getElementById('main');
-
-        if (window.innerWidth >= 768) {
-            sidebarOpen = !sidebarOpen;
-            sidebar.classList.toggle('collapsed', !sidebarOpen);
-            topbar.classList.toggle('sidebar-collapsed', !sidebarOpen);
-            main.classList.toggle('sidebar-collapsed', !sidebarOpen);
-        } else {
-            sidebar.classList.toggle('open');
+            if (window.innerWidth >= 768) {
+                sidebarOpen = !sidebarOpen;
+                sidebar.classList.toggle('collapsed', !sidebarOpen);
+                topbar.classList.toggle('sidebar-collapsed', !sidebarOpen);
+                main.classList.toggle('sidebar-collapsed', !sidebarOpen);
+            } else {
+                sidebar.classList.toggle('open');
+            }
         }
-    }
-</script>
+    </script>
 </body>
+
 </html>
