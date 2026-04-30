@@ -1,5 +1,9 @@
-let dbVocabs = [];
-
+/**
+ * deadline-question.js
+ * Giống practice-question.js nhưng:
+ *  - Dùng analyzeUrl từ practiceData (trỏ về DeadlineSpeaking/Analyze)
+ *  - Gửi thêm classExerciseId khi submit
+ */
 document.addEventListener("DOMContentLoaded", () => {
     const questions = document.querySelectorAll('.question-item');
 
@@ -20,33 +24,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const exercisePickerList = document.getElementById("exercisePickerList");
 
-    // KHÔI PHỤC HÀM BỊ MẤT: isMobile
     function isMobile() {
         return window.matchMedia && window.matchMedia("(max-width: 991.98px)").matches;
     }
 
-    // HÀM CO GIÃN CHỮ: Rất an toàn, mượt mà, không bao giờ gây treo máy
-    // HÀM TỰ ĐỘNG THU NHỎ CHỮ TRÊN MOBILE
     function fitQuestionText() {
         if (!questionText) return;
         if (!isMobile()) {
             questionText.style.removeProperty("font-size");
+            questionText.style.overflowY = "auto";
             return;
         }
-        const len = (questionText.textContent || "").trim().length;
-        // Chỉ điều chỉnh sơ bộ cho khung câu hỏi chính
-        let size = len > 200 ? "14px" : (len > 100 ? "15px" : "17px");
-        questionText.style.setProperty("font-size", size, "important");
-        questionText.style.setProperty("max-height", "none", "important");
-        questionText.style.setProperty("overflow", "visible", "important");
+        questionText.style.overflowY = "hidden";
+        questionText.style.fontSize = "16px";
+        const minPx = 12;
+        let cur = parseFloat(getComputedStyle(questionText).fontSize) || 16;
+        for (let i = 0; i < 30; i++) {
+            if (questionText.scrollHeight <= questionText.clientHeight + 1) break;
+            cur -= 1;
+            if (cur <= minPx) { cur = minPx; break; }
+            questionText.style.fontSize = cur + "px";
+        }
+        if (questionText.scrollHeight > questionText.clientHeight + 1) {
+            questionText.style.overflowY = "auto";
+        }
     }
-
 
     function setupMarqueeForItem(item) {
         const titleWrap = item.querySelector('.q-title');
         const titleInner = item.querySelector('.q-title-inner');
         if (!titleWrap || !titleInner) return;
-
         const measure = () => {
             const distance = Math.max(0, titleInner.scrollWidth - titleWrap.clientWidth);
             item._marqueeDistance = distance;
@@ -54,19 +61,17 @@ document.addEventListener("DOMContentLoaded", () => {
             const duration = Math.min(14, Math.max(4, (distance + 16) / 45));
             item.style.setProperty('--marquee-duration', `${duration}s`);
         };
-
         measure();
         window.addEventListener('resize', measure);
-
         item.addEventListener('mouseenter', () => {
             if ((item._marqueeDistance ?? 0) > 0) item.classList.add('marquee');
         });
-
         item.addEventListener('mouseleave', () => item.classList.remove('marquee'));
     }
 
     questions.forEach(q => setupMarqueeForItem(q));
 
+    // ===== Data từ server =====
     const dataEl = document.getElementById("practiceData");
     const data = dataEl ? JSON.parse(dataEl.textContent) : {};
 
@@ -77,7 +82,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const attemptUsed = data.attemptUsed ?? [];
     const exerciseTitlesList = data.exerciseTitlesList ?? [];
     const fallbackPart = data.fallbackPart ?? 1;
-    dbVocabs = data.vocabs ?? [];
+
+    // ✅ Deadline-specific: URL submit và classExerciseId
+    const analyzeUrl = data.analyzeUrl ?? "/Student/DeadlineSpeaking/Analyze";
+    const classExerciseId = data.classExerciseId ?? 0;
 
     let currentQuestion = 0;
     let part = (parts.length > 0 ? parts[0] : fallbackPart);
@@ -94,15 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
             .split(/\r?\n/)
             .map(x => x.trim())
             .filter(x => x.length > 0);
-
         questionText.innerHTML = "";
         if (lines.length === 0) return;
-
         const head = document.createElement("div");
         head.className = "p2-head";
         head.textContent = lines[0];
         questionText.appendChild(head);
-
         if (lines.length > 1) {
             const ul = document.createElement("ul");
             ul.className = "p2-bullets";
@@ -127,11 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const used = (attemptUsed && attemptUsed.length > index) ? attemptUsed[index] : 0;
         const max = (maxAttempts && maxAttempts.length > index) ? maxAttempts[index] : 0;
         const locked = (max > 0 && used >= max);
-
         if (locked) {
             recordBtn.style.display = "none";
             if (maxAttemptBtn) maxAttemptBtn.style.display = "inline-flex";
-
             audioPlayback.src = "";
             playbackArea.style.display = "none";
             document.querySelector(".submit-btn")?.remove();
@@ -141,17 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (playbackArea.style.display === "none") recordBtn.style.display = "inline-block";
             if (recordHelperText) recordHelperText.style.display = "block";
         }
-
         return locked;
     }
 
     function renderQuestion(index) {
         if (!questionList || questionList.length === 0) return;
-
         const realPart = (parts && parts.length > index) ? parts[index] : part;
-
         if (headerPartText) headerPartText.textContent = realPart || "";
-
         if (realPart === 2) {
             questionText.classList.add("part2");
             renderPart2(questionList[index]);
@@ -159,25 +158,18 @@ document.addEventListener("DOMContentLoaded", () => {
             questionText.classList.remove("part2");
             questionText.textContent = `Câu hỏi ${index + 1} (Part ${realPart}): ${questionList[index]}`;
         }
-
         part = realPart;
         maxDuration = getDuration(part);
-
         applyAttemptUI(index);
         setTimeout(fitQuestionText, 0);
     }
 
     function resetRecordingUI() {
-        try {
-            audioPlayback.pause();
-            audioPlayback.currentTime = 0;
-        } catch (_) { }
-
+        try { audioPlayback.pause(); audioPlayback.currentTime = 0; } catch (_) { }
         if (typeof currentAudioUrl !== "undefined" && currentAudioUrl) {
             URL.revokeObjectURL(currentAudioUrl);
             currentAudioUrl = null;
         }
-
         audioPlayback.src = "";
         playbackArea.style.display = "none";
         document.querySelector(".submit-btn")?.remove();
@@ -188,27 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function selectQuestion(index) {
         questions.forEach(item => item.classList.remove('active'));
         if (questions[index]) questions[index].classList.add('active');
-
         currentQuestion = index;
-
-        const holo = document.querySelector(".topic-holo");
-        if (holo) holo.style.removeProperty("display");
-        if (historyBtn) historyBtn.style.removeProperty("display");
-        if (questionText) questionText.style.removeProperty("display");
-
-        const controlDock = document.getElementById("controlDock");
-        if (controlDock) controlDock.style.removeProperty("display");
-
-        const iframe = document.getElementById("gameIframe");
-        if (iframe) iframe.style.setProperty("display", "none", "important");
-
-        document.querySelectorAll(".play-game-btn").forEach(btn => btn.remove());
-
         renderQuestion(index);
         resetRecordingUI();
         updateExercisePickerActive();
     }
 
+    // ===== Timer =====
     let timerInterval;
 
     function formatTime(ms) {
@@ -224,17 +202,14 @@ document.addEventListener("DOMContentLoaded", () => {
         timerBar.style.width = "100%";
         timeRemaining.textContent = formatTime(remaining);
         const start = Date.now();
-
         timerInterval = setInterval(() => {
             const elapsed = Date.now() - start;
             remaining = Math.max(0, duration - elapsed);
             const percent = (remaining / duration) * 100;
             timerBar.style.width = percent + "%";
-
             if (percent < 30) timerBar.style.background = "#ff3b3b";
             else if (percent < 60) timerBar.style.background = "#ffb300";
             else timerBar.style.background = "#0a58ca";
-
             timeRemaining.textContent = formatTime(remaining);
             if (remaining <= 0) stopTimer();
         }, 1000);
@@ -245,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
         timerContainer.style.display = "none";
     }
 
+    // ===== Recording =====
     let mediaRecorder = null;
     let audioChunks = [];
     let isRecording = false;
@@ -252,7 +228,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let recordingTimeout = null;
     let currentStream = null;
     let currentAudioUrl = null;
-
     let audioCtx = null;
     let waSource = null, waHP = null, waLP = null, waGain = null, waComp = null, waDest = null;
 
@@ -275,32 +250,21 @@ document.addEventListener("DOMContentLoaded", () => {
         try { waGain?.disconnect(); } catch (_) { }
         try { waComp?.disconnect(); } catch (_) { }
         waSource = waHP = waLP = waGain = waComp = waDest = null;
-
-        if (audioCtx) {
-            try { audioCtx.close(); } catch (_) { }
-            audioCtx = null;
-        }
+        if (audioCtx) { try { audioCtx.close(); } catch (_) { } audioCtx = null; }
     }
 
     async function buildProcessedStream(rawStream, opts = {}) {
-        const {
-            gain = 1.8, hpHz = 80, lpHz = 12000, threshold = -24, ratio = 12
-        } = opts;
-
+        const { gain = 1.8, hpHz = 80, lpHz = 12000, threshold = -24, ratio = 12 } = opts;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === "suspended") {
-            try { await audioCtx.resume(); } catch (_) { }
-        }
-
+        if (audioCtx.state === "suspended") { try { await audioCtx.resume(); } catch (_) { } }
         waSource = audioCtx.createMediaStreamSource(rawStream);
         waHP = audioCtx.createBiquadFilter(); waHP.type = "highpass"; waHP.frequency.value = hpHz;
         waLP = audioCtx.createBiquadFilter(); waLP.type = "lowpass"; waLP.frequency.value = lpHz;
         waGain = audioCtx.createGain(); waGain.gain.value = gain;
         waComp = audioCtx.createDynamicsCompressor();
-        waComp.threshold.value = threshold; waComp.knee.value = 30; waComp.ratio.value = ratio;
-        waComp.attack.value = 0.003; waComp.release.value = 0.25;
+        waComp.threshold.value = threshold; waComp.knee.value = 30;
+        waComp.ratio.value = ratio; waComp.attack.value = 0.003; waComp.release.value = 0.25;
         waDest = audioCtx.createMediaStreamDestination();
-
         waSource.connect(waHP).connect(waLP).connect(waGain).connect(waComp).connect(waDest);
         return waDest.stream;
     }
@@ -320,24 +284,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function startRecording() {
         if (isRecording || isStarting) return;
-
-        if (!navigator.mediaDevices?.getUserMedia) {
-            alert("❌ Trình duyệt không hỗ trợ thu âm (getUserMedia).");
-            return;
-        }
-        if (!window.MediaRecorder) {
-            alert("❌ Trình duyệt không hỗ trợ MediaRecorder. Hãy dùng Chrome/Edge.");
-            return;
-        }
+        if (!navigator.mediaDevices?.getUserMedia) { alert("❌ Trình duyệt không hỗ trợ thu âm."); return; }
+        if (!window.MediaRecorder) { alert("❌ Trình duyệt không hỗ trợ MediaRecorder. Hãy dùng Chrome/Edge."); return; }
 
         isStarting = true;
         recordBtn.disabled = true;
 
         try {
-            clearTimeout(recordingTimeout);
-            recordingTimeout = null;
-            cleanupWebAudio();
-            cleanupStream();
+            clearTimeout(recordingTimeout); recordingTimeout = null;
+            cleanupWebAudio(); cleanupStream();
 
             const rawStream = await navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: { ideal: true }, noiseSuppression: { ideal: true }, autoGainControl: { ideal: true } }
@@ -378,15 +333,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 isRecording = false;
                 recordBtn.classList.remove("recording");
                 stopTimer();
-                clearTimeout(recordingTimeout);
-                recordingTimeout = null;
-                cleanupWebAudio();
-                cleanupStream();
+                clearTimeout(recordingTimeout); recordingTimeout = null;
+                cleanupWebAudio(); cleanupStream();
 
                 const finalType = mediaRecorder?.mimeType || mimeType || "audio/webm";
                 const audioBlob = new Blob(audioChunks, { type: finalType });
                 audioChunks = [];
-
                 setPlaybackBlob(audioBlob);
                 playbackArea.style.display = "flex";
                 recordBtn.style.display = "none";
@@ -394,7 +346,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             mediaRecorder.start();
-
             recordingTimeout = setTimeout(() => {
                 if (mediaRecorder?.state === "recording") mediaRecorder.stop();
             }, maxDuration);
@@ -402,44 +353,34 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             console.error(err);
             alert("❌ Không thể truy cập micro: " + (err?.message || err));
-            isRecording = false;
-            isStarting = false;
-            recordBtn.disabled = false;
+            isRecording = false; isStarting = false; recordBtn.disabled = false;
             recordBtn.classList.remove("recording");
-            clearTimeout(recordingTimeout);
-            recordingTimeout = null;
-            cleanupWebAudio();
-            cleanupStream();
-            stopTimer();
+            clearTimeout(recordingTimeout); recordingTimeout = null;
+            cleanupWebAudio(); cleanupStream(); stopTimer();
         }
     }
 
     function stopRecording() {
-        clearTimeout(recordingTimeout);
-        recordingTimeout = null;
-
+        clearTimeout(recordingTimeout); recordingTimeout = null;
         if (mediaRecorder?.state === "recording") {
             mediaRecorder.stop();
         } else {
-            cleanupWebAudio();
-            cleanupStream();
-            stopTimer();
-            isRecording = false;
-            isStarting = false;
-            recordBtn.disabled = false;
+            cleanupWebAudio(); cleanupStream(); stopTimer();
+            isRecording = false; isStarting = false; recordBtn.disabled = false;
             recordBtn.classList.remove("recording");
         }
     }
 
-    recordBtn.addEventListener("click", async () => {
-        if (applyAttemptUI(currentQuestion)) return;
-        if (recordHelperText) recordHelperText.style.display = "none";
+    if (recordBtn) {
+        recordBtn.addEventListener("click", async () => {
+            if (applyAttemptUI(currentQuestion)) return;
+            if (recordHelperText) recordHelperText.style.display = "none";
+            if (!isRecording && !isStarting) await startRecording();
+            else stopRecording();
+        });
+    }
 
-        if (!isRecording && !isStarting) await startRecording();
-        else stopRecording();
-    });
-
-    redoBtn.addEventListener("click", resetRecordingUI);
+    if (redoBtn) redoBtn.addEventListener("click", resetRecordingUI);
 
     document.addEventListener("visibilitychange", () => {
         if (document.hidden && isRecording) stopRecording();
@@ -447,6 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     questions.forEach((q, index) => q.addEventListener('click', () => selectQuestion(index)));
 
+    // ===== Submit — ĐÂY LÀ PHẦN KHÁC: gửi tới DeadlineSpeaking/Analyze + classExerciseId =====
     function createSubmitButton(audioBlob) {
         document.querySelector(".submit-btn")?.remove();
 
@@ -465,10 +407,11 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("part", part);
             formData.append("question", questionList[currentQuestion]);
             formData.append("exerciseId", exerciseIds[currentQuestion]);
+            formData.append("classExerciseId", classExerciseId); // ✅ DEADLINE KEY
 
             try {
-                const res = await fetch("/Student/PracticeSpeaking/Analyze", { method: "POST", body: formData });
-                if (!res.ok) throw new Error("Server error");
+                const res = await fetch(analyzeUrl, { method: "POST", body: formData });
+                if (!res.ok) throw new Error("Server error " + res.status);
 
                 await res.json();
 
@@ -479,36 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 submitBtn.classList.remove("btn-success");
                 submitBtn.classList.add("btn-primary");
-                submitBtn.innerHTML = `<i class="fas fa-check-circle me-2"></i> Bài đã được gửi`;
+                submitBtn.innerHTML = `<i class="fas fa-check-circle me-2"></i>Bài đã được gửi — xem lịch sử để kiểm tra điểm`;
                 submitBtn.onclick = null;
-
-                const playBtn = document.createElement("button");
-                playBtn.className = "btn btn-warning play-game-btn ms-2";
-                playBtn.style.marginTop = "20px";
-                playBtn.innerHTML = `🎮 Chơi Mini Game`;
-
-                // LOGIC NÚT BẤM CHƠI GAME AN TOÀN
-                playBtn.onclick = () => {
-                    const elementsToHide = [".topic-holo", "#historyBtn", "#questionText", "#controlDock"];
-
-                    elementsToHide.forEach(selector => {
-                        const el = document.querySelector(selector);
-                        if (el && el.style) {
-                            el.style.setProperty("display", "none", "important");
-                        }
-                    });
-
-                    if (submitBtn && submitBtn.style) submitBtn.style.setProperty("display", "none", "important");
-                    if (playBtn && playBtn.style) playBtn.style.setProperty("display", "none", "important");
-
-                    const iframe = document.getElementById("gameIframe");
-                    if (iframe && iframe.style) {
-                        iframe.style.setProperty("display", "block", "important");
-                        iframe.src = "/Student/PracticeSpeaking/MiniGame";
-                    }
-                };
-
-                document.querySelector(".question-box").appendChild(playBtn);
 
             } catch (err) {
                 submitBtn.disabled = false;
@@ -522,15 +437,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector(".question-box").appendChild(submitBtn);
     }
 
+    // ===== Mobile FAB =====
     const fabMenu = document.getElementById("mobileFabMenu");
     const fabMainBtn = document.getElementById("fabMainBtn");
-    const fabExerciseBtn = document.getElementById("fabExerciseBtn");
-    const fabHistoryBtn = document.getElementById("fabHistoryBtn");
-    const offcanvasEl = document.getElementById("exerciseOffcanvas");
-    const hasBootstrap = (typeof bootstrap !== "undefined");
-    const exerciseOffcanvas = (hasBootstrap && offcanvasEl)
-        ? bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl)
-        : null;
+    const fabHistoryBtn2 = document.getElementById("fabHistoryBtn");
 
     function setFabOpen(open) {
         if (!fabMenu || !fabMainBtn) return;
@@ -544,38 +454,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function buildExercisePicker() {
-        if (!exercisePickerList) return;
-
-        exercisePickerList.innerHTML = "";
-        const n = (questionList?.length || 0);
-
-        for (let i = 0; i < n; i++) {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "exercise-picker-item";
-            btn.dataset.index = String(i);
-
-            const title = (exerciseTitlesList && exerciseTitlesList.length > i) ? (exerciseTitlesList[i] || "") : "";
-            const p = (parts && parts.length > i) ? parts[i] : part;
-
-            btn.innerHTML = `
-                        <span class="ep-left">Q${i + 1}</span>
-                        <span class="ep-title">${title}</span>
-                        <span class="ep-badge">Part ${p}</span>
-                    `;
-
-            btn.addEventListener("click", () => {
-                selectQuestion(i);
-                if (exerciseOffcanvas) exerciseOffcanvas.hide();
-            });
-
-            exercisePickerList.appendChild(btn);
-        }
-
-        updateExercisePickerActive();
-    }
-
     function updateExercisePickerActive() {
         if (!exercisePickerList) return;
         const items = exercisePickerList.querySelectorAll(".exercise-picker-item");
@@ -587,8 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (fabMainBtn) {
         fabMainBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+            e.preventDefault(); e.stopPropagation();
             setFabOpen(!fabMenu?.classList.contains("open"));
         });
     }
@@ -600,31 +477,18 @@ document.addEventListener("DOMContentLoaded", () => {
         setFabOpen(false);
     });
 
-    if (fabHistoryBtn) {
-        fabHistoryBtn.addEventListener("click", (e) => {
+    // FAB history → quay về deadline index
+    if (fabHistoryBtn2) {
+        fabHistoryBtn2.addEventListener("click", (e) => {
             e.preventDefault();
             setFabOpen(false);
-            const exerciseId = exerciseIds[currentQuestion];
-            window.location.href = `/Student/SpeakingReview/History?exerciseId=${exerciseId}`;
+            window.location.href = '/Student/DeadlineSpeaking/Index';
         });
     }
 
-    if (fabExerciseBtn) {
-        fabExerciseBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            setFabOpen(false);
-            buildExercisePicker();
-            if (exerciseOffcanvas) exerciseOffcanvas.show();
-            else if (offcanvasEl) {
-                offcanvasEl.classList.add("show");
-                offcanvasEl.style.visibility = "visible";
-            }
-        });
-    }
-
+    // init
     if (questions.length > 0) selectQuestion(0);
     setTimeout(fitQuestionText, 0);
-
     window.addEventListener("resize", () => {
         setTimeout(fitQuestionText, 0);
         if (!isMobile()) setFabOpen(false);

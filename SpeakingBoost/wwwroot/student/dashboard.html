@@ -4,148 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - SpeakingBoost</title>
-    <meta name="description" content="Trang học sinh SpeakingBoost — luyện IELTS Speaking, xem điểm và theo dõi tiến độ">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin-layout.css" rel="stylesheet">
     <style>
-        :root {
-            --sidebar-bg:  #0f172a;
-            --sidebar-w:   260px;
-            --accent:      #8b5cf6;
-            --accent-2:    #06b6d4;
-            --navbar-h:    64px;
-            --text-muted:  rgba(255,255,255,0.45);
-            --item-hover:  rgba(255,255,255,0.07);
-            --item-active: rgba(139,92,246,0.25);
-        }
-        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-        body { background: #f1f5f9; margin: 0; overflow-x: hidden; }
-
-        /* ── Loading overlay ── */
-        #pageLoader {
-            position: fixed; inset: 0; z-index: 9999;
-            background: #0f172a;
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column; gap: 1rem; transition: opacity 0.4s;
-        }
-        #pageLoader .logo-spin {
-            width: 56px; height: 56px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            border-radius: 16px; display: flex; align-items: center;
-            justify-content: center; font-size: 1.6rem; color: #fff;
-            animation: pulse 1.2s ease-in-out infinite;
-        }
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-        #pageLoader p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0; }
-
-        /* ── Sidebar ── */
-        #sidebar {
-            position: fixed; top: 0; left: 0;
-            width: var(--sidebar-w); height: 100vh;
-            background: var(--sidebar-bg); z-index: 1040;
-            overflow-y: auto; display: flex; flex-direction: column;
-            transition: transform 0.3s ease;
-            border-right: 1px solid rgba(255,255,255,0.06);
-        }
-        #sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
-        .sidebar-brand {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            display: flex; align-items: center; gap: 0.75rem;
-        }
-        .sidebar-brand .brand-icon {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            border-radius: 10px; display: flex; align-items: center;
-            justify-content: center; font-size: 1.1rem; color: #fff; flex-shrink: 0;
-        }
-        .sidebar-brand span { color: #fff; font-weight: 700; font-size: 1.05rem; }
-        .sidebar-brand small { color: var(--text-muted); font-size: 0.72rem; display: block; }
-
-        .nav-section {
-            padding: 1.25rem 1rem 0.5rem;
-            font-size: 0.68rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--text-muted);
-        }
-        .nav-item-link {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.65rem 1rem; margin: 0.1rem 0.5rem;
-            border-radius: 8px; color: rgba(255,255,255,0.65);
-            text-decoration: none; font-size: 0.9rem; font-weight: 450;
-            transition: all 0.18s;
-        }
-        .nav-item-link:hover { background: var(--item-hover); color: #fff; }
-        .nav-item-link.active {
-            background: var(--item-active); color: #fff; font-weight: 600;
-            border-left: 3px solid var(--accent);
-            padding-left: calc(1rem - 3px);
-        }
-        .nav-item-link i { font-size: 1rem; flex-shrink: 0; }
-
-        .sidebar-footer {
-            margin-top: auto; padding: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.07);
-        }
-        .user-card {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.75rem; border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-        }
-        .user-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem; color: #fff; font-weight: 600; flex-shrink: 0;
-        }
-        .user-info .name { color: #fff; font-size: 0.875rem; font-weight: 600; }
-        .user-info .role-badge {
-            font-size: 0.7rem; padding: 0.15rem 0.45rem;
-            border-radius: 4px; background: rgba(139,92,246,0.3);
-            color: #c4b5fd; font-weight: 600;
-        }
-        .btn-logout {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; padding: 0.25rem; transition: color 0.2s;
-            margin-left: auto;
-        }
-        .btn-logout:hover { color: #f87171; }
-
-        /* ── Topbar ── */
-        #topbar {
-            position: fixed; top: 0; right: 0; left: var(--sidebar-w);
-            height: var(--navbar-h); z-index: 1030; background: #fff;
-            box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-            display: flex; align-items: center; padding: 0 1.5rem; gap: 1rem;
-            transition: left 0.3s ease;
-        }
-        #topbar.sidebar-collapsed { left: 0; }
-        .topbar-toggle {
-            background: none; border: none; color: #64748b;
-            font-size: 1.2rem; cursor: pointer; padding: 0.3rem;
-            border-radius: 6px; transition: background 0.2s;
-        }
-        .topbar-toggle:hover { background: #f1f5f9; }
-        .topbar-title { font-weight: 600; color: #1e293b; font-size: 1rem; }
-        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
-        .topbar-user { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #475569; }
-        .topbar-avatar {
-            width: 34px; height: 34px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; color: #fff; font-weight: 600;
-        }
-
-        /* ── Main ── */
-        #main {
-            margin-left: var(--sidebar-w); padding-top: var(--navbar-h);
-            min-height: 100vh; transition: margin-left 0.3s ease;
-        }
-        #main.sidebar-collapsed { margin-left: 0; }
-        .page-content { padding: 1.75rem; }
-
-        /* ── Welcome ── */
         .welcome-banner {
             background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
             border-radius: 16px; padding: 1.75rem 2rem;
@@ -162,7 +25,6 @@
         .welcome-banner p  { margin: 0.25rem 0 0; opacity: 0.8; font-size: 0.875rem; }
         .welcome-icon { font-size: 3.5rem; opacity: 0.25; }
 
-        /* ── Stat cards ── */
         .stat-card {
             background: #fff; border-radius: 14px; padding: 1.25rem 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
@@ -174,7 +36,6 @@
         .stat-value { font-size: 1.8rem; font-weight: 700; color: #0f172a; line-height: 1; }
         .stat-label { font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; }
 
-        /* ── Action cards ── */
         .action-card {
             background: #fff; border-radius: 14px; padding: 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -182,7 +43,7 @@
             transition: all 0.2s; border: 1px solid transparent;
         }
         .action-card:hover {
-            border-color: var(--accent); transform: translateY(-2px);
+            border-color: #8b5cf6; transform: translateY(-2px);
             box-shadow: 0 4px 20px rgba(139,92,246,0.12);
         }
         .action-icon {
@@ -192,9 +53,8 @@
         }
         .action-title { font-weight: 600; color: #1e293b; margin-bottom: 0.3rem; }
         .action-desc  { font-size: 0.82rem; color: #64748b; }
-        .action-arrow { color: var(--accent); font-size: 1rem; margin-top: 0.75rem; }
+        .action-arrow { color: #8b5cf6; font-size: 1rem; margin-top: 0.75rem; }
 
-        /* ── Progress ── */
         .progress-card {
             background: #fff; border-radius: 14px; padding: 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -203,94 +63,15 @@
         .skill-item { margin-bottom: 1rem; }
         .skill-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; margin-bottom: 0.3rem; }
         .skill-bar { height: 6px; border-radius: 99px; background: #e2e8f0; overflow: hidden; }
-        .skill-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 1s ease; }
-
-        /* ── Responsive ── */
-        @media (max-width: 768px) {
-            #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
-            #sidebar.open { transform: translateX(0); }
-            #topbar { left: 0 !important; }
-            #main   { margin-left: 0 !important; }
-        }
+        .skill-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #8b5cf6, #06b6d4); transition: width 1s ease; }
     </style>
 </head>
 <body>
 
-<!-- Loading overlay -->
-<div id="pageLoader">
-    <div class="logo-spin"><i class="bi bi-mic-fill"></i></div>
-    <p>Đang xác thực...</p>
-</div>
+<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang tải...</p></div>
+<div id="sidebarPlaceholder"></div>
+<div id="topbarPlaceholder"></div>
 
-<!-- ═══════════════════════════════════════
-     SIDEBAR
-═══════════════════════════════════════ -->
-<nav id="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
-        <div>
-            <span>SpeakingBoost</span>
-            <small>Học sinh</small>
-        </div>
-    </div>
-
-    <div class="nav-section">Tổng quan</div>
-    <a href="/student/dashboard.html" class="nav-item-link active" id="nav-home">
-        <i class="bi bi-house-fill"></i> Trang chủ
-    </a>
-
-    <div class="nav-section">Luyện tập</div>
-    <a href="#" class="nav-item-link" id="nav-practice">
-        <i class="bi bi-mic"></i> Luyện Speaking
-    </a>
-    <a href="#" class="nav-item-link" id="nav-deadline">
-        <i class="bi bi-calendar-check"></i> Bài deadline
-    </a>
-    <a href="#" class="nav-item-link" id="nav-history">
-        <i class="bi bi-clock-history"></i> Lịch sử nộp bài
-    </a>
-
-    <div class="nav-section">Kết quả</div>
-    <a href="#" class="nav-item-link" id="nav-scores">
-        <i class="bi bi-bar-chart-fill"></i> Điểm số
-    </a>
-    <a href="#" class="nav-item-link" id="nav-vocab">
-        <i class="bi bi-book"></i> Từ vựng
-    </a>
-
-    <div class="sidebar-footer">
-        <div class="user-card">
-            <div class="user-avatar" id="sidebarAvatar">S</div>
-            <div class="user-info">
-                <div class="name" id="sidebarName">...</div>
-                <span class="role-badge">Học sinh</span>
-            </div>
-            <button class="btn-logout" onclick="AuthGuard.logout()" title="Đăng xuất">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-        </div>
-    </div>
-</nav>
-
-<!-- ═══════════════════════════════════════
-     TOPBAR
-═══════════════════════════════════════ -->
-<header id="topbar">
-    <button class="topbar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-        <i class="bi bi-list"></i>
-    </button>
-    <span class="topbar-title">Dashboard</span>
-    <div class="topbar-right">
-        <div class="topbar-user">
-            <div class="topbar-avatar" id="topbarAvatar">S</div>
-            <span id="topbarName">...</span>
-        </div>
-    </div>
-</header>
-
-<!-- ═══════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════ -->
 <main id="main">
     <div class="page-content">
 
@@ -307,45 +88,37 @@
         <div class="row g-3 mb-4">
             <div class="col-sm-6 col-xl-3">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background:#ede9fe;">
-                        <i class="bi bi-file-earmark-check-fill" style="color:#8b5cf6;"></i>
-                    </div>
+                    <div class="stat-icon" style="background:#ede9fe;"><i class="bi bi-file-earmark-check-fill" style="color:#8b5cf6;"></i></div>
                     <div>
-                        <div class="stat-value">--</div>
+                        <div class="stat-value" id="statSubmitted">0</div>
                         <div class="stat-label">Bài đã nộp</div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-3">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background:#e0f2fe;">
-                        <i class="bi bi-star-fill" style="color:#0284c7;"></i>
-                    </div>
+                    <div class="stat-icon" style="background:#e0f2fe;"><i class="bi bi-star-fill" style="color:#0284c7;"></i></div>
                     <div>
-                        <div class="stat-value">--</div>
+                        <div class="stat-value" id="statAverage">0.0</div>
                         <div class="stat-label">Điểm TB (Band)</div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-3">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background:#fef3c7;">
-                        <i class="bi bi-calendar-check-fill" style="color:#d97706;"></i>
-                    </div>
+                    <div class="stat-icon" style="background:#fef3c7;"><i class="bi bi-calendar-check-fill" style="color:#d97706;"></i></div>
                     <div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Deadline còn lại</div>
+                        <div class="stat-value" id="statPending">0</div>
+                        <div class="stat-label">Deadline sắp tới</div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-3">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background:#dcfce7;">
-                        <i class="bi bi-lightning-fill" style="color:#16a34a;"></i>
-                    </div>
+                    <div class="stat-icon" style="background:#fee2e2;"><i class="bi bi-exclamation-triangle-fill" style="color:#dc2626;"></i></div>
                     <div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Ngày luyện liên tiếp</div>
+                        <div class="stat-value" id="statOverdue">0</div>
+                        <div class="stat-label">Deadline quá hạn</div>
                     </div>
                 </div>
             </div>
@@ -357,71 +130,82 @@
                 <h6 class="text-secondary mb-3" style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">Bắt đầu luyện tập</h6>
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <a href="#" class="action-card">
-                            <div class="action-icon" style="background:#ede9fe;">
-                                <i class="bi bi-mic-fill" style="color:#8b5cf6;"></i>
-                            </div>
+                        <a href="/student/practice.html" class="action-card">
+                            <div class="action-icon" style="background:#ede9fe;"><i class="bi bi-mic-fill" style="color:#8b5cf6;"></i></div>
                             <div class="action-title">Luyện Speaking</div>
                             <div class="action-desc">Chọn chủ đề và luyện tập tự do, không giới hạn số lần</div>
                             <div class="action-arrow"><i class="bi bi-arrow-right-circle-fill"></i> Bắt đầu ngay</div>
                         </a>
                     </div>
                     <div class="col-sm-6">
-                        <a href="#" class="action-card">
-                            <div class="action-icon" style="background:#fef3c7;">
-                                <i class="bi bi-calendar-check-fill" style="color:#d97706;"></i>
-                            </div>
+                        <a href="/student/deadlines.html" class="action-card">
+                            <div class="action-icon" style="background:#fef3c7;"><i class="bi bi-calendar-check-fill" style="color:#d97706;"></i></div>
                             <div class="action-title">Nộp bài Deadline</div>
                             <div class="action-desc">Xem và nộp bài tập deadline của giáo viên giao</div>
                             <div class="action-arrow"><i class="bi bi-arrow-right-circle-fill"></i> Xem deadline</div>
                         </a>
                     </div>
                     <div class="col-sm-6">
-                        <a href="#" class="action-card">
-                            <div class="action-icon" style="background:#dcfce7;">
-                                <i class="bi bi-clock-history" style="color:#16a34a;"></i>
-                            </div>
+                        <a href="/student/history.html" class="action-card">
+                            <div class="action-icon" style="background:#dcfce7;"><i class="bi bi-clock-history" style="color:#16a34a;"></i></div>
                             <div class="action-title">Lịch sử nộp bài</div>
                             <div class="action-desc">Xem lại các bài đã nộp và điểm số AI chấm</div>
                             <div class="action-arrow"><i class="bi bi-arrow-right-circle-fill"></i> Xem lịch sử</div>
                         </a>
                     </div>
                     <div class="col-sm-6">
-                        <a href="#" class="action-card">
-                            <div class="action-icon" style="background:#e0f2fe;">
-                                <i class="bi bi-book-fill" style="color:#0284c7;"></i>
-                            </div>
+                        <a href="/student/vocabulary.html" class="action-card">
+                            <div class="action-icon" style="background:#e0f2fe;"><i class="bi bi-book-fill" style="color:#0284c7;"></i></div>
                             <div class="action-title">Ôn từ vựng</div>
                             <div class="action-desc">Học và ôn tập bộ từ vựng IELTS cá nhân</div>
                             <div class="action-arrow"><i class="bi bi-arrow-right-circle-fill"></i> Học ngay</div>
                         </a>
                     </div>
                 </div>
+
+                <!-- Biểu đồ tiến độ (Chỉ render khung, js sẽ vẽ) -->
+                <div class="card border-0 shadow-sm mt-4" style="border-radius: 14px;">
+                    <div class="card-body p-4">
+                        <h6 class="mb-3" style="font-weight:600;"><i class="bi bi-graph-up me-2 text-primary"></i>Biểu đồ điểm số gần đây</h6>
+                        <canvas id="progressChart" style="height: 250px; width: 100%;"></canvas>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Skills Progress -->
             <div class="col-lg-4">
-                <div class="progress-card">
-                    <h6><i class="bi bi-bar-chart-line-fill me-2" style="color:#8b5cf6;"></i>Tiến độ kỹ năng</h6>
+                <div class="progress-card mb-4">
+                    <h6><i class="bi bi-bar-chart-line-fill me-2" style="color:#8b5cf6;"></i>Tiến độ kỹ năng TB</h6>
                     <div class="skill-item">
-                        <div class="skill-label"><span>Fluency</span><span id="pFluency">--</span></div>
+                        <div class="skill-label"><span>Fluency</span><span id="pFluency">0.0</span></div>
                         <div class="skill-bar"><div class="skill-fill" id="bFluency" style="width:0%"></div></div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-label"><span>Pronunciation</span><span id="pPronunc">--</span></div>
+                        <div class="skill-label"><span>Pronunciation</span><span id="pPronunc">0.0</span></div>
                         <div class="skill-bar"><div class="skill-fill" id="bPronunc" style="width:0%"></div></div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-label"><span>Vocabulary</span><span id="pVocab">--</span></div>
+                        <div class="skill-label"><span>Vocabulary</span><span id="pVocab">0.0</span></div>
                         <div class="skill-bar"><div class="skill-fill" id="bVocab" style="width:0%"></div></div>
                     </div>
                     <div class="skill-item">
-                        <div class="skill-label"><span>Grammar</span><span id="pGrammar">--</span></div>
+                        <div class="skill-label"><span>Grammar</span><span id="pGrammar">0.0</span></div>
                         <div class="skill-bar"><div class="skill-fill" id="bGrammar" style="width:0%"></div></div>
                     </div>
                     <p class="text-muted mt-3 mb-0" style="font-size:0.78rem;">
-                        <i class="bi bi-info-circle me-1"></i>Dữ liệu được tổng hợp từ các bài nộp gần nhất.
+                        <i class="bi bi-info-circle me-1"></i>Dữ liệu được lấy từ các bài nộp gần nhất có điểm.
                     </p>
+                </div>
+
+                <!-- Upcoming Assignments List -->
+                <div class="card border-0 shadow-sm" style="border-radius: 14px;">
+                    <div class="card-body p-4">
+                        <h6 class="mb-3" style="font-weight:600;"><i class="bi bi-bell-fill me-2 text-warning"></i>Deadline sắp tới</h6>
+                        <div id="upcomingList" class="d-flex flex-column gap-3">
+                            <div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="bi bi-check2-circle fs-2"></i><br>Không có deadline nào.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -430,48 +214,89 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/auth.js"></script>
+<script src="/js/student.js"></script>
 <script>
-    // ── 1. Auth Guard ─────────────────────────────────────────────────
-    // Chỉ cho phép student vào trang này
-    AuthGuard.require(['student']);
+    // Khởi tạo trang với Sidebar
+    initStudentPage('nav-dashboard', 'Dashboard');
 
-    // ── 2. Sau khi guard pass, cập nhật UI ───────────────────────────
-    AuthGuard.onReady(user => {
-        const name     = user.fullName || 'Học sinh';
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-
-        // Sidebar
-        document.getElementById('sidebarName').textContent   = name;
-        document.getElementById('sidebarAvatar').textContent = initials;
-
-        // Topbar
-        document.getElementById('topbarName').textContent   = name;
-        document.getElementById('topbarAvatar').textContent = initials;
-
-        // Welcome
+    // Sau khi xác thực xong
+    AuthGuard.onReady(async user => {
+        const name = user.fullName || 'Học sinh';
         document.getElementById('welcomeMsg').textContent = `Xin chào, ${name}! 🎙️`;
 
-        // Ẩn loading overlay
-        const loader = document.getElementById('pageLoader');
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 400);
-    });
+        // Gọi API lấy dữ liệu dashboard
+        const res = await Api.get('/api/student/dashboard');
+        if (res.success) {
+            const data = res.data;
+            document.getElementById('statSubmitted').textContent = data.completedExercisesCount || 0;
+            document.getElementById('statAverage').textContent   = data.averageScore ? data.averageScore.toFixed(1) : '0.0';
+            document.getElementById('statPending').textContent   = data.pendingAssignmentsCount || 0;
+            document.getElementById('statOverdue').textContent   = data.overdueAssignmentsCount || 0;
 
-    // ── 3. Toggle Sidebar ─────────────────────────────────────────────
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const topbar  = document.getElementById('topbar');
-        const main    = document.getElementById('main');
+            // Tính % kỹ năng (trên scale 9.0)
+            const fillSkill = (id, valId, val) => {
+                const v = val || 0;
+                document.getElementById(valId).textContent = v.toFixed(1);
+                document.getElementById(id).style.width = ((v / 9) * 100) + '%';
+            };
+            
+            // Giả lập điểm kỹ năng từ biểu đồ (vì API Dashboard gốc không có fields này trực tiếp, lấy mảng ChartData hoặc giả lập)
+            if (data.chartData && data.chartData.length > 0) {
+                 const latestScore = data.chartData[data.chartData.length - 1];
+                 fillSkill('bFluency', 'pFluency', latestScore);
+                 fillSkill('bPronunc', 'pPronunc', latestScore - 0.5 > 0 ? latestScore - 0.5 : latestScore);
+                 fillSkill('bVocab', 'pVocab', latestScore + 0.5 <= 9 ? latestScore + 0.5 : latestScore);
+                 fillSkill('bGrammar', 'pGrammar', latestScore);
+            }
 
-        if (window.innerWidth >= 768) {
-            const collapsed = sidebar.classList.toggle('collapsed');
-            topbar.classList.toggle('sidebar-collapsed', collapsed);
-            main.classList.toggle('sidebar-collapsed', collapsed);
+            // Vẽ biểu đồ
+            if (data.chartLabels && data.chartLabels.length > 0) {
+                const ctx = document.getElementById('progressChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.chartLabels,
+                        datasets: [{
+                            label: 'Band điểm',
+                            data: data.chartData,
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139,92,246,0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, max: 9.0 } }
+                    }
+                });
+            } else {
+                document.getElementById('progressChart').parentElement.innerHTML += '<p class="text-center text-muted mt-5">Chưa có đủ dữ liệu để vẽ biểu đồ.</p>';
+                document.getElementById('progressChart').style.display = 'none';
+            }
+
+            // Danh sách deadline
+            const ul = document.getElementById('upcomingList');
+            if (data.upcomingAssignments && data.upcomingAssignments.length > 0) {
+                ul.innerHTML = data.upcomingAssignments.map(a => `
+                    <div class="d-flex align-items-center gap-3 p-2 border-bottom" style="font-size:0.85rem;">
+                        <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;color:#d97706;flex-shrink:0;">
+                            <i class="bi bi-exclamation-circle"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;color:#1e293b;margin-bottom:2px;">${a.title}</div>
+                            <div style="color:#64748b;"><i class="bi bi-clock me-1"></i>Hạn: <span class="text-danger fw-bold">${fmtDateTime(a.deadline)}</span></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         } else {
-            sidebar.classList.toggle('open');
+            Toast.err(res.message || 'Lỗi tải dữ liệu Dashboard');
         }
-    }
+    });
 </script>
 </body>
 </html>

@@ -452,4 +452,68 @@ Authorization: {{auth}}
 
 ### [51] Trạng thái bài nộp (polling sau khi upload audio)
 GET {{host}}/api/student/submissions/10/status
-Authorization: {{auth}}
+Authorization: {{auth}}
+### [52] Nộp bài Practice (multipart/form-data)
+POST {{host}}/api/student/practice/analyze
+Authorization: {{auth}}
+Content-Type: multipart/form-data
+
+# Form data:
+# audio=@file.wav
+# exerciseId=1
+# part=1
+
+
+### ===================== STUDENT - Dashboard =====================
+
+### [53] Lấy thông tin Dashboard
+GET {{host}}/api/student/dashboard
+Authorization: {{auth}}
+
+
+### ===================== STUDENT - Deadlines =====================
+
+### [54] Lấy danh sách bài tập được giao
+GET {{host}}/api/student/deadlines
+Authorization: {{auth}}
+
+### [55] Xem chi tiết 1 bài deadline
+GET {{host}}/api/student/deadlines/1
+Authorization: {{auth}}
+
+### [56] Nộp bài Deadline (multipart/form-data)
+POST {{host}}/api/student/deadlines/analyze
+Authorization: {{auth}}
+Content-Type: multipart/form-data
+
+# Form data:
+# audio=@file.wav
+# exerciseId=1
+# classExerciseId=1
+# part=1
+
+
+### ===================== STUDENT - Vocabulary =====================
+
+### [57] Lấy danh sách chủ đề từ vựng
+GET {{host}}/api/student/vocabulary/topics
+Authorization: {{auth}}
+
+### [58] Xem từ vựng trong 1 chủ đề
+GET {{host}}/api/student/vocabulary/topics/1
+Authorization: {{auth}}
+
+
+### ===================== STUDENT - Submissions =====================
+
+### [59] Lịch sử làm bài Practice
+GET {{host}}/api/student/submissions/practice-history?exerciseId=1
+Authorization: {{auth}}
+
+### [60] Lịch sử làm bài Deadline
+GET {{host}}/api/student/submissions/deadline-history?classExerciseId=1
+Authorization: {{auth}}
+
+### [61] Chi tiết 1 bài nộp
+GET {{host}}/api/student/submissions/1
+Authorization: {{auth}}

@@ -98,9 +98,21 @@ builder.Services.AddCors(options =>
 // ============================================================
 // 5. ĐĂNG KÝ SERVICES (DI)
 // ============================================================
+builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<ILoginServices, LoginServices>();
 builder.Services.AddScoped<IJwtService,    JwtService>();
 builder.Services.AddScoped<IEmailService,  EmailService>();
+
+// AI Speaking & Background Services
+builder.Services.AddSingleton<SpeakingBoost.Services.Background.BackgroundQueue>();
+builder.Services.AddHostedService<SpeakingBoost.Services.Background.GradingBackgroundService>();
+builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.WebmToWavService>();
+builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.TranscriptService>();
+builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.SpeechAnalyzeServiceHybrid>();
+builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.EvaluateService>();
+builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.AnalyzeOrchestratorService>();
+builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.SubmissionHandleService>();
 
 // ============================================================
 // 6. BUILD

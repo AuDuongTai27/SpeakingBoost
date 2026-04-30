@@ -1,0 +1,289 @@
+/* =====================================================
+   deadline.css — Trang danh sách Deadline (Student)
+   ===================================================== */
+
+/* ---- Banner chào ---- */
+.deadline-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 8px 32px rgba(15,52,96,0.35);
+}
+
+.deadline-banner-icon {
+    font-size: 2.6rem;
+    flex-shrink: 0;
+}
+
+.deadline-banner h2 {
+    margin: 0 0 4px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -.3px;
+}
+
+.deadline-banner p {
+    margin: 0;
+    opacity: .75;
+    font-size: .95rem;
+}
+
+/* ---- Stats bar ---- */
+.deadline-stats {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-size: .88rem;
+    font-weight: 600;
+    background: #f8f9fa;
+    border: 1.5px solid #e9ecef;
+    color: #495057;
+    transition: transform .15s;
+}
+
+.stat-pill:hover { transform: translateY(-2px); }
+.stat-pill.pending  { border-color: #ffc107; background: #fff9e6; color: #856404; }
+.stat-pill.submitted { border-color: #198754; background: #e8f5ee; color: #145c38; }
+.stat-pill.overdue  { border-color: #dc3545; background: #fde8ea; color: #8b1a24; }
+
+/* ---- Bộ lọc tab ---- */
+.deadline-filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 7px 18px;
+    border-radius: 50px;
+    border: 1.5px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: #0f3460;
+    border-color: #0f3460;
+    color: #fff;
+}
+
+/* ---- Grid bài tập ---- */
+.deadline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+}
+
+/* ---- Card bài tập ---- */
+.deadline-card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1.5px solid #e9ecef;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.deadline-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.1);
+    transform: translateY(-3px);
+    border-color: #0f3460;
+}
+
+/* Dải màu trái theo trạng thái */
+.deadline-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 14px 0 0 14px;
+}
+
+.deadline-card.status-pending::before  { background: #ffc107; }
+.deadline-card.status-submitted::before { background: #198754; }
+.deadline-card.status-overdue::before  { background: #dc3545; }
+
+/* ---- Card header ---- */
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.3;
+    flex: 1;
+}
+
+/* ---- Badge trạng thái ---- */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: .75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.status-badge.pending   { background: #fff3cd; color: #856404; }
+.status-badge.submitted { background: #d1e7dd; color: #0a3622; }
+.status-badge.overdue   { background: #f8d7da; color: #58151c; }
+
+/* ---- Meta info ---- */
+.card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: .83rem;
+    color: #6c757d;
+}
+
+.card-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-meta-row i {
+    width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.deadline-urgent {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* ---- Part badge ---- */
+.part-badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-size: .75rem;
+    font-weight: 700;
+    background: #e7f0ff;
+    color: #0f3460;
+}
+
+/* ---- Score chip ---- */
+.score-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: .8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #198754, #20c997);
+    color: #fff;
+}
+
+/* ---- Nút hành động ---- */
+.card-action {
+    margin-top: auto;
+}
+
+.btn-do-deadline {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    text-align: center;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .18s;
+}
+
+.btn-do-deadline.can-do {
+    background: linear-gradient(135deg, #0f3460, #1a6faf);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(15,52,96,.3);
+}
+
+.btn-do-deadline.can-do:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(15,52,96,.4);
+    color: #fff;
+}
+
+.btn-do-deadline.done {
+    background: #e8f5ee;
+    color: #198754;
+    cursor: default;
+    border: 1.5px solid #b2dfcb;
+}
+
+.btn-do-deadline.overdue-lock {
+    background: #fde8ea;
+    color: #dc3545;
+    cursor: not-allowed;
+    border: 1.5px solid #f5c2c7;
+}
+
+/* ---- Empty state ---- */
+.deadline-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #adb5bd;
+    grid-column: 1 / -1;
+}
+
+.deadline-empty i {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.deadline-empty p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 576px) {
+    .deadline-banner {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .deadline-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,66 +1,48 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
-    const loginForm = document.getElementById("login_form");
+﻿$(document).on('submit', '#login_form', function (e) {
+    e.preventDefault();
 
-    loginForm.addEventListener("submit", async function (e) {
-        e.preventDefault(); // Chặn load lại trang
+    const $form = $(this);
+    const $btn = $form.find("button[type=submit]");
+    const originalText = $btn.html();
 
-        const email = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const btnLogin = document.getElementById("btnLogin");
+    // Disable nút và hiện overlay
+    $btn.attr("disabled", true).html('<span>Đang đăng nhập...</span>');
+    $("#loading-overlay").fadeIn(200);
 
-        // Hiệu ứng loading cho nút bấm
-        const originalText = btnLogin.innerHTML;
-        btnLogin.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
-        btnLogin.disabled = true;
+    const payload = {
+        username: $('#username').val(),
+        password: $('#password').val(),
+        __RequestVerificationToken: $('input[name=__RequestVerificationToken]').val()
+    };
 
-        try {
-            // Gọi API Backend (Nhà bếp)
-            const response = await fetch("/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    Username: email,
-                    Password: password
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Đăng nhập thành công (HTTP 200)
-                localStorage.setItem("userToken", data.token); // Lưu JWT vào trình duyệt
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: data.message,
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    // Chuyển hướng theo role nhận từ API
-                    window.location.href = data.redirectUrl;
-                });
+    $.ajax({
+        type: "POST",
+        url: "/Login/LoginToSystem",
+        data: payload,
+        dataType: 'json',
+        success: function (res) {
+            if (res.status === 'success') {
+                setTimeout(() => {
+                    window.location.href = res.redirect; 
+                }, 2000);
             } else {
-                // Sai tài khoản/mật khẩu (HTTP 401) hoặc lỗi dữ liệu (HTTP 400)
+                $("#loading-overlay").fadeOut(200);
+                $btn.attr("disabled", false).html(originalText);
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Thất bại',
-                    text: data.message || "Đã có lỗi xảy ra."
+                    icon: "error",
+                    title: "Lỗi đăng nhập",
+                    text: res.message || "Sai tên đăng nhập hoặc mật khẩu"
                 });
             }
-        } catch (error) {
-            // Lỗi kết nối (VD: Chưa bật server API)
+        },
+        error: function () {
+            $("#loading-overlay").fadeOut(200);
+            $btn.attr("disabled", false).html(originalText);
             Swal.fire({
-                icon: 'warning',
-                title: 'Kết nối thất bại',
-                text: 'Không thể kết nối tới Server API. Hãy kiểm tra Visual Studio.'
+                icon: "error",
+                title: "Lỗi kết nối",
+                text: "Không thể kết nối tới máy chủ"
             });
-            console.error("Fetch error:", error);
-        } finally {
-            btnLogin.innerHTML = originalText;
-            btnLogin.disabled = false;
         }
     });
 });

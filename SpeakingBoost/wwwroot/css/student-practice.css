@@ -10,8 +10,7 @@
     min-height: 100vh;
     width: 250px;
     transition: margin 0.4s ease;
-    background-color: #212529;
-    /* Dark background */
+    background-color: #212529; /* Dark background */
     color: #adb5bd;
 }
 
@@ -66,21 +65,17 @@
     border-color: #0d6efd !important;
     color: #fff;
 }
-
 /* Thêm vào cuối file student-practice.css */
 
 /* CSS cho Practice Submenu */
 #practiceSubmenu .list-group-item {
-    padding: 0.5rem 1.25rem;
-    /* Giảm padding */
-    border: none;
-    /* Xóa border của list-group */
+    padding: 0.5rem 1.25rem; /* Giảm padding */
+    border: none; /* Xóa border của list-group */
 }
 
-#practiceSubmenu .list-group-item:hover {
-    background-color: #495057 !important;
-    /* Màu hover */
-}
+    #practiceSubmenu .list-group-item:hover {
+        background-color: #495057 !important; /* Màu hover */
+    }
 
 #practiceSubmenu label {
     cursor: pointer;
@@ -96,10 +91,8 @@
 }
 
 .text-light {
-    color: #ced4da !important;
-    /* Màu chữ cho submenu */
+    color: #ced4da !important; /* Màu chữ cho submenu */
 }
-
 /* THÊM VÀO CUỐI FILE CSS CỦA STUDENT */
 
 /* --- Welcome Banner (Tùy chọn) --- */
@@ -115,34 +108,34 @@
     box-shadow: 0 8px 15px rgba(0, 123, 255, 0.2);
 }
 
-.welcome-banner h2 {
-    margin: 0;
-    font-size: 1.8em;
-}
+    .welcome-banner h2 {
+        margin: 0;
+        font-size: 1.8em;
+    }
 
-.welcome-banner p {
-    margin: 0;
-    font-size: 1.1em;
-    opacity: 0.9;
-}
+    .welcome-banner p {
+        margin: 0;
+        font-size: 1.1em;
+        opacity: 0.9;
+    }
 
-.welcome-banner .btn-primary {
-    background-color: #fff;
-    color: #0062E6;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
+    .welcome-banner .btn-primary {
+        background-color: #fff;
+        color: #0062E6;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
 
-.welcome-banner .btn-primary:hover {
-    background-color: #f0f0f0;
-    transform: translateY(-2px);
-}
+        .welcome-banner .btn-primary:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
 
 
 /* --- Topic Grid --- */
@@ -155,25 +148,24 @@
 .topic-card {
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     position: relative;
     height: 180px;
     perspective: 1000px;
     transition: transform 0.6s, opacity 0.5s ease, height 0.5s ease, margin 0.5s ease, padding 0.5s ease;
 }
 
-.topic-card.hidden {
-    transform: scale(0.9);
-    opacity: 0;
-    height: 0;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-}
+    .topic-card.hidden {
+        transform: scale(0.9);
+        opacity: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
 
 /* --- Card Flip Effect --- */
-.card-front,
-.card-back {
+.card-front, .card-back {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -277,20 +269,18 @@
     transition: background-color 0.3s ease;
 }
 
-.btn-speak:hover {
-    background-color: #e86100;
-    color: #fff;
-}
+    .btn-speak:hover {
+        background-color: #e86100;
+        color: #fff;
+    }
 
 #page-content-wrapper main.container-fluid {
-    background-color: #e9ecef;
-    /* <-- Đổi thành màu xám đậm hơn */
+    background-color: #e9ecef; /* <-- Đổi thành màu xám đậm hơn */
 }
 
 /* Đảm bảo navbar giữ màu nền sáng (thường là #f8f9fa hoặc #ffffff) */
 #page-content-wrapper nav.navbar {
-    background-color: #f8f9fa !important;
-    /* Giữ màu này */
+    background-color: #f8f9fa !important; /* Giữ màu này */
 }
 
 
@@ -315,8 +305,7 @@
     right: 0;
     bottom: 0;
     height: 72px;
-    display: flex;
-    /* ❗ KHÔNG dùng !important */
+    display: flex; /* ❗ KHÔNG dùng !important */
     flex-direction: row;
     flex-wrap: nowrap;
     background: #111;
@@ -325,13 +314,11 @@
 }
 
 .mobile-tab {
-    flex: 1 1 0;
-    /* ✅ 4 ô đều nhau */
+    flex: 1 1 0; /* ✅ 4 ô đều nhau */
     width: 25%;
     height: 72px;
     display: flex;
-    flex-direction: column;
-    /* icon trên - chữ dưới */
+    flex-direction: column; /* icon trên - chữ dưới */
     align-items: center;
     justify-content: center;
     gap: 4px;
@@ -361,7 +348,7 @@
 }
 
 .mobile-tab:hover {
-    background: rgba(255, 255, 255, .08);
+    background: rgba(255,255,255,.08);
     color: #fff;
 }
 
@@ -388,27 +375,22 @@
 .practice-offcanvas.offcanvas-bottom {
     height: auto;
     max-height: 45vh;
-    width: 25vw !important;
-    /* ✅ bằng 1 ô */
-    left: 25vw !important;
-    /* ✅ đúng vị trí ô Practice */
+    width: 25vw !important; /* ✅ bằng 1 ô */
+    left: 25vw !important; /* ✅ đúng vị trí ô Practice */
     right: auto !important;
-    bottom: 72px !important;
-    /* ✅ nằm ngay trên bottom bar */
+    bottom: 72px !important; /* ✅ nằm ngay trên bottom bar */
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     overflow: hidden;
     z-index: 10001;
 }
-
 /* ✅ Practice offcanvas: chữ đen + căn trái + lề sát hơn */
 .practice-offcanvas .offcanvas-header .offcanvas-title {
     color: #111;
 }
 
 .practice-offcanvas .btn-close {
-    opacity: 1;
-    /* nút X rõ hơn */
+    opacity: 1; /* nút X rõ hơn */
 }
 
 /* list-group item: chữ đen, căn trái, padding sát hơn */
@@ -416,25 +398,21 @@
     width: 100%;
     color: #111 !important;
     text-align: left !important;
-    padding: 8px 10px !important;
-    /* giảm lề 2 bên */
+    padding: 8px 10px !important; /* giảm lề 2 bên */
     line-height: 2;
 }
 
-/* nếu bạn muốn item hover nhìn "đã" hơn */
-.practice-offcanvas .list-group-item:hover {
-    background: #f2f2f2;
-}
+    /* nếu bạn muốn item hover nhìn "đã" hơn */
+    .practice-offcanvas .list-group-item:hover {
+        background: #f2f2f2;
+    }
 
 /* bỏ cái border thừa cho gọn (tuỳ bạn) */
 .practice-offcanvas .list-group-item {
-    display: block !important;
-    /* ✅ stretch */
-    width: 100% !important;
-    /* ✅ full width bằng offcanvas */
+    display: block !important; /* ✅ stretch */
+    width: 100% !important; /* ✅ full width bằng offcanvas */
     box-sizing: border-box;
 }
-
 /* =========================
    Practice Topics - Responsive Tiles
    ========================= */
@@ -452,67 +430,66 @@
 
     .topic-card {
         border-radius: 16px;
-        min-height: 150px;
-        /* ô nhỏ nhưng đủ chỗ */
+        min-height: 150px; /* ô nhỏ nhưng đủ chỗ */
         height: auto;
     }
 
-    /* Bố cục bên trong nhỏ gọn */
-    .topic-card .card-front,
-    .topic-card .card-back {
-        padding: 12px;
-        border-radius: 16px;
-    }
+        /* Bố cục bên trong nhỏ gọn */
+        .topic-card .card-front,
+        .topic-card .card-back {
+            padding: 12px;
+            border-radius: 16px;
+        }
 
-    .topic-card .topic-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
+        .topic-card .topic-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-    .topic-card .mic-icon {
-        width: 18px;
-        height: 18px;
-    }
+        .topic-card .mic-icon {
+            width: 18px;
+            height: 18px;
+        }
 
-    /* Label/date nhỏ lại để vừa ô */
-    .topic-card .forecast-label {
-        font-size: 11px;
-        padding: 4px 8px;
-        border-radius: 999px;
-    }
+        /* Label/date nhỏ lại để vừa ô */
+        .topic-card .forecast-label {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 999px;
+        }
 
-    .topic-card .forecast-date {
-        font-size: 11px;
-        opacity: 0.8;
-    }
+        .topic-card .forecast-date {
+            font-size: 11px;
+            opacity: 0.8;
+        }
 
-    /* Title tự co theo ô (cắt 2 dòng) */
-    .topic-card h3 {
-        font-size: 16px;
-        line-height: 1.2;
-        margin: 10px 0 6px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+        /* Title tự co theo ô (cắt 2 dòng) */
+        .topic-card h3 {
+            font-size: 16px;
+            line-height: 1.2;
+            margin: 10px 0 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
 
-    /* Question count nhỏ gọn */
-    .topic-card .question-count {
-        font-size: 12px;
-        padding: 4px 8px;
-        border-radius: 10px;
-    }
+        /* Question count nhỏ gọn */
+        .topic-card .question-count {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
 
-    /* Nút speak vừa ô */
-    .topic-card .btn-speak {
-        width: 100%;
-        font-size: 13px;
-        padding: 10px 12px;
-        border-radius: 12px;
-    }
+        /* Nút speak vừa ô */
+        .topic-card .btn-speak {
+            width: 100%;
+            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 12px;
+        }
 }
 
 /* Mobile rất nhỏ: 1 cột (vd iPhone SE) */
@@ -525,11 +502,10 @@
         min-height: 140px;
     }
 
-    .topic-card h3 {
-        font-size: 15px;
-    }
+        .topic-card h3 {
+            font-size: 15px;
+        }
 }
-
 /* ✅ Mobile: thu nhỏ welcome banner */
 @media (max-width: 576px) {
     .welcome-banner {
@@ -539,17 +515,17 @@
         min-height: unset !important;
     }
 
-    .welcome-banner h2 {
-        font-size: 22px !important;
-        line-height: 1.15 !important;
-        margin-bottom: 6px !important;
-    }
+        .welcome-banner h2 {
+            font-size: 22px !important;
+            line-height: 1.15 !important;
+            margin-bottom: 6px !important;
+        }
 
-    .welcome-banner p {
-        font-size: 14px !important;
-        margin: 0 !important;
-        opacity: .95;
-    }
+        .welcome-banner p {
+            font-size: 14px !important;
+            margin: 0 !important;
+            opacity: .95;
+        }
 }
 
 /* ✅ Màn rất nhỏ: thu thêm */
@@ -559,13 +535,13 @@
         margin: 10px 6px 14px !important;
     }
 
-    .welcome-banner h2 {
-        font-size: 20px !important;
-    }
+        .welcome-banner h2 {
+            font-size: 20px !important;
+        }
 
-    .welcome-banner p {
-        font-size: 13px !important;
-    }
+        .welcome-banner p {
+            font-size: 13px !important;
+        }
 }
 
 /* =========================================================
@@ -575,12 +551,10 @@
    ========================================================= */
 
 :root {
-    --app-vh: 1vh;
-    /* fallback; will be overridden by vh-fix.js */
+    --app-vh: 1vh; /* fallback; will be overridden by vh-fix.js */
 }
 
-html,
-body {
+html, body {
     height: 100%;
 }
 
@@ -605,7 +579,6 @@ body {
 }
 
 @media (max-width: 991.98px) {
-
     /* Avoid horizontal wobble caused by 100vw & safe-area */
     body {
         overflow-x: hidden;
