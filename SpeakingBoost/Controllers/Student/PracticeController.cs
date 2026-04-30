@@ -5,6 +5,7 @@ using SpeakingBoost.Models.DTOs;
 using SpeakingBoost.Models.DTOs.Student;
 using SpeakingBoost.Models.EF;
 using SpeakingBoost.Models.Entities;
+using SpeakingBoost.Models.Entities;
 using System.Security.Claims;
 
 // ================================================================
@@ -117,31 +118,68 @@ namespace SpeakingBoost.Controllers.Student
             return Ok(ApiResponse<List<PracticeQuestionDto>>.SuccessResponse(questions));
         }
 
+
         // ────────────────────────────────────────────────────────────
-        // GET /api/student/submissions/{id}/status
-        // API mới: polling trạng thái chấm (MVC dùng background task nhưng không có endpoint poll riêng)
+        // POST /api/student/practice/analyze
+        // Gửi audio (multipart/form-data)
         // ────────────────────────────────────────────────────────────
-        [HttpGet("/api/student/submissions/{id}/status")]
-        public async Task<IActionResult> GetSubmissionStatus(int id)
+        [HttpPost("analyze")]
+        public async Task<IActionResult> Analyze(IFormFile audio, [FromForm] int exerciseId, [FromForm] int part)
         {
+            if (audio == null || audio.Length == 0) return BadRequest(ApiResponse<object>.ErrorResponse("File audio không tồn tại."));
+
             var studentId = GetStudentId();
-            if (studentId == null)
-                return Unauthorized(ApiResponse<object>.ErrorResponse("Không tìm thấy thông tin người dùng."));
+            if (studentId == null) return Unauthorized(ApiResponse<object>.ErrorResponse("Không tìm thấy thông tin người dùng."));
 
-            var sub = await _context.Submissions
-                .Where(s => s.SubmissionId == id && s.StudentId == studentId)
-                .Select(s => new { s.SubmissionId, s.Status, s.ErrorMessage })
-                .FirstOrDefaultAsync();
-
-            if (sub == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy bài nộp."));
-
-            return Ok(ApiResponse<object>.SuccessResponse(new
+            string? filePath = null;
+            var queued = false;
+            try
             {
-                sub.SubmissionId,
-                Status       = sub.Status.ToString(),
-                sub.ErrorMessage
-            }));
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "audio");
+                Directory.CreateDirectory(uploads);
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(audio.FileName)}";
+                filePath = Path.Combine(uploads, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await audio.CopyToAsync(stream);
+
+                var audioPath = $"/audio/{fileName}";
+
+                var submission = new Submission
+                {
+                    StudentId = studentId.Value,
+                    ExerciseId = exerciseId,
+                    ClassExerciseId = null,
+                    AudioPath = audioPath,
+                    Status = ProcessingStatus.Pending,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.Submissions.Add(submission);
+                await _context.SaveChangesAsync();
+
+                var queue = HttpContext.RequestServices.GetRequiredService<SpeakingBoost.Services.Background.BackgroundQueue>();
+                queued = queue.TryQueueBackgroundWorkItem(submission.SubmissionId);
+
+                if (!queued)
+                {
+                    submission.Status = ProcessingStatus.Failed;
+                    submission.ErrorMessage = "Hệ thống đang bận. Vui lòng thử lại sau ít phút.";
+                    await _context.SaveChangesAsync();
+                    return StatusCode(429, ApiResponse<object>.ErrorResponse("Hệ thống đang bận, vui lòng thử lại sau."));
+                }
+
+                return Ok(ApiResponse<SubmitAudioResponse>.SuccessResponse(new SubmitAudioResponse
+                {
+                    SubmissionId = submission.SubmissionId,
+                    Status = "Pending",
+                    Message = "Đang xử lý trong nền, vui lòng chờ..."
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse("Lỗi hệ thống khi nộp bài.", new List<string> { ex.Message }));
+            }
         }
     }
 }

@@ -27,6 +27,11 @@ namespace SpeakingBoost.Models.Entities
         [ForeignKey("ExerciseId")]
         public virtual Exercise Exercise { get; set; }
 
+        public int? ClassExerciseId { get; set; }
+
+        [ForeignKey("ClassExerciseId")]
+        public virtual ClassExercise? ClassExercise { get; set; }
+
         [MaxLength(255)]
         public string? AudioPath { get; set; }
 

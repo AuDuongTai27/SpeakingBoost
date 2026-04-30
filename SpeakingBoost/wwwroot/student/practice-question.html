@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Làm bài Practice - SpeakingBoost</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin-layout.css" rel="stylesheet">
+    <style>
+        .question-card { background:#fff; border-radius:16px; padding:2rem; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+        .question-list-item { padding:.75rem 1rem; border-radius:10px; cursor:pointer; transition:all .2s; border:2px solid transparent; margin-bottom:.5rem; }
+        .question-list-item:hover { background:#f8fafc; border-color:#8b5cf6; }
+        .question-list-item.active { background:#ede9fe; border-color:#8b5cf6; color:#6d28d9; font-weight:600; }
+        .q-num { display:inline-block; width:28px; height:28px; border-radius:50%; background:#e2e8f0; color:#475569; font-size:.75rem; font-weight:700; text-align:center; line-height:28px; margin-right:.5rem; }
+        .question-list-item.active .q-num { background:#8b5cf6; color:#fff; }
+
+        .recorder-area { background:linear-gradient(135deg,#f8fafc,#f1f5f9); border-radius:14px; padding:2rem; text-align:center; }
+        #recordBtn { width:80px; height:80px; border-radius:50%; border:none; background:linear-gradient(135deg,#8b5cf6,#06b6d4); color:#fff; font-size:2rem; box-shadow:0 4px 15px rgba(139,92,246,0.4); transition:all .25s; cursor:pointer; }
+        #recordBtn:hover { transform:scale(1.08); }
+        #recordBtn.recording { background:linear-gradient(135deg,#ef4444,#f97316); animation:pulseRec 1.2s infinite; box-shadow:0 4px 15px rgba(239,68,68,0.5); }
+        @keyframes pulseRec { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        #recordTimer { font-size:1.5rem; font-weight:700; color:#0f172a; margin:.75rem 0 .25rem; }
+        #recordStatus { font-size:.85rem; color:#64748b; }
+        #audioPlayback { display:none; width:100%; margin-top:1rem; }
+
+        .result-panel { background:#fff; border-radius:16px; padding:1.5rem; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+        .score-circle { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#8b5cf6,#06b6d4); display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff; margin:0 auto 1rem; }
+        .score-circle .score-val { font-size:1.8rem; font-weight:700; line-height:1; }
+        .score-circle .score-lbl { font-size:.6rem; font-weight:600; opacity:.8; }
+        .criteria-bar { margin-bottom:.75rem; }
+        .criteria-label { display:flex; justify-content:space-between; font-size:.8rem; color:#475569; margin-bottom:.25rem; }
+        .criteria-fill { height:6px; border-radius:99px; background:linear-gradient(90deg,#8b5cf6,#06b6d4); transition:width 1s ease; }
+        .criteria-bg { height:6px; border-radius:99px; background:#e2e8f0; }
+    </style>
+</head>
+<body>
+<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang tải...</p></div>
+<div id="sidebarPlaceholder"></div>
+<div id="topbarPlaceholder"></div>
+
+<main id="main">
+<div class="page-content">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/student/practice.html" class="btn btn-light rounded-circle me-3" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-arrow-left"></i></a>
+        <div><h1 class="page-title mb-0" id="topicTitle">Đang tải...</h1><p class="text-muted mb-0" style="font-size:.85rem;">Luyện Speaking tự do</p></div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Danh sách câu hỏi -->
+        <div class="col-lg-4">
+            <div class="question-card h-100">
+                <h6 style="font-weight:600;margin-bottom:1rem;">Danh sách câu hỏi</h6>
+                <div id="questionList"></div>
+            </div>
+        </div>
+
+        <!-- Khu vực làm bài -->
+        <div class="col-lg-8">
+            <div class="question-card mb-4">
+                <div id="questionContent" style="display:none;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill mb-2" id="questionPart">Part 1</span>
+                            <h5 id="questionTitle" style="font-weight:700;color:#1e293b;"></h5>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="loadHistory()"><i class="bi bi-clock-history me-1"></i>Lịch sử</button>
+                    </div>
+                    <div class="p-3 rounded-3 mb-4" style="background:#f8fafc;border-left:4px solid #8b5cf6;">
+                        <p id="questionText" style="margin:0;color:#374151;font-size:1.05rem;line-height:1.7;"></p>
+                    </div>
+
+                    <!-- Recorder -->
+                    <div class="recorder-area">
+                        <button id="recordBtn" onclick="toggleRecord()"><i class="bi bi-mic-fill" id="recordIcon"></i></button>
+                        <div id="recordTimer">0:00</div>
+                        <div id="recordStatus">Nhấn để bắt đầu ghi âm</div>
+                        <audio id="audioPlayback" controls></audio>
+                        <div id="submitArea" style="display:none;margin-top:1rem;">
+                            <button class="btn btn-primary rounded-pill px-4" onclick="submitAudio()">
+                                <i class="bi bi-send-fill me-2"></i>Nộp bài & Chấm điểm AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khu vực kết quả -->
+                    <div id="resultArea" style="display:none;margin-top:1.5rem;">
+                        <div class="result-panel">
+                            <h6 style="font-weight:600;margin-bottom:1rem;"><i class="bi bi-stars me-2 text-warning"></i>Kết quả AI chấm</h6>
+                            <div id="processingMsg" class="text-center py-3" style="display:none;">
+                                <div class="spinner-border text-primary mb-2" style="width:2rem;height:2rem;"></div>
+                                <p class="text-muted mb-0" style="font-size:.9rem;">AI đang chấm điểm bài của bạn...</p>
+                            </div>
+                            <div id="scoreArea" style="display:none;">
+                                <div class="score-circle">
+                                    <span class="score-val" id="overallScore">--</span>
+                                    <span class="score-lbl">Overall</span>
+                                </div>
+                                <div id="criteriaList"></div>
+                                <div id="feedbackBox" class="p-3 rounded-3 mt-3" style="background:#f8fafc;font-size:.875rem;color:#374151;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="questionPlaceholder" class="text-center py-5 text-muted">
+                    <i class="bi bi-arrow-left-circle fs-1 d-block mb-2"></i>
+                    <p>Chọn một câu hỏi từ danh sách bên trái</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/student.js"></script>
+<script>
+    initStudentPage('nav-practice', 'Luyện Speaking');
+
+    let questions = [], currentQ = null;
+    let mediaRecorder = null, chunks = [], audioBlob = null;
+    let timerInterval = null, seconds = 0;
+    let pollingInterval = null;
+
+    AuthGuard.onReady(async () => {
+        const p = new URLSearchParams(window.location.search);
+        const topicId = p.get('topicId');
+        if (!topicId) { window.location.href = '/student/practice.html'; return; }
+
+        const res = await Api.get(`/api/student/practice/topics/${topicId}`);
+        if (res.success && res.data) {
+            document.getElementById('topicTitle').textContent = res.data.name || 'Chủ đề luyện tập';
+            document.title = (res.data.name || 'Practice') + ' - SpeakingBoost';
+            questions = res.data.exercises || [];
+            renderQuestionList();
+        } else {
+            Toast.err(res.message || 'Lỗi tải chủ đề');
+        }
+    });
+
+    function renderQuestionList() {
+        const list = document.getElementById('questionList');
+        if (!questions.length) { list.innerHTML = '<p class="text-muted" style="font-size:.85rem;">Không có câu hỏi nào.</p>'; return; }
+        list.innerHTML = questions.map((q, i) => `
+            <div class="question-list-item" id="qitem-${q.exerciseId}" onclick="selectQuestion(${i})">
+                <span class="q-num">${i + 1}</span>${q.title}
+            </div>
+        `).join('');
+    }
+
+    function selectQuestion(index) {
+        currentQ = questions[index];
+        // Reset UI
+        stopRecord(); resetAudio();
+        document.getElementById('resultArea').style.display = 'none';
+        document.getElementById('scoreArea').style.display = 'none';
+        document.getElementById('processingMsg').style.display = 'none';
+
+        document.querySelectorAll('.question-list-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`qitem-${currentQ.exerciseId}`)?.classList.add('active');
+
+        document.getElementById('questionPlaceholder').style.display = 'none';
+        document.getElementById('questionContent').style.display = 'block';
+        document.getElementById('questionTitle').textContent = currentQ.title;
+        document.getElementById('questionText').textContent = currentQ.question;
+        document.getElementById('questionPart').textContent = `Part ${currentQ.type?.replace('Part','') || '?'}`;
+    }
+
+    // ── Recording ──────────────────────────────────────────────
+    async function toggleRecord() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            stopRecord();
+        } else {
+            await startRecord();
+        }
+    }
+
+    async function startRecord() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            chunks = []; audioBlob = null;
+            document.getElementById('audioPlayback').style.display = 'none';
+            document.getElementById('submitArea').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'none';
+
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(chunks, { type: 'audio/webm' });
+                const url = URL.createObjectURL(audioBlob);
+                const ap = document.getElementById('audioPlayback');
+                ap.src = url; ap.style.display = 'block';
+                document.getElementById('submitArea').style.display = 'block';
+                stream.getTracks().forEach(t => t.stop());
+            };
+            mediaRecorder.start();
+
+            seconds = 0;
+            document.getElementById('recordBtn').classList.add('recording');
+            document.getElementById('recordIcon').className = 'bi bi-stop-fill';
+            document.getElementById('recordStatus').textContent = 'Đang ghi âm... Nhấn để dừng';
+            timerInterval = setInterval(() => {
+                seconds++;
+                const m = Math.floor(seconds / 60), s = seconds % 60;
+                document.getElementById('recordTimer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+            }, 1000);
+        } catch(e) {
+            Toast.err('Không thể truy cập microphone. Kiểm tra quyền trình duyệt.');
+        }
+    }
+
+    function stopRecord() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+        }
+        clearInterval(timerInterval);
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordIcon').className = 'bi bi-mic-fill';
+        document.getElementById('recordStatus').textContent = 'Ghi âm xong. Nghe lại hoặc nộp bài.';
+    }
+
+    function resetAudio() {
+        audioBlob = null; chunks = []; seconds = 0;
+        clearInterval(timerInterval);
+        document.getElementById('recordTimer').textContent = '0:00';
+        document.getElementById('recordStatus').textContent = 'Nhấn để bắt đầu ghi âm';
+        document.getElementById('audioPlayback').style.display = 'none';
+        document.getElementById('submitArea').style.display = 'none';
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordIcon').className = 'bi bi-mic-fill';
+    }
+
+    async function submitAudio() {
+        if (!audioBlob || !currentQ) { Toast.err('Vui lòng ghi âm trước.'); return; }
+
+        document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('processingMsg').style.display = 'block';
+        document.getElementById('scoreArea').style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'answer.webm');
+        formData.append('exerciseId', currentQ.exerciseId);
+        formData.append('part', (currentQ.type || '1').replace('Part',''));
+
+        const res = await Api.postForm('/api/student/practice/analyze', formData);
+        if (res.success && res.data?.submissionId) {
+            pollStatus(res.data.submissionId);
+        } else {
+            document.getElementById('processingMsg').innerHTML =
+                `<p class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${res.message || 'Lỗi nộp bài'}</p>`;
+        }
+    }
+
+    function pollStatus(submissionId) {
+        clearInterval(pollingInterval);
+        pollingInterval = setInterval(async () => {
+            const r = await Api.get(`/api/student/submissions/${submissionId}/status`);
+            if (r.success && r.data) {
+                const s = r.data;
+                if (s.status === 'Evaluated' || s.status === 'Error') {
+                    clearInterval(pollingInterval);
+                    document.getElementById('processingMsg').style.display = 'none';
+                    showScore(s);
+                }
+            }
+        }, 3000);
+    }
+
+    function showScore(data) {
+        document.getElementById('scoreArea').style.display = 'block';
+        document.getElementById('overallScore').textContent = data.overall ? data.overall.toFixed(1) : '--';
+
+        const criteria = [
+            { label: 'Pronunciation', val: data.pronunciation },
+            { label: 'Grammar', val: data.grammar },
+            { label: 'Lexical Resource', val: data.lexicalResource },
+            { label: 'Coherence', val: data.coherence },
+        ];
+        document.getElementById('criteriaList').innerHTML = criteria.map(c => {
+            const v = c.val || 0;
+            return `<div class="criteria-bar"><div class="criteria-label"><span>${c.label}</span><span>${v.toFixed(1)}</span></div>
+                <div class="criteria-bg"><div class="criteria-fill" style="width:${(v/9)*100}%"></div></div></div>`;
+        }).join('');
+
+        document.getElementById('feedbackBox').innerHTML = data.aiFeedback
+            ? `<strong>📝 Nhận xét:</strong><br>${data.aiFeedback}`
+            : '<span class="text-muted">Chưa có nhận xét chi tiết.</span>';
+    }
+
+    async function loadHistory() {
+        if (!currentQ) return;
+        window.location.href = `/student/history.html?exerciseId=${currentQ.exerciseId}&mode=practice`;
+    }
+</script>
+</body>
+</html>

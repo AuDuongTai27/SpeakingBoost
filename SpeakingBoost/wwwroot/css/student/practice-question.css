@@ -1,9 +1,10 @@
-/* =========================
-                   GLOBAL
-                   ========================= */
+/* ==========================================================================
+   1. GLOBAL & LAYOUT CHUNG
+   ========================================================================== */
 body {
     background: linear-gradient(135deg, #dfe8ff, #f5f7ff);
     font-family: 'Poppins', sans-serif;
+    padding-bottom: 78px; /* Chừa không gian cho bottom nav */
 }
 
 .practice-scroll-area {
@@ -19,9 +20,9 @@ body {
     height: 100%;
 }
 
-/* =========================
-                   LEFT TOPIC BOX
-                   ========================= */
+/* ==========================================================================
+   2. LEFT TOPIC BOX (CỘT BÊN TRÁI)
+   ========================================================================== */
 .topic-box {
     background: linear-gradient(180deg, #e5edff 0%, #d4e2ff 100%);
     border: 3px solid #0b4cc3;
@@ -84,7 +85,6 @@ body {
     cursor: pointer;
     transition: all 0.25s ease;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    /* Q + Title layout */
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -144,9 +144,9 @@ body {
     }
 }
 
-/* =========================
-                   RIGHT QUESTION BOX
-                   ========================= */
+/* ==========================================================================
+   3. RIGHT QUESTION BOX (HỘP CÂU HỎI & GHI ÂM)
+   ========================================================================== */
 .question-box {
     box-sizing: border-box;
     flex: 1;
@@ -163,7 +163,6 @@ body {
     position: relative;
 }
 
-/* TOPIC HOLOGRAM */
 .topic-holo {
     width: 100%;
     margin: -6px 0 14px;
@@ -193,6 +192,7 @@ body {
         pointer-events: none;
     }
 
+/* Hiển thị Text Câu Hỏi */
 #questionText {
     flex: 1;
     overflow-y: auto;
@@ -216,7 +216,6 @@ body {
         border-radius: 6px;
     }
 
-    /* Part 2 formatting */
     #questionText.part2 {
         text-align: left;
         padding: 0 10px;
@@ -236,26 +235,24 @@ body {
             #questionText.part2 .p2-bullets li {
                 margin: 8px 0;
             }
-/* ✅ Desktop: canh “nhẹ” vào giữa (giữ bullet dễ đọc) */
+
 @media (min-width: 992px) {
-    /* canh giữa cả phần Part 2 */
     #questionText.part2 {
         max-width: 760px;
         margin: 20px auto;
         padding: 0 22px;
-        text-align: center; /* để ul inline-block được canh giữa */
+        text-align: center;
     }
-        /* ✅ title cũng canh giữa cho đồng bộ */
-        #questionText.part2 h2,
-        #questionText.part2 .p2-head {
+
+        #questionText.part2 h2, #questionText.part2 .p2-head {
             text-align: center;
         }
-        /* ✅ CỤM bullet ở giữa nhưng chữ thẳng hàng đẹp */
+
         #questionText.part2 ul {
-            display: inline-block; /* quan trọng */
-            text-align: left; /* mỗi dòng canh trái */
+            display: inline-block;
+            text-align: left;
             margin: 14px auto 0;
-            padding-left: 1.4em; /* thụt để thấy bullet */
+            padding-left: 1.4em;
             list-style-position: outside;
         }
 
@@ -264,14 +261,33 @@ body {
         }
 }
 
+/* ==========================================================================
+   4. NÚT BẤM & CONTROL DOCK CHUNG
+   ========================================================================== */
+#recordArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
 
+    #recordArea p {
+        text-align: center;
+    }
 
-/* Record button */
+.control-dock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
 .record-btn {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    margin-left: 0; /* ✅ không lệch trục */
+    margin-left: 0;
     border: 5px solid #0a58ca;
     background: #ff3b3b;
     box-shadow: 0 6px 15px rgba(255, 0, 0, 0.3);
@@ -295,26 +311,6 @@ body {
     }
 }
 
-/* Control dock (default: inside flow) */
-#recordArea {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-    #recordArea p {
-        text-align: center;
-    }
-
-.control-dock {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-}
-
 .audio-controls {
     display: flex;
     justify-content: center;
@@ -336,37 +332,63 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Timer */
-#timerContainer {
-    display: none;
-    margin-top: 20px;
-    width: 80%;
+.submit-btn {
+    font-size: 1.1rem;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all .25s ease;
 }
 
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+/* ==========================================================================
+   5. TIMER & MAX ATTEMPTS
+   ========================================================================== */
+#timerContainer {
+    display: none;
+    margin: 15px auto 10px auto !important;
+    width: 100% !important;
+    max-width: 340px !important;
+    box-sizing: border-box !important;
+}
+
+    #timerContainer > div:first-child {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
+    }
+
 #timerLabel, #timeRemaining {
-    font-weight: 600;
-    color: #0a58ca;
+    font-weight: 600 !important;
+    color: #0a58ca !important;
+    font-size: 15px !important;
 }
 
 #timerBarContainer {
-    width: 100%;
-    background: #e0e0e0;
-    border-radius: 20px;
-    overflow: hidden;
-    height: 12px;
-    margin-top: 5px;
+    width: 100% !important;
+    background: #e0e0e0 !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    height: 8px !important;
+    margin: 0 !important;
+    display: block !important;
 }
 
 #timerBar {
-    height: 100%;
-    background: #0a58ca;
-    width: 100%;
-    transition: width 1s linear;
+    height: 100% !important;
+    background: #0a58ca !important;
+    display: block !important;
+    transition: width 1s linear !important;
 }
 
-/* Max attempt notice (inside question box) */
 #maxAttemptBtn {
-    display: none; /* JS sẽ bật */
+    display: none;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -393,21 +415,9 @@ body {
         flex: 0 1 auto;
     }
 
-/* Submit */
-.submit-btn {
-    font-size: 1.1rem;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all .25s ease;
-}
-
-    .submit-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-/* OFFCANVAS: Exercise Picker */
+/* ==========================================================================
+   6. EXERCISE PICKER LIST (Dùng ở trang Desktop/Khác)
+   ========================================================================== */
 .exercise-picker-list {
     display: flex;
     flex-direction: column;
@@ -457,17 +467,20 @@ body {
         color: #0a58ca;
     }
 
-/* FAB menu (mobile only) */
+/* ==========================================================================
+   7. FAB MENU (BURGER MENU CHUNG)
+   ========================================================================== */
 .fab-menu {
     position: fixed;
     left: 14px;
-    bottom: 120px; /* tránh đè bottom nav */
+    bottom: 120px;
     z-index: 8000;
     display: none;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    pointer-events: none; /* đóng thì không bắt click */
+    pointer-events: none;
+    transform: translateY(15px) !important;
 }
 
     .fab-menu.open {
@@ -536,142 +549,82 @@ body {
     display: block;
 }
 
-/* =========================
-                   RESPONSIVE – MOBILE
-                   ========================= */
+/* ==========================================================================
+   8. RESPONSIVE – MOBILE (DƯỚI 992PX) - ĐÃ DỌN DẸP & FIX LỖI
+   ========================================================================== */
 @media (max-width: 991.98px) {
-    /* timer mini nằm ngay trên record */
-    #recordArea {
-        position: relative;
-        padding-top: 80px; /* chừa chỗ vừa đủ cho pill */
+    /* Vùng cuộn & Bố cục */
+    .practice-scroll-area {
+        height: auto !important;
+        min-height: 100vh !important;
+        padding: 15px 10px 100px 10px !important;
     }
-    /* ✅ Timer đẹp + nhỏ vừa phải (pill/glass) */
-    #timerContainer {
-        position: absolute !important;
-        top: 0 !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 230px !important; /* nhỏ hơn nhưng vẫn đọc rõ */
-        padding: 6px 10px !important;
-        margin: 0 !important;
-        border-radius: 999px !important;
-        background: rgba(255,255,255,0.72) !important;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(10,88,202,0.18);
-        box-shadow: 0 10px 22px rgba(0,0,0,0.10) !important;
-        z-index: 2;
-    }
-        /* Row trên: label nhỏ + time rõ */
-        #timerContainer > div {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 5px !important;
-        }
-
-    #timerLabel {
-        font-size: 11px !important;
-        font-weight: 600 !important;
-        opacity: .75;
-        white-space: nowrap;
-    }
-
-    #timeRemaining {
-        font-size: 12px !important;
-        font-weight: 900 !important;
-        letter-spacing: 0.2px;
-        white-space: nowrap;
-    }
-    /* Thanh progress mảnh + bo tròn */
-    #timerBarContainer {
-        height: 5px !important;
-        border-radius: 999px !important;
-        background: rgba(10,88,202,0.10) !important;
-        overflow: hidden;
-        margin-top: 0 !important;
-    }
-
-    #timerBar {
-        height: 100% !important;
-        border-radius: 999px !important;
-    }
-
-    @media (max-width: 991.98px) {
-        /* 1) Giảm lề 2 bên của trang */
-        .practice-scroll-area {
-            padding-left: 8px !important;
-            padding-right: 8px !important;
-        }
-
-        /* 2) Cho box được phép nở hết (không bị chặn max-width) */
-        .topic-box,
-        .question-box {
-            width: 100% !important;
-            max-width: none !important; /* ✅ quan trọng */
-            margin: 0 auto !important;
-            box-sizing: border-box !important;
-        }
-    }
-
 
     .practice-area {
         flex-direction: column !important;
-        align-items: center !important;
-        gap: 14px !important;
         height: auto !important;
     }
-    /* ✅ Mobile: ẩn danh sách câu hỏi (chỉ giữ tiêu đề Topic) */
+
+    /* Ẩn cột bên trái */
     .topic-box {
         width: 100% !important;
         max-width: 440px !important;
         margin: 0 auto !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
-    .topic-box {
-        border: none !important;
-        box-shadow: none !important; /* tuỳ: bỏ bóng luôn cho gọn */
-    }
-    .topic-box .question-list {
-        display: none !important;
-    }
+        .topic-box .question-list {
+            display: none !important;
+        }
 
     .topic-title {
         border-radius: 25px !important;
     }
 
-#historyBtn {
+    #historyBtn {
         display: none !important;
     }
-    /* QUESTION BOX: luôn ở giữa, không tràn */
+
+    /* Hộp trắng: Cố định kích thước & Giao diện */
     .question-box {
-        width: 100% !important; /* hoặc 100% nếu bạn muốn full trong parent */
-        max-width: 440px !important; /* tăng/giảm tùy bạn */
-        margin: -10px !important; /* căn giữa */
-        box-sizing: border-box !important; /* tránh tràn vì padding/border */
+        display: block !important;
+        width: 100% !important;
+        max-width: 480px !important;
+        height: 400px !important;
+        min-height: 400px !important;
+        margin: 0 auto !important;
+        padding: 20px 16px 20px !important;
+        background-color: #ffffff !important;
+        border-radius: 20px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        position: relative !important;
     }
-    /* topic hologram gọn lại */
-    .topic-holo {
-        width: 100%;
-        max-width: 420px;
-        margin: 2px auto 12px;
-        font-size: 14px;
-        border-radius: 16px;
+
+    /* Nút Chơi Mini Game */
+    .play-game-btn {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: fit-content !important;
+        min-width: 160px !important;
+        margin: 15px auto 10px auto !important;
+        position: relative !important;
+        z-index: 20 !important;
     }
-    /* text câu hỏi */
+
+    /* Chữ câu hỏi */
     #questionText {
-        width: 100%;
-        flex: 1 1 auto;
-        margin: 10px 0 0;
-        padding: 0 6px;
-        text-align: center;
-        font-size: 16px; /* JS sẽ fit nhỏ xuống nếu dài */
-        line-height: 1.55;
-        overflow: hidden;
-        box-sizing: border-box;
+        width: 100% !important;
+        flex: none !important;
+        margin: 10px 0 25px 0 !important;
+        padding: 0 6px !important;
+        text-align: center !important;
+        max-height: none !important;
+        overflow: visible !important;
     }
-        /* Part 2: center theo nhóm */
+
         #questionText.part2 {
             text-align: center !important;
         }
@@ -686,20 +639,26 @@ body {
                 margin: 10px auto 0;
                 padding-left: 22px;
             }
-    /* DOCK: cố định dưới, luôn center (record + text không bao giờ nhảy) */
+
+    /* Control Dock (Cụm Ghi âm trôi nổi) */
     .control-dock {
         position: fixed !important;
+        bottom: 90px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        bottom: 96px !important; /* khoảng cách với bottom bar */
         width: 100% !important;
-        max-width: 440px !important;
+        max-width: 480px !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 12px !important;
-        z-index: 6500 !important;
+        gap: 10px !important;
+        z-index: 9999 !important;
+        pointer-events: none !important;
     }
+
+        .control-dock > * {
+            pointer-events: auto !important;
+        }
 
     #recordArea {
         width: 100%;
@@ -721,6 +680,89 @@ body {
         text-align: center !important;
     }
 
+    /* Thanh Thời gian */
+    #timerContainer {
+        position: relative !important;
+        width: 240px !important;
+        padding: 8px 14px !important;
+        margin: 0 auto 12px auto !important;
+        border-radius: 999px !important;
+        background: rgba(255,255,255,0.85) !important;
+        border: 1px solid rgba(10,88,202,0.18);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+    }
+
+        #timerContainer > div:first-child {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            margin-bottom: 6px !important;
+        }
+
+    #timerLabel {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #0a58ca !important;
+    }
+
+    #timeRemaining {
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        color: #0a58ca !important;
+    }
+
+    #timerBarContainer {
+        width: 100% !important;
+        height: 6px !important;
+        border-radius: 999px !important;
+        background: rgba(10,88,202,0.15) !important;
+    }
+
+    #timerBar {
+        height: 100% !important;
+        border-radius: 999px !important;
+        background: #0a58ca !important;
+    }
+
+    /* Audio Controls (Đã fix mã màu) */
+    .audio-controls {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 0;
+    }
+
+    #audioPlayback {
+        width: 85% !important;
+        height: 48px !important;
+        outline: none !important;
+        border: 2px solid #0a58ca !important; /* Đổi viền sang xanh dương cho hợp tone */
+        border-radius: 50px !important;
+        background-color: #f0f6ff !important; /* Đã thêm dấu # */
+        box-shadow: 0 4px 12px rgba(10, 88, 202, 0.15) !important;
+        transform: translateY(-20px) !important;
+    }
+
+        #audioPlayback::-webkit-media-controls-panel {
+            background-color: #f0f6ff !important;
+        }
+        /* Đã thêm dấu # */
+        #audioPlayback::-webkit-media-controls-enclosure {
+            border-radius: 50px !important;
+        }
+
+    /* Nút Submit */
+    .submit-btn {
+        position: absolute !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: calc(100% - 32px) !important;
+        max-width: 440px !important;
+        margin: 0 !important;
+        z-index: 10 !important;
+    }
+
     #maxAttemptBtn {
         max-width: 92%;
         width: auto;
@@ -729,40 +771,14 @@ body {
         font-weight: 800;
     }
 
-    .audio-controls {
-        width: 100%;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 0;
-    }
-
-    audio {
-        width: 100%;
-    }
-
-    #timerContainer {
-        width: 100%;
-    }
-
-    .submit-btn {
-        width: 100%;
-        max-width: 440px;
-        margin-top: 14px;
-    }
-    /* FAB menu chỉ mobile */
+    /* Bottom Nav & Burger Menu */
     .fab-menu {
         display: flex !important;
-        bottom: 110px; /* tránh bottom nav */
+        bottom: 110px;
+        z-index: 99999 !important;
     }
-    /* FORCE bottom bar fixed */
-    #mobileBottomNav,
-    #mobile-bottom-nav,
-    .mobile-bottom-nav,
-    .mobile-bottom-bar,
-    .student-bottom-nav,
-    .bottom-nav,
-    .bottom-bar,
-    nav.mobile-bottom-nav {
+
+    #mobileBottomNav, .student-bottom-nav {
         position: fixed !important;
         left: 0 !important;
         right: 0 !important;
@@ -771,7 +787,64 @@ body {
         z-index: 10000 !important;
     }
 
-    body {
-        padding-bottom: 78px;
+    /* ==========================================================================
+       BẢN CHUẨN: OFFCANVAS PRACTICE MENU (CỘT 20VW)
+       ========================================================================== */
+    .practice-offcanvas.offcanvas-bottom {
+        position: fixed !important;
+        width: 20vw !important;
+        min-width: 0 !important;
+        left: 20vw !important;
+        right: auto !important;
+        height: fit-content !important;
+        bottom: 75px !important;
+        margin: 0 !important;
+        border-radius: 12px 12px 0 0 !important;
+        border: 1px solid rgba(0,0,0,0.1) !important;
+        border-bottom: none !important;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.15) !important;
+        z-index: 1050 !important;
     }
+
+    .practice-offcanvas .offcanvas-header {
+        padding: 8px 4px !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    .practice-offcanvas .offcanvas-title {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        margin: 0 !important;
+    }
+
+    .practice-offcanvas .btn-close {
+        margin: 0 !important;
+        padding: 4px !important;
+        font-size: 10px !important;
+    }
+
+    .practice-offcanvas .offcanvas-body {
+        padding: 4px !important;
+        overflow-x: hidden !important;
+    }
+
+    .practice-offcanvas .list-group-item {
+        padding: 10px 2px !important;
+        font-size: 13px !important;
+        text-align: center !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        border-radius: 0 !important;
+    }
+
+        .practice-offcanvas .list-group-item:last-child {
+            border-bottom: none !important;
+        }
+
+        .practice-offcanvas .list-group-item:active {
+            background-color: #e9ecef !important;
+        }
 }
