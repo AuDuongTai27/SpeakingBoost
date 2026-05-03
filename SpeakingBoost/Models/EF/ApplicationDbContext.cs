@@ -16,7 +16,6 @@ namespace SpeakingBoost.Models.EF
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Submission> Submissions { get; set; }
         public DbSet<Score> Scores { get; set; }
-        public DbSet<Vocabulary> Vocabulary { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<VocabularyTopic> VocabularyTopics { get; set; }
         public DbSet<ClassExercise> ClassExercises { get; set; }
@@ -52,14 +51,12 @@ namespace SpeakingBoost.Models.EF
                 .HasForeignKey(sc => sc.ClassId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 👇 ĐÃ SỬA Ở ĐÂY: Thêm Restrict để ngắt hiệu ứng Domino
             modelBuilder.Entity<ClassExercise>()
                 .HasOne(ce => ce.SchoolClass)
                 .WithMany(c => c.ClassExercises)
                 .HasForeignKey(ce => ce.ClassId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 👇 ĐÃ SỬA Ở ĐÂY: Thêm Restrict để ngắt hiệu ứng Domino
             modelBuilder.Entity<ClassExercise>()
                 .HasOne(ce => ce.Exercise)
                 .WithMany(e => e.ClassExercises)

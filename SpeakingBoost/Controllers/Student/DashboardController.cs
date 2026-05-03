@@ -9,7 +9,7 @@ namespace SpeakingBoost.Controllers.Student
 {
     [ApiController]
     [Route("api/student/dashboard")]
-    [Authorize(Roles = "student")]
+    [Authorize(Roles = "user")]
     public class DashboardController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

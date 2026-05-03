@@ -8,22 +8,21 @@ using SpeakingBoost.Models.Entities;
 using SpeakingBoost.Services.Email;
 
 // ================================================================
-// DeadlinesController — tương đương DeadlineController (MVC)
+// DeadlinesController — Quản lý giao bài theo chủ đề
 //
-// MVC cũ:                                          API mới:
-// ───────────────────────────────────────────────  ──────────────────────────────────────────
-// GET  /Admin/Deadline/Index                     →  GET    /api/admin/deadlines
-// POST /Admin/Deadline/Index (bulk assign)       →  POST   /api/admin/deadlines/bulk
-// POST /Admin/Deadline/DeleteDeadlineFromIndex   →  DELETE /api/admin/deadlines/{id}
-// GET  /Admin/Deadline/Manage?exerciseId=5       →  GET    /api/admin/deadlines/exercise/5
-// POST /Admin/Deadline/SaveDeadline              →  POST   /api/admin/deadlines/exercise/{exerciseId}/class
-// POST /Admin/Deadline/RemoveDeadline            →  DELETE /api/admin/deadlines/{classExerciseId}
+// Deadline chỉ được giao theo Topic (chủ đề).
+// 1 Topic có nhiều câu hỏi → tất cả được giao cùng deadline cho lớp.
+// Không hỗ trợ giao từng bài lẻ (Custom mode đã bỏ).
+//
+// GET    /api/admin/deadlines              — xem deadlines đang chạy
+// POST   /api/admin/deadlines/assign       — giao chủ đề cho lớp
+// DELETE /api/admin/deadlines/{id}         — xóa 1 ClassExercise
 // ================================================================
 
 namespace SpeakingBoost.Controllers.Admin
 {
     [ApiController]
-    [Authorize(Roles = "teacher,superadmin")]
+    [Authorize(Roles = "admin")]
     public class DeadlinesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -37,7 +36,7 @@ namespace SpeakingBoost.Controllers.Admin
 
         // ────────────────────────────────────────────────────────────
         // GET /api/admin/deadlines
-        // MVC cũ: Index() — trả danh sách deadline đang chạy + dropdowns
+        // Trả danh sách deadline đang chạy + dữ liệu dropdown cho frontend
         // ────────────────────────────────────────────────────────────
         [HttpGet("api/admin/deadlines")]
         public async Task<IActionResult> GetActiveDeadlines()
@@ -45,6 +44,7 @@ namespace SpeakingBoost.Controllers.Admin
             var deadlines = await _context.ClassExercises
                 .Include(ce => ce.SchoolClass)
                 .Include(ce => ce.Exercise)
+                    .ThenInclude(e => e.VocabularyTopic)
                 .Where(ce => ce.Deadline.HasValue)
                 .OrderByDescending(ce => ce.Deadline)
                 .Select(ce => new ActiveDeadlineDto
@@ -54,30 +54,26 @@ namespace SpeakingBoost.Controllers.Admin
                     ClassName       = ce.SchoolClass.ClassName,
                     ExerciseId      = ce.ExerciseId,
                     ExerciseTitle   = ce.Exercise.Title,
+                    TopicName       = ce.Exercise.VocabularyTopic != null ? ce.Exercise.VocabularyTopic.Name : null,
                     Deadline        = ce.Deadline
                 })
                 .ToListAsync();
 
-            // Kèm dữ liệu dropdown cho frontend
+            // Dropdown: danh sách lớp
             var classes = await _context.Classes
                 .OrderBy(c => c.ClassName)
                 .Select(c => new { c.ClassId, c.ClassName })
                 .ToListAsync();
 
+            // Dropdown: danh sách topic (mỗi topic có nhiều câu hỏi)
             var topics = await _context.VocabularyTopics
                 .OrderBy(t => t.Name)
-                .Select(t => new { t.TopicId, t.Name })
-                .ToListAsync();
-
-            var allExercises = await _context.Exercises
-                .Include(e => e.VocabularyTopic)
-                .OrderByDescending(e => e.CreatedAt)
-                .Select(e => new
+                .Select(t => new
                 {
-                    e.ExerciseId,
-                    e.Title,
-                    e.Type,
-                    TopicName = e.VocabularyTopic != null ? e.VocabularyTopic.Name : null
+                    t.TopicId,
+                    t.Name,
+                    t.Description,
+                    ExerciseCount = t.Exercises != null ? t.Exercises.Count : 0
                 })
                 .ToListAsync();
 
@@ -85,18 +81,17 @@ namespace SpeakingBoost.Controllers.Admin
             {
                 ActiveDeadlines = deadlines,
                 Classes         = classes,
-                Topics          = topics,
-                AllExercises    = allExercises
+                Topics          = topics
             }));
         }
 
         // ────────────────────────────────────────────────────────────
-        // POST /api/admin/deadlines/bulk
-        // Body: BulkAssignDeadlineDto
-        // MVC cũ: POST Index(model) — gán hàng loạt bài tập cho lớp + gửi email
+        // POST /api/admin/deadlines/assign
+        // Body: AssignTopicDeadlineDto
+        // Giao toàn bộ câu hỏi của 1 Topic cho 1 Lớp với cùng Deadline
         // ────────────────────────────────────────────────────────────
-        [HttpPost("api/admin/deadlines/bulk")]
-        public async Task<IActionResult> BulkAssign([FromBody] BulkAssignDeadlineDto dto)
+        [HttpPost("api/admin/deadlines/assign")]
+        public async Task<IActionResult> AssignTopicDeadline([FromBody] AssignTopicDeadlineDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -104,64 +99,71 @@ namespace SpeakingBoost.Controllers.Admin
                 return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
             }
 
-            // Validate mode
-            if (dto.AssignMode == "Topic" && dto.SelectedTopicId == null)
-                return BadRequest(ApiResponse<object>.ErrorResponse("Vui lòng chọn Chủ đề."));
+            // Lấy tất cả exercises thuộc topic
+            var exercises = await _context.Exercises
+                .Where(e => e.TopicId == dto.TopicId)
+                .ToListAsync();
 
-            if (dto.AssignMode == "Custom" && (dto.SelectedExerciseIds == null || !dto.SelectedExerciseIds.Any()))
-                return BadRequest(ApiResponse<object>.ErrorResponse("Vui lòng chọn ít nhất 1 bài tập."));
+            if (!exercises.Any())
+                return BadRequest(ApiResponse<object>.ErrorResponse("Chủ đề này chưa có câu hỏi nào."));
 
-            // Lấy danh sách exercises cần gán
-            List<Exercise> exercisesToAssign;
-            if (dto.AssignMode == "Topic")
-                exercisesToAssign = await _context.Exercises.Where(e => e.TopicId == dto.SelectedTopicId).ToListAsync();
-            else
-                exercisesToAssign = await _context.Exercises.Where(e => dto.SelectedExerciseIds.Contains(e.ExerciseId)).ToListAsync();
+            // Kiểm tra class tồn tại
+            var schoolClass = await _context.Classes.FindAsync(dto.ClassId);
+            if (schoolClass == null)
+                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy lớp học."));
 
-            if (!exercisesToAssign.Any())
-                return BadRequest(ApiResponse<object>.ErrorResponse("Không tìm thấy bài tập nào để gán."));
+            // Kiểm tra topic tồn tại
+            var topic = await _context.VocabularyTopics.FindAsync(dto.TopicId);
+            if (topic == null)
+                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy chủ đề."));
 
-            int count = 0;
-            foreach (var exercise in exercisesToAssign)
+            int added = 0, updated = 0;
+            foreach (var exercise in exercises)
             {
                 var existing = await _context.ClassExercises
                     .FirstOrDefaultAsync(ce => ce.ClassId == dto.ClassId && ce.ExerciseId == exercise.ExerciseId);
 
                 if (existing != null)
+                {
                     existing.Deadline = dto.Deadline;
+                    updated++;
+                }
                 else
+                {
                     _context.ClassExercises.Add(new ClassExercise
                     {
                         ClassId    = dto.ClassId,
                         ExerciseId = exercise.ExerciseId,
                         Deadline   = dto.Deadline
                     });
-                count++;
+                    added++;
+                }
             }
 
             await _context.SaveChangesAsync();
 
-            // Gửi email thông báo — giống MVC
-            var className = (await _context.Classes.FindAsync(dto.ClassId))?.ClassName ?? "";
-            string subject = dto.AssignMode == "Topic"
-                ? $"Bài tập mới chủ đề: {(await _context.VocabularyTopics.FindAsync(dto.SelectedTopicId))?.Name}"
-                : $"Bạn có {count} bài tập mới";
+            // Gửi email thông báo cho học viên trong lớp
+            await SendTopicDeadlineNotification(dto.ClassId, topic.Name, schoolClass.ClassName, dto.Deadline, exercises.Count);
 
-            await SendBulkEmailsToClass(dto.ClassId, subject, className, dto.Deadline, count);
+            string message = added > 0 && updated > 0
+                ? $"Đã gán {added} câu hỏi mới và cập nhật {updated} câu hỏi của chủ đề '{topic.Name}' cho lớp {schoolClass.ClassName}!"
+                : added > 0
+                    ? $"Đã gán {added} câu hỏi của chủ đề '{topic.Name}' cho lớp {schoolClass.ClassName}!"
+                    : $"Đã cập nhật deadline cho {updated} câu hỏi của chủ đề '{topic.Name}'.";
 
-            return Ok(ApiResponse<object>.SuccessResponse($"Đã gán thành công {count} bài tập cho lớp {className}!"));
+            return Ok(ApiResponse<object>.SuccessResponse(message));
         }
 
         // ────────────────────────────────────────────────────────────
         // DELETE /api/admin/deadlines/{id}
-        // MVC cũ: DeleteDeadlineFromIndex(id) — xóa 1 ClassExercise
+        // Xóa 1 ClassExercise (1 câu hỏi khỏi deadline của lớp)
         // ────────────────────────────────────────────────────────────
         [HttpDelete("api/admin/deadlines/{id}")]
         public async Task<IActionResult> DeleteDeadline(int id)
         {
             var assignment = await _context.ClassExercises.FindAsync(id);
             if (assignment == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy dữ liệu để xóa."));
+                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy deadline để xóa."));
 
             _context.ClassExercises.Remove(assignment);
             await _context.SaveChangesAsync();
@@ -170,115 +172,42 @@ namespace SpeakingBoost.Controllers.Admin
         }
 
         // ────────────────────────────────────────────────────────────
-        // GET /api/admin/deadlines/exercise/{exerciseId}
-        // MVC cũ: Manage(exerciseId) — xem tất cả lớp đã gán bài tập này
+        // DELETE /api/admin/deadlines/topic/{topicId}/class/{classId}
+        // Xóa toàn bộ deadline của 1 topic khỏi 1 lớp
         // ────────────────────────────────────────────────────────────
-        [HttpGet("api/admin/deadlines/exercise/{exerciseId}")]
-        public async Task<IActionResult> GetByExercise(int exerciseId)
+        [HttpDelete("api/admin/deadlines/topic/{topicId}/class/{classId}")]
+        public async Task<IActionResult> DeleteTopicDeadlineFromClass(int topicId, int classId)
         {
-            var exercise = await _context.Exercises.FindAsync(exerciseId);
-            if (exercise == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy bài tập."));
+            var exerciseIds = await _context.Exercises
+                .Where(e => e.TopicId == topicId)
+                .Select(e => e.ExerciseId)
+                .ToListAsync();
 
             var assignments = await _context.ClassExercises
-                .Include(ce => ce.SchoolClass)
-                .Where(ce => ce.ExerciseId == exerciseId)
-                .OrderBy(ce => ce.SchoolClass.ClassName)
-                .Select(ce => new ActiveDeadlineDto
-                {
-                    ClassExerciseId = ce.ClassExerciseId,
-                    ClassId         = ce.ClassId,
-                    ClassName       = ce.SchoolClass.ClassName,
-                    ExerciseId      = ce.ExerciseId,
-                    ExerciseTitle   = exercise.Title,
-                    Deadline        = ce.Deadline
-                })
+                .Where(ce => ce.ClassId == classId && exerciseIds.Contains(ce.ExerciseId))
                 .ToListAsync();
 
-            var classes = await _context.Classes
-                .OrderBy(c => c.ClassName)
-                .Select(c => new { c.ClassId, c.ClassName })
-                .ToListAsync();
+            if (!assignments.Any())
+                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy deadline cần xóa."));
 
-            return Ok(ApiResponse<object>.SuccessResponse(new
-            {
-                ExerciseId    = exercise.ExerciseId,
-                ExerciseTitle = exercise.Title,
-                Assignments   = assignments,
-                Classes       = classes
-            }));
-        }
-
-        // ────────────────────────────────────────────────────────────
-        // POST /api/admin/deadlines/exercise/{exerciseId}/class
-        // Body: SaveDeadlineDto
-        // MVC cũ: SaveDeadline(model) — upsert deadline cho (exerciseId, classId) + gửi email
-        // ────────────────────────────────────────────────────────────
-        [HttpPost("api/admin/deadlines/exercise/{exerciseId}/class")]
-        public async Task<IActionResult> SaveDeadline(int exerciseId, [FromBody] SaveDeadlineDto dto)
-        {
-            var assignment = await _context.ClassExercises
-                .Include(ce => ce.SchoolClass)
-                .Include(ce => ce.Exercise)
-                .FirstOrDefaultAsync(ce => ce.ExerciseId == exerciseId && ce.ClassId == dto.ClassId);
-
-            string message;
-            if (assignment != null)
-            {
-                assignment.Deadline = dto.Deadline;
-                message = "Đã cập nhật deadline thành công!";
-            }
-            else
-            {
-                var newAssignment = new ClassExercise
-                {
-                    ClassId    = dto.ClassId,
-                    ExerciseId = exerciseId,
-                    Deadline   = dto.Deadline
-                };
-                _context.ClassExercises.Add(newAssignment);
-                await _context.SaveChangesAsync();
-
-                // Reload để lấy navigation properties cho email
-                assignment = await _context.ClassExercises
-                    .Include(ce => ce.SchoolClass)
-                    .Include(ce => ce.Exercise)
-                    .FirstOrDefaultAsync(ce => ce.ClassExerciseId == newAssignment.ClassExerciseId);
-
-                message = "Đã gán bài tập thành công!";
-            }
-
+            _context.ClassExercises.RemoveRange(assignments);
             await _context.SaveChangesAsync();
 
-            // Gửi email nếu có deadline
-            if (dto.Deadline.HasValue && assignment != null)
-            {
-                await SendEmailsToClass(
-                    dto.ClassId,
-                    assignment.Exercise?.Title ?? "",
-                    assignment.SchoolClass?.ClassName ?? "",
-                    dto.Deadline.Value);
-            }
-
-            return Ok(ApiResponse<object>.SuccessResponse(message));
+            return Ok(ApiResponse<object>.SuccessResponse($"Đã xóa {assignments.Count} deadline của chủ đề khỏi lớp."));
         }
 
         // ────────────────────────────────────────────────────────────
-        // HELPERS — giống private methods bên MVC
+        // HELPER — Gửi email thông báo deadline đến học viên trong lớp
         // ────────────────────────────────────────────────────────────
-
-        private async Task SendEmailsToClass(int classId, string exerciseTitle, string className, DateTime deadline)
-        {
-            await SendBulkEmailsToClass(classId, exerciseTitle, className, deadline, 1);
-        }
-
-        private async Task SendBulkEmailsToClass(int classId, string subjectContent, string className, DateTime deadline, int count)
+        private async Task SendTopicDeadlineNotification(int classId, string topicName, string className, DateTime deadline, int exerciseCount)
         {
             var students = await _context.StudentClasses
                 .Include(sc => sc.Student)
-                .Where(sc => sc.ClassId == classId && sc.Student.Role == "Student")
+                .Where(sc => sc.ClassId == classId && sc.Student.Role == "user")
                 .Select(sc => sc.Student)
                 .ToListAsync();
+
+            string subject = $"Bài tập mới - Chủ đề: {topicName} ({exerciseCount} câu hỏi)";
 
             foreach (var student in students)
             {
@@ -286,11 +215,11 @@ namespace SpeakingBoost.Controllers.Admin
                 {
                     await _emailService.SendDeadlineNotification(
                         student.Email,
-                        subjectContent + (count > 1 ? $" (Tổng {count} bài)" : ""),
+                        subject,
                         className,
                         deadline);
                 }
-                catch { /* Bỏ qua lỗi email từng học sinh — giống MVC */ }
+                catch { /* Bỏ qua lỗi email từng học sinh */ }
             }
         }
     }

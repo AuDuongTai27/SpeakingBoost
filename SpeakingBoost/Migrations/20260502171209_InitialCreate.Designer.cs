@@ -12,8 +12,8 @@ using SpeakingBoost.Models.EF;
 namespace SpeakingBoost.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260430123345_AddClassExerciseIdToSubmission")]
-    partial class AddClassExerciseIdToSubmission
+    [Migration("20260502171209_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,12 +59,6 @@ namespace SpeakingBoost.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExerciseId"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
                     b.Property<int>("MaxAttempts")
                         .HasColumnType("int");
 
@@ -89,8 +83,6 @@ namespace SpeakingBoost.Migrations
                         .HasColumnType("nvarchar(10)");
 
                     b.HasKey("ExerciseId");
-
-                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("TopicId");
 
@@ -140,15 +132,7 @@ namespace SpeakingBoost.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
                     b.HasKey("ClassId");
-
-                    b.HasIndex("TeacherId");
 
                     b.ToTable("Classes");
                 });
@@ -270,9 +254,6 @@ namespace SpeakingBoost.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -298,49 +279,6 @@ namespace SpeakingBoost.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("SpeakingBoost.Models.Entities.Vocabulary", b =>
-                {
-                    b.Property<int>("VocabId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VocabId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Example")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Meaning")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TopicId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Word")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("VocabId");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("TopicId");
-
-                    b.ToTable("Vocabulary");
-                });
-
             modelBuilder.Entity("SpeakingBoost.Models.Entities.VocabularyTopic", b =>
                 {
                     b.Property<int>("TopicId")
@@ -348,9 +286,6 @@ namespace SpeakingBoost.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TopicId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
@@ -387,17 +322,9 @@ namespace SpeakingBoost.Migrations
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.Exercise", b =>
                 {
-                    b.HasOne("SpeakingBoost.Models.Entities.User", "CreatedByUser")
-                        .WithMany("CreatedExercises")
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SpeakingBoost.Models.Entities.VocabularyTopic", "VocabularyTopic")
                         .WithMany("Exercises")
                         .HasForeignKey("TopicId");
-
-                    b.Navigation("CreatedByUser");
 
                     b.Navigation("VocabularyTopic");
                 });
@@ -411,17 +338,6 @@ namespace SpeakingBoost.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SpeakingBoost.Models.Entities.SchoolClass", b =>
-                {
-                    b.HasOne("SpeakingBoost.Models.Entities.User", "Teacher")
-                        .WithMany("TaughtClasses")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.Score", b =>
@@ -479,21 +395,6 @@ namespace SpeakingBoost.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("SpeakingBoost.Models.Entities.Vocabulary", b =>
-                {
-                    b.HasOne("SpeakingBoost.Models.Entities.User", "Student")
-                        .WithMany("Vocabularies")
-                        .HasForeignKey("StudentId");
-
-                    b.HasOne("SpeakingBoost.Models.Entities.VocabularyTopic", "VocabularyTopic")
-                        .WithMany("Vocabularies")
-                        .HasForeignKey("TopicId");
-
-                    b.Navigation("Student");
-
-                    b.Navigation("VocabularyTopic");
-                });
-
             modelBuilder.Entity("SpeakingBoost.Models.Entities.Exercise", b =>
                 {
                     b.Navigation("ClassExercises");
@@ -515,24 +416,16 @@ namespace SpeakingBoost.Migrations
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.User", b =>
                 {
-                    b.Navigation("CreatedExercises");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("StudentClasses");
 
                     b.Navigation("Submissions");
-
-                    b.Navigation("TaughtClasses");
-
-                    b.Navigation("Vocabularies");
                 });
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.VocabularyTopic", b =>
                 {
                     b.Navigation("Exercises");
-
-                    b.Navigation("Vocabularies");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,26 +5,11 @@ using SpeakingBoost.Models.DTOs;
 using SpeakingBoost.Models.DTOs.Admin;
 using SpeakingBoost.Models.EF;
 
-// ================================================================
-// DashboardController (Admin) — tương đương Admin/DashboardController (MVC)
-//
-// MVC cũ:                                    API mới:
-// ─────────────────────────────────────────  ──────────────────────────────────────────
-// GET /Admin/Dashboard/Index?classId=5      →  GET /api/admin/dashboard?classId=5
-//
-// Trả về:
-//  - Danh sách lớp (cho dropdown)
-//  - TotalStudents, TotalExercises, SubmissionRate, AverageOverallScore
-//  - ProgressChartData (điểm TB theo từng bài tập)
-//  - SkillsChartData   (TB 4 tiêu chí: phát âm, trôi chảy, từ vựng, ngữ pháp)
-//  - RecentActivities  (5 bài nộp gần nhất)
-// ================================================================
-
 namespace SpeakingBoost.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/dashboard")]
-    [Authorize(Roles = "teacher,superadmin")]
+    [Authorize(Roles = "admin")]
     public class AdminDashboardController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -36,26 +21,24 @@ namespace SpeakingBoost.Controllers.Admin
 
         // ────────────────────────────────────────────────────────────
         // GET /api/admin/dashboard?classId=5
-        // MVC cũ: Index(classId?) — tính toán số liệu, biểu đồ cho lớp đang chọn
+        // Trả số liệu dashboard cho lớp được chọn
         // ────────────────────────────────────────────────────────────
         [HttpGet]
         public async Task<IActionResult> GetDashboard([FromQuery] int? classId = null)
         {
-            // 1. Lấy danh sách lớp (cho dropdown phía frontend)
+            // 1. Danh sách lớp (dropdown)
             var classes = await _context.Classes
-                .Include(c => c.Teacher)
-                .OrderByDescending(c => c.CreatedAt)
+                .Include(c => c.StudentClasses)
+                .OrderBy(c => c.ClassName)
                 .Select(c => new ClassDto
                 {
-                    ClassId     = c.ClassId,
-                    ClassName   = c.ClassName,
-                    TeacherId   = c.TeacherId,
-                    TeacherName = c.Teacher != null ? c.Teacher.FullName : null,
-                    CreatedAt   = c.CreatedAt
+                    ClassId      = c.ClassId,
+                    ClassName    = c.ClassName,
+                    StudentCount = c.StudentClasses.Count
                 })
                 .ToListAsync();
 
-            // Nếu không chọn lớp, dùng lớp mới nhất (giống MVC)
+            // Dùng lớp đầu tiên nếu không chọn
             if (classId == null && classes.Any())
                 classId = classes.First().ClassId;
 
@@ -76,7 +59,7 @@ namespace SpeakingBoost.Controllers.Admin
 
                 var studentIds = selectedClass.StudentClasses.Select(sc => sc.StudentId).ToList();
 
-                // 3. Lấy tất cả submissions của học sinh trong lớp
+                // 3. Submissions của lớp
                 var classSubmissions = await _context.Submissions
                     .Where(s => studentIds.Contains(s.StudentId))
                     .Include(s => s.Scores)
@@ -84,14 +67,14 @@ namespace SpeakingBoost.Controllers.Admin
                     .Include(s => s.Exercise)
                     .ToListAsync();
 
-                // 4. Tính số liệu (Cards)
-                dto.TotalStudents = studentIds.Count;
+                // 4. Cards
+                dto.TotalUsers = studentIds.Count;
 
                 dto.TotalExercises = await _context.ClassExercises
                     .Where(ce => ce.ClassId == classId && ce.Deadline.HasValue)
                     .CountAsync();
 
-                int totalExpected = dto.TotalStudents * dto.TotalExercises;
+                int totalExpected = dto.TotalUsers * dto.TotalExercises;
                 dto.SubmissionRate = totalExpected > 0
                     ? (double)classSubmissions.Count / totalExpected * 100
                     : 0;
@@ -122,10 +105,10 @@ namespace SpeakingBoost.Controllers.Admin
                 {
                     dto.SkillsChartData = new List<ChartDataPointDto>
                     {
-                        new() { Label = "Phát âm",  Value = allScores.Average(s => s.Pronunciation   ?? 0) },
-                        new() { Label = "Trôi chảy", Value = allScores.Average(s => s.Grammar         ?? 0) },
-                        new() { Label = "Từ vựng",  Value = allScores.Average(s => s.LexicalResource ?? 0) },
-                        new() { Label = "Ngữ pháp", Value = allScores.Average(s => s.Coherence       ?? 0) }
+                        new() { Label = "Phát âm",   Value = allScores.Average(s => s.Pronunciation   ?? 0) },
+                        new() { Label = "Ngữ pháp",  Value = allScores.Average(s => s.Grammar         ?? 0) },
+                        new() { Label = "Từ vựng",   Value = allScores.Average(s => s.LexicalResource ?? 0) },
+                        new() { Label = "Mạch lạc",  Value = allScores.Average(s => s.Coherence       ?? 0) }
                     };
                 }
 

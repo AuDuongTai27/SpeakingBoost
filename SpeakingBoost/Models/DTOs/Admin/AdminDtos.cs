@@ -3,16 +3,13 @@ using System.ComponentModel.DataAnnotations;
 namespace SpeakingBoost.Models.DTOs.Admin
 {
     // ================================================================
-    // DTOs — ClassesController (StudentManagement bên MVC)
+    // DTOs — ClassesController
     // ================================================================
 
     public class ClassDto
     {
         public int ClassId { get; set; }
         public string ClassName { get; set; } = string.Empty;
-        public int TeacherId { get; set; }
-        public string? TeacherName { get; set; }
-        public DateTime CreatedAt { get; set; }
         public int StudentCount { get; set; }
     }
 
@@ -21,9 +18,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
         [Required(ErrorMessage = "Tên lớp là bắt buộc")]
         [MaxLength(100)]
         public string ClassName { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Giáo viên phụ trách là bắt buộc")]
-        public int TeacherId { get; set; }
     }
 
     public class UpdateClassDto
@@ -31,9 +25,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
         [Required(ErrorMessage = "Tên lớp là bắt buộc")]
         [MaxLength(100)]
         public string ClassName { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Giáo viên phụ trách là bắt buộc")]
-        public int TeacherId { get; set; }
     }
 
     public class AddStudentToClassDto
@@ -58,7 +49,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
     {
         public int ClassId { get; set; }
         public string ClassName { get; set; } = string.Empty;
-        public string? TeacherName { get; set; }
         public List<StudentInClassDto> Students { get; set; } = new();
         public List<AssignedExerciseDto> AssignedExercises { get; set; } = new();
     }
@@ -78,6 +68,7 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public int ExerciseId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        public string? TopicName { get; set; }
         public DateTime? Deadline { get; set; }
         public bool IsOverdue => Deadline.HasValue && Deadline.Value < DateTime.Now;
     }
@@ -139,7 +130,7 @@ namespace SpeakingBoost.Models.DTOs.Admin
     }
 
     // ================================================================
-    // DTOs — TestsController (TestManagement bên MVC)
+    // DTOs — TestsController (Exercise & Topic Management)
     // ================================================================
 
     public class TopicDto
@@ -147,7 +138,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public int TopicId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public DateTime CreatedAt { get; set; }
         public int ExerciseCount { get; set; }
     }
 
@@ -166,7 +156,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public int TopicId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public DateTime CreatedAt { get; set; }
         public List<ExerciseDto> Exercises { get; set; } = new();
     }
 
@@ -179,7 +168,7 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public string? SampleAnswer { get; set; }
         public int MaxAttempts { get; set; }
         public int? TopicId { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string? TopicName { get; set; }
     }
 
     public class CreateExerciseDto
@@ -223,7 +212,8 @@ namespace SpeakingBoost.Models.DTOs.Admin
     }
 
     // ================================================================
-    // DTOs — DeadlinesController (Deadline bên MVC)
+    // DTOs — DeadlinesController
+    // Deadline chỉ giao theo Topic (không có Custom mode)
     // ================================================================
 
     public class ActiveDeadlineDto
@@ -233,76 +223,34 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public string ClassName { get; set; } = string.Empty;
         public int ExerciseId { get; set; }
         public string ExerciseTitle { get; set; } = string.Empty;
+        public string? TopicName { get; set; }
         public DateTime? Deadline { get; set; }
         public bool IsOverdue => Deadline.HasValue && Deadline.Value < DateTime.Now;
     }
 
-    public class BulkAssignDeadlineDto
+    /// <summary>
+    /// Giao toàn bộ câu hỏi của 1 Topic cho 1 Lớp với cùng Deadline.
+    /// Thay thế BulkAssignDeadlineDto cũ (đã bỏ Custom mode).
+    /// </summary>
+    public class AssignTopicDeadlineDto
     {
         [Required(ErrorMessage = "Vui lòng chọn lớp học")]
         public int ClassId { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng nhập ngày deadline")]
-        public DateTime Deadline { get; set; }
-
-        /// <summary>"Topic" hoặc "Custom"</summary>
-        public string AssignMode { get; set; } = "Topic";
-
-        public int? SelectedTopicId { get; set; }
-
-        public List<int> SelectedExerciseIds { get; set; } = new();
-    }
-
-    public class SaveDeadlineDto
-    {
-        [Required]
-        public int ClassId { get; set; }
-
-        public DateTime? Deadline { get; set; }
-    }
-
-    // ================================================================
-    // DTOs — VocabularyAdminController (VocabularyAdmin bên MVC)
-    // ================================================================
-
-    public class VocabWordDto
-    {
-        public int VocabId { get; set; }
-        public string Word { get; set; } = string.Empty;
-        public string? Meaning { get; set; }
-        public string? Example { get; set; }
-        public string? Note { get; set; }
-        public int? TopicId { get; set; }
-        public string? TopicName { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    public class CreateVocabDto
-    {
-        [Required(ErrorMessage = "Từ vựng là bắt buộc")]
-        [MaxLength(50)]
-        public string Word { get; set; } = string.Empty;
-
-        [MaxLength(255)]
-        public string? Meaning { get; set; }
-
-        [MaxLength(255)]
-        public string? Example { get; set; }
-
-        [MaxLength(255)]
-        public string? Note { get; set; }
-
         [Required(ErrorMessage = "Vui lòng chọn chủ đề")]
         public int TopicId { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập ngày deadline")]
+        public DateTime Deadline { get; set; }
     }
 
     // ================================================================
-    // DTOs — DashboardController (Admin Dashboard bên MVC)
+    // DTOs — AdminDashboardController
     // ================================================================
 
     public class AdminDashboardDto
     {
-        public int TotalStudents { get; set; }
+        public int TotalUsers { get; set; }
         public int TotalExercises { get; set; }
         public double SubmissionRate { get; set; }
         public double AverageOverallScore { get; set; }

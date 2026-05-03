@@ -37,8 +37,7 @@ namespace SpeakingBoost.Controllers
             {
                 FullName = user.FullName,
                 Email = user.Email,
-                Role = user.Role,
-                CreatedAt = user.CreatedAt
+                Role = user.Role
             }));
         }
 

@@ -67,13 +67,12 @@ namespace SpeakingBoost.Controllers
                 string token = _jwtService.GenerateToken(account);
                 string role  = account.Role?.Trim().ToLower() ?? "";
 
-                // Xác định redirect URL — giữ logic giống MVC
+                // Xác định redirect URL theo role
                 string redirectUrl = role switch
                 {
-                    "student"    => "/student/dashboard.html",
-                    "teacher"    => "/admin/dashboard.html",
-                    "superadmin" => "/admin/dashboard.html",
-                    _            => "/login.html"
+                    "user"  => "/student/dashboard.html",
+                    "admin" => "/admin/dashboard.html",
+                    _       => "/login.html"
                 };
 
                 var response = new LoginResponse
@@ -153,13 +152,11 @@ namespace SpeakingBoost.Controllers
             var fullName = User.FindFirst(ClaimTypes.Name)?.Value ?? "";
             var email    = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
 
-            // Xác định redirect URL theo role — dùng khi client cần route guard
             string redirectUrl = role.Trim().ToLower() switch
             {
-                "student"    => "/student/dashboard.html",
-                "teacher"    => "/admin/dashboard.html",
-                "superadmin" => "/admin/dashboard.html",
-                _            => "/login.html"
+                "user"  => "/student/dashboard.html",
+                "admin" => "/admin/dashboard.html",
+                _       => "/login.html"
             };
 
             return Ok(ApiResponse<object>.SuccessResponse(new
