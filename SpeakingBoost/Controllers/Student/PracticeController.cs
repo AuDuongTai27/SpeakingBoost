@@ -24,14 +24,14 @@ using System.Security.Claims;
 //  - Lấy StudentId từ JWT claim thay vì User.FindFirst("StudentId") Cookie
 //    (Code đọc claim GIỐNG HỆT nhau vì JWT cũng có Claims)
 //  - Không có return View() — trả JSON DTO
-//  - [Authorize(Roles = "student")] thay vì Area("Student")
+//  - [Authorize(Roles = "user")] thay vì Area("Student")
 // ================================================================
 
 namespace SpeakingBoost.Controllers.Student
 {
     [ApiController]
     [Route("api/student/practice")]
-    [Authorize(Roles = "student")]
+    [Authorize(Roles = "user")]
     public class PracticeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -64,7 +64,7 @@ namespace SpeakingBoost.Controllers.Student
                     Id            = t.TopicId,
                     Title         = t.Name,
                     ForecastLabel = t.Description ?? "Bộ đề dự đoán",
-                    ForecastDate  = t.CreatedAt.ToString("dd/MM/yyyy"),
+                    ForecastDate  = "2025",
                     QuestionCount = t.Exercises!.Count(e =>
                         part == 0 || e.Type.ToLower() == partKey)
                 })

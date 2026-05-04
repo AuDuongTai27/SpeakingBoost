@@ -1,138 +1,448 @@
-﻿/* =========================================
-   1. CẤU TRÚC CHÍNH (LAYOUT & SIDEBAR)
-   ========================================= */
+/* ==========================================================
+   admin-layout.css — Shared stylesheet for ALL admin pages
+   Bao gồm: layout, sidebar, topbar, cards, table, badges,
+            modals, loader, pagination, responsive
+   ========================================================== */
+
+/* ── 0. Design tokens ─────────────────────────────────── */
+:root {
+    --sidebar-bg : #0f172a;
+    --sidebar-w  : 260px;
+    --accent     : #6366f1;
+    --accent-2   : #06b6d4;
+    --navbar-h   : 64px;
+    --text-muted : rgba(255,255,255,.45);
+    --item-hover : rgba(255,255,255,.07);
+    --item-active: rgba(99,102,241,.25);
+    --page-bg    : #f1f5f9;
+    --card-radius: 14px;
+    --card-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+}
+
+/* ── 1. Base reset ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-    overflow-x: hidden; /* Tránh thanh cuộn ngang không mong muốn */
-    background-color: #f3f4f6; /* Màu nền tổng thể sáng sủa */
+    font-family: 'Inter', sans-serif;
+    background: var(--page-bg);
+    margin: 0;
+    overflow-x: hidden;
 }
 
-#wrapper {
-    display: flex;
-    width: 100%;
-    align-items: stretch;
-    transition: all 0.25s ease; /* Tăng tốc độ transition cho mượt */
-}
-
-#sidebar-wrapper {
-    min-height: 100vh;
-    width: 250px;
-    margin-left: -250px; /* Mặc định ẩn trên Mobile */
-    transition: margin 0.25s ease;
-    background-color: #212529;
-    color: #adb5bd;
-    /* FIX QUAN TRỌNG: Cho phép cuộn sidebar nếu menu quá dài */
+/* ── 2. Page loading overlay ───────────────────────────── */
+#pageLoader {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    z-index: 1000;
+    inset: 0;
+    z-index: 9999;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    transition: opacity .4s;
+}
+
+#pageLoader .logo-spin {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #fff;
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+#pageLoader p {
+    color: rgba(255,255,255,.6);
+    font-size: .9rem;
+    margin: 0;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.08); }
+}
+
+/* ── 3. Sidebar ────────────────────────────────────────── */
+#sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    z-index: 1040;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transition: transform .3s ease;
+    border-right: 1px solid rgba(255,255,255,.06);
 }
 
-/* Nội dung chính */
-#page-content-wrapper {
-    width: 100%;
-    min-height: 100vh; /* Đảm bảo luôn full màn hình */
-    background-color: #f8f9fc; /* Màu nền chuẩn Admin (hơi xanh nhạt) */
-    transition: all 0.25s ease;
+#sidebar.collapsed {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
 }
 
-/* =========================================
-   2. LOGIC RESPONSIVE (MOBILE vs DESKTOP)
-   ========================================= */
-
-/* Khi có class .toggled (Do JS thêm vào khi bấm nút) */
-#wrapper.toggled #sidebar-wrapper {
-    margin-left: 0; /* Hiện sidebar trên Mobile */
-}
-
-/* Màn hình lớn (Desktop) */
-@media (min-width: 768px) {
-    #sidebar-wrapper {
-        margin-left: 0; /* Luôn hiện trên Desktop */
-        position: sticky; /* Giữ cố định nhưng không đè content */
-        height: 100vh;
-    }
-
-    #page-content-wrapper {
-        width: 0; /* Trick để flex grow hoạt động đúng */
-        flex-grow: 1;
-        min-width: 0;
-    }
-
-    #wrapper.toggled #sidebar-wrapper {
-        margin-left: -250px; /* Ẩn sidebar trên Desktop khi bấm nút */
-    }
-}
-
-/* =========================================
-   3. STYLE CHO MENU ITEM
-   ========================================= */
-
-.sidebar-heading {
-    padding: 1.2rem 1.25rem; /* Cân đối hơn */
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.list-group-item {
-    border: none;
-    padding: 1rem 1.25rem;
-    background-color: transparent; /* Trong suốt để lấy màu nền cha */
-    color: rgba(255, 255, 255, 0.7);
-    transition: all 0.2s;
-}
-
-/* Hover effect */
-.list-group-item-action:hover,
-.list-group-item-action:focus {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.1) !important;
+/* Brand */
+.sidebar-brand {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
     text-decoration: none;
 }
 
-/* Active chính (Menu cha) */
-.list-group-item.active {
-    background-color: #0d6efd !important;
-    border-color: #0d6efd !important;
+.sidebar-brand .brand-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: #fff;
+    flex-shrink: 0;
+}
+
+.sidebar-brand span {
     color: #fff;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.sidebar-brand small {
+    color: var(--text-muted);
+    font-size: .72rem;
+    display: block;
+}
+
+/* Nav sections & links */
+.nav-section {
+    padding: 1.25rem 1rem .5rem;
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+}
+
+.nav-item-link {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .65rem 1rem;
+    margin: .1rem .5rem;
+    border-radius: 8px;
+    color: rgba(255,255,255,.65);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 450;
+    transition: all .18s;
+}
+
+.nav-item-link:hover {
+    background: var(--item-hover);
+    color: #fff;
+}
+
+.nav-item-link.active {
+    background: var(--item-active);
+    color: #fff;
+    font-weight: 600;
+    border-left: 3px solid var(--accent);
+    padding-left: calc(1rem - 3px);
+}
+
+.nav-item-link i { font-size: 1rem; flex-shrink: 0; }
+
+/* Sidebar footer (user card) */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 1rem;
+    border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,.05);
+    cursor: pointer;
+}
+
+.user-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; color: #fff; font-weight: 600;
+    flex-shrink: 0;
+}
+
+.user-info .name   { color: #fff; font-size: .875rem; font-weight: 600; }
+.user-info .role-badge {
+    font-size: .7rem;
+    padding: .15rem .45rem;
+    border-radius: 4px;
+    background: rgba(99,102,241,.3);
+    color: #a5b4fc;
     font-weight: 600;
 }
 
-/* =========================================
-   4. STYLE CHO SUBMENU (MENU CON)
-   ========================================= */
+.btn-logout {
+    background: none; border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: .25rem;
+    transition: color .2s;
+    margin-left: auto;
+}
+.btn-logout:hover { color: #f87171; }
 
-/* Active cho Submenu (Menu con) */
-.list-group .list-group-item.active-sub {
-    background-color: #2c3034 !important; /* Màu nền tối hơn chút để phân biệt */
-    color: #fff !important;
-    padding-left: 2rem; /* Thụt đầu dòng sâu hơn */
-    border-left: 4px solid #0d6efd; /* Viền trái màu xanh tạo điểm nhấn */
+/* ── 4. Topbar ─────────────────────────────────────────── */
+#topbar {
+    position: fixed;
+    top: 0; right: 0;
+    left: var(--sidebar-w);
+    height: var(--navbar-h);
+    z-index: 1030;
+    background: #fff;
+    box-shadow: 0 1px 0 rgba(0,0,0,.06);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 1rem;
+    transition: left .3s ease;
 }
 
-/* Item thường trong Submenu */
-.list-group-flush .list-group-item {
-    font-size: 0.95rem; /* Chữ nhỏ hơn xíu */
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+#topbar.sidebar-collapsed { left: 0; }
+
+.topbar-toggle {
+    background: none; border: none;
+    color: #64748b;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: .3rem;
+    border-radius: 6px;
+    transition: background .2s;
+}
+.topbar-toggle:hover { background: #f1f5f9; }
+
+.topbar-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
 }
 
-/* =========================================
-   5. CÁC THÀNH PHẦN KHÁC
-   ========================================= */
-
-/* Navbar giữ màu trắng */
-#page-content-wrapper nav.navbar {
-    background-color: #fff !important;
-    box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15) !important; /* Đổ bóng nhẹ */
+.topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
 }
 
-/* Padding cho nội dung chính */
-#page-content-wrapper main.container-fluid {
-    padding-top: 20px;
-    padding-bottom: 20px;
+/* ── 5. Main content area ──────────────────────────────── */
+#main {
+    margin-left: var(--sidebar-w);
+    padding-top: var(--navbar-h);
+    min-height: 100vh;
+    transition: margin-left .3s ease;
+}
+
+#main.sidebar-collapsed { margin-left: 0; }
+
+.page-content { padding: 1.75rem; }
+
+/* Page header helpers */
+.page-title { font-size: 1.35rem; font-weight: 700; color: #0f172a; margin: 0; }
+
+/* ── 6. Stat cards ─────────────────────────────────────── */
+.stat-card {
+    background: #fff;
+    border-radius: var(--card-radius);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--card-shadow);
+    display: flex; align-items: center; gap: 1rem;
+    transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+}
+
+.stat-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+}
+
+.stat-value  { font-size: 1.8rem; font-weight: 700; color: #0f172a; line-height: 1; }
+.stat-label  { font-size: .8rem; color: #64748b; margin-top: .2rem; }
+.stat-delta  { font-size: .75rem; font-weight: 600; margin-top: .3rem; }
+.delta-up    { color: #10b981; }
+.delta-dn    { color: #ef4444; }
+
+/* ── 7. Card panel (generic white card) ─────────────────── */
+.card-panel {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+}
+
+/* ── 8. Table styles ────────────────────────────────────── */
+.table-head th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid #e2e8f0;
+    padding: .75rem 1rem;
+}
+
+.table td { vertical-align: middle; padding: .85rem 1rem; }
+.table tbody tr:hover { background: #f8fafc; }
+.fw-500 { font-weight: 500; }
+.fw-600 { font-weight: 600; }
+
+/* ── 9. Badge helpers ───────────────────────────────────── */
+.badge-role-user  { background: #dcfce7; color: #16a34a; }
+.badge-role-admin { background: #ede9fe; color: #7c3aed; }
+.badge-status-open    { background: #dcfce7; color: #16a34a; }
+.badge-status-overdue { background: #fee2e2; color: #dc2626; }
+
+/* Generic pill badge */
+.pill-badge {
+    display: inline-block;
+    padding: .2rem .65rem;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── 10. Quick cards (dashboard shortcuts) ───────────────── */
+.quick-card {
+    background: #fff;
+    border-radius: var(--card-radius);
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    display: flex; align-items: center; gap: 1rem;
+    text-decoration: none; color: inherit;
+    transition: all .2s;
+    border: 1px solid transparent;
+}
+.quick-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(99,102,241,.12);
+    transform: translateY(-2px);
+}
+
+.quick-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; flex-shrink: 0;
+}
+.quick-label { font-weight: 600; color: #1e293b; font-size: .9rem; }
+.quick-desc  { font-size: .78rem; color: #64748b; }
+
+/* ── 11. Welcome banner ─────────────────────────────────── */
+.welcome-banner {
+    background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    color: #fff;
+    margin-bottom: 1.75rem;
+    display: flex; align-items: center;
+    justify-content: space-between;
+    position: relative; overflow: hidden;
+}
+.welcome-banner::before {
+    content: '';
+    position: absolute; right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+}
+.welcome-banner h2 { font-size: 1.35rem; font-weight: 700; margin: 0; }
+.welcome-banner p  { margin: .25rem 0 0; opacity: .8; font-size: .875rem; }
+.welcome-icon { font-size: 3.5rem; opacity: .25; }
+
+/* ── 12. Modal shared style ─────────────────────────────── */
+.admin-modal {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+}
+
+/* ── 13. Pagination ─────────────────────────────────────── */
+.pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem 1rem;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.pagination-info {
+    font-size: .8rem;
+    color: #64748b;
+}
+
+.pagination-btns {
+    display: flex;
+    gap: .25rem;
+}
+
+.pg-btn {
+    width: 32px; height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #374151;
+    font-size: .8rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    font-family: inherit;
+}
+.pg-btn:hover:not(:disabled) {
+    background: #ede9fe;
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.pg-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+}
+.pg-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── 14. Class name inline edit ──────────────────────────── */
+.class-name-view   { cursor: pointer; font-weight: 500; }
+.class-name-view:hover { text-decoration: underline; text-decoration-style: dashed; }
+.class-name-input  { display: none; font-size: .9rem; }
+.class-name-saving { opacity: .5; pointer-events: none; }
+
+/* ── 15. Responsive ─────────────────────────────────────── */
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(calc(-1 * var(--sidebar-w)));
+    }
+    #sidebar.open {
+        transform: translateX(0);
+    }
+    #topbar { left: 0 !important; }
+    #main   { margin-left: 0 !important; }
+    .page-content { padding: 1rem; }
 }

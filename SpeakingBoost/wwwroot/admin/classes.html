@@ -1,24 +1,29 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Lớp học - SpeakingBoost</title>
+    <meta name="description" content="Quản lý lớp học — SpeakingBoost Admin">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/css/admin-layout.css" rel="stylesheet">
 </head>
 <body>
+
 <div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang xác thực...</p></div>
 <div id="sidebarPlaceholder"></div>
 <div id="topbarPlaceholder"></div>
 
-<main id="main"><div class="page-content">
+<main id="main">
+  <div class="page-content">
 
+    <!-- Header -->
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
         <h1 class="page-title">Quản lý Lớp học</h1>
-        <p class="text-muted mb-0" style="font-size:.85rem;">Tạo lớp, thêm học sinh và gán bài tập</p>
+        <p class="text-muted mb-0" style="font-size:.85rem;">Tạo lớp và thêm học sinh — nhấp đúp tên để đổi tên lớp</p>
       </div>
       <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalClass" onclick="openCreate()">
         <i class="bi bi-plus-circle-fill me-2"></i>Tạo lớp mới
@@ -26,147 +31,80 @@
     </div>
 
     <!-- Stats -->
-    <div class="row g-3 mb-4" id="statsRow">
-      <div class="col-sm-4"><div class="card-panel p-4 text-center">
-        <div style="font-size:2rem;font-weight:700;color:#6366f1;" id="statClasses">--</div>
-        <div class="text-muted" style="font-size:.82rem;">Lớp học</div>
-      </div></div>
-      <div class="col-sm-4"><div class="card-panel p-4 text-center">
-        <div style="font-size:2rem;font-weight:700;color:#0284c7;" id="statStudents">--</div>
-        <div class="text-muted" style="font-size:.82rem;">Tổng học sinh</div>
-      </div></div>
-      <div class="col-sm-4"><div class="card-panel p-4 text-center">
-        <div style="font-size:2rem;font-weight:700;color:#16a34a;" id="statTeachers">--</div>
-        <div class="text-muted" style="font-size:.82rem;">Giáo viên phụ trách</div>
-      </div></div>
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6">
+        <div class="card-panel p-4 text-center">
+          <div style="font-size:2rem;font-weight:700;color:#6366f1;" id="statClasses">--</div>
+          <div class="text-muted" style="font-size:.82rem;">Lớp học</div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card-panel p-4 text-center">
+          <div style="font-size:2rem;font-weight:700;color:#0284c7;" id="statStudents">--</div>
+          <div class="text-muted" style="font-size:.82rem;">Tổng học sinh</div>
+        </div>
+      </div>
     </div>
 
     <!-- Table -->
     <div class="card-panel p-0 overflow-hidden">
       <div class="p-3 border-bottom d-flex gap-2 align-items-center">
         <i class="bi bi-search text-muted"></i>
-        <input type="text" id="searchInput" class="form-control border-0 shadow-none p-0" placeholder="Tìm lớp học..." oninput="filterTable()" style="outline:none;">
+        <input type="text" id="searchInput" class="form-control border-0 shadow-none p-0"
+               placeholder="Tìm lớp học..." style="outline:none;">
       </div>
       <table class="table table-hover mb-0">
         <thead class="table-head">
-          <tr><th>Tên lớp</th><th>Giáo viên</th><th>Sĩ số</th><th>Ngày tạo</th><th class="text-center">Hành động</th></tr>
+          <tr>
+            <th>Tên lớp <small class="text-muted fw-normal">(đúp để đổi tên)</small></th>
+            <th>Sĩ số</th>
+            <th class="text-center">Chi tiết</th>
+          </tr>
         </thead>
         <tbody id="classesBody">
-          <tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Đang tải...</td></tr>
+          <tr><td colspan="3" class="text-center py-4 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Đang tải...
+          </td></tr>
         </tbody>
       </table>
+      <!-- Pagination -->
+      <div class="pagination-wrap" id="pgWrap">
+        <span class="pagination-info" id="pgInfo"></span>
+      </div>
     </div>
 
-</div></main>
+  </div>
+</main>
 
-<!-- Modal Tạo/Sửa lớp -->
+<!-- Modal Tạo lớp -->
 <div class="modal fade" id="modalClass" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content admin-modal">
-      <div class="modal-header border-0"><h5 class="modal-title" id="modalClassTitle">Tạo lớp mới</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="modalClassTitle">Tạo lớp mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
       <div class="modal-body">
         <input type="hidden" id="classId">
-        <div class="mb-3"><label class="form-label fw-500">Tên lớp <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="className" placeholder="VD: IELTS Speaking A1"></div>
-        <div class="mb-3"><label class="form-label fw-500">Giáo viên phụ trách <span class="text-danger">*</span></label>
-          <select class="form-select" id="classTeacherId"><option value="">-- Chọn giáo viên --</option></select></div>
+        <div class="mb-3">
+          <label class="form-label fw-500">Tên lớp <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="className" placeholder="VD: IELTS Speaking A1">
+        </div>
       </div>
       <div class="modal-footer border-0">
         <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
-        <button class="btn btn-primary rounded-pill px-4" onclick="saveClass()"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+        <button class="btn btn-primary rounded-pill px-4" onclick="saveClass()">
+          <i class="bi bi-check-lg me-1"></i>Lưu
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/auth.js"></script><script src="/js/admin.js"></script>
-<script>
-  initAdminPage('nav-classes', 'Quản lý Lớp học');
-  let allClasses = [], allTeachers = [];
-
-  async function loadAll() {
-    const [classRes, userRes] = await Promise.all([Api.get('/api/admin/classes'), Api.get('/api/admin/users')]);
-    if (classRes.success) { allClasses = classRes.data; renderTable(allClasses); updateStats(allClasses); }
-    if (userRes.success) {
-      allTeachers = userRes.data.filter(u => u.role === 'Teacher' || u.role === 'SuperAdmin');
-      const sel = document.getElementById('classTeacherId');
-      sel.innerHTML = '<option value="">-- Chọn giáo viên --</option>' +
-        allTeachers.map(t => `<option value="${t.userId}">${t.fullName}</option>`).join('');
-    }
-  }
-
-  function updateStats(classes) {
-    document.getElementById('statClasses').textContent  = classes.length;
-    document.getElementById('statStudents').textContent = classes.reduce((s,c) => s + (c.studentCount||0), 0);
-    document.getElementById('statTeachers').textContent = new Set(classes.map(c=>c.teacherId)).size;
-  }
-
-  function renderTable(data) {
-    const tbody = document.getElementById('classesBody');
-    if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Không có lớp học nào</td></tr>'; return; }
-    tbody.innerHTML = data.map(c => `
-      <tr>
-        <td><div class="d-flex align-items-center gap-2">
-          <div style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;">
-            <i class="bi bi-building" style="color:#6366f1;"></i></div>
-          <span class="fw-500">${c.className}</span>
-        </div></td>
-        <td class="text-muted">${c.teacherName || '—'}</td>
-        <td><span class="badge bg-light text-dark">${c.studentCount} học sinh</span></td>
-        <td class="text-muted">${fmtDate(c.createdAt)}</td>
-        <td class="text-center">
-          <a href="/admin/class-detail.html?id=${c.classId}" class="btn btn-sm btn-light rounded-pill me-1" title="Chi tiết"><i class="bi bi-eye-fill text-info"></i></a>
-          <button class="btn btn-sm btn-light rounded-pill me-1" onclick="openEdit(${c.classId})" title="Sửa"><i class="bi bi-pencil-fill text-primary"></i></button>
-          <button class="btn btn-sm btn-light rounded-pill" onclick="deleteClass(${c.classId},'${c.className}')" title="Xóa"><i class="bi bi-trash-fill text-danger"></i></button>
-        </td>
-      </tr>`).join('');
-  }
-
-  function filterTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    renderTable(allClasses.filter(c => c.className.toLowerCase().includes(q) || (c.teacherName||'').toLowerCase().includes(q)));
-  }
-
-  function openCreate() {
-    document.getElementById('modalClassTitle').textContent = 'Tạo lớp mới';
-    document.getElementById('classId').value = '';
-    document.getElementById('className').value = '';
-    document.getElementById('classTeacherId').value = '';
-  }
-
-  function openEdit(id) {
-    const c = allClasses.find(x => x.classId === id);
-    if (!c) return;
-    document.getElementById('modalClassTitle').textContent = 'Chỉnh sửa lớp học';
-    document.getElementById('classId').value = c.classId;
-    document.getElementById('className').value = c.className;
-    document.getElementById('classTeacherId').value = c.teacherId;
-    new bootstrap.Modal(document.getElementById('modalClass')).show();
-  }
-
-  async function saveClass() {
-    const id        = document.getElementById('classId').value;
-    const className = document.getElementById('className').value.trim();
-    const teacherId = parseInt(document.getElementById('classTeacherId').value);
-    if (!className || !teacherId) { Toast.err('Vui lòng điền đầy đủ thông tin.'); return; }
-    const body = { className, teacherId };
-    const res  = id ? await Api.put(`/api/admin/classes/${id}`, body) : await Api.post('/api/admin/classes', body);
-    if (res.success) {
-      Toast.ok(id ? 'Cập nhật thành công!' : 'Tạo lớp thành công!');
-      bootstrap.Modal.getInstance(document.getElementById('modalClass'))?.hide();
-      loadAll();
-    } else Toast.err(res.message || 'Lỗi!');
-  }
-
-  async function deleteClass(id, name) {
-    if (!await adminConfirm(`Xóa lớp "${name}"? Dữ liệu học sinh trong lớp cũng sẽ bị ảnh hưởng.`)) return;
-    const res = await Api.del(`/api/admin/classes/${id}`);
-    if (res.success) { Toast.ok('Đã xóa lớp!'); loadAll(); }
-    else Toast.err(res.message || 'Xóa thất bại.');
-  }
-
-  AuthGuard.onReady(() => loadAll());
-</script>
-</body></html>
+<script src="/js/auth.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/pagination.js"></script>
+<script src="/js/admin/classes.js"></script>
+</body>
+</html>

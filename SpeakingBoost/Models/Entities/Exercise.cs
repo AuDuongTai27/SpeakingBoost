@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
@@ -22,26 +21,16 @@ namespace SpeakingBoost.Models.Entities
         [Required]
         public string Question { get; set; }
 
-        public string? SampleAnswer { get; set; } // Cho phép null
+        public string? SampleAnswer { get; set; }
 
-        [Required]
-        public int CreatedBy { get; set; } // Khóa ngoại đến Users
-
-        public int? TopicId { get; set; } // Khóa ngoại đến VocabularyTopics (cho phép null)
+        public int? TopicId { get; set; }
 
         public int MaxAttempts { get; set; } = 3;
-        //public DateTime? Deadline { get; set; } // ⭐ THÊM DÒNG NÀY
-
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // --- Navigation Properties ---
-        [ForeignKey("CreatedBy")]
-        public virtual User? CreatedByUser { get; set; } // Người tạo (Teacher)
-
         [ForeignKey("TopicId")]
-        public virtual VocabularyTopic? VocabularyTopic { get; set; } // Chủ đề liên quan
+        public virtual VocabularyTopic? VocabularyTopic { get; set; }
 
-        // Một Exercise có thể có nhiều Submissions
         public virtual ICollection<Submission>? Submissions { get; set; }
         public virtual ICollection<ClassExercise> ClassExercises { get; set; } = new List<ClassExercise>();
     }

@@ -12,7 +12,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
     }
 
     // ============================================================
@@ -29,7 +28,7 @@ namespace SpeakingBoost.Models.DTOs.Admin
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vai trò là bắt buộc")]
-        public string Role { get; set; } = string.Empty; // Student | Teacher | SuperAdmin
+        public string Role { get; set; } = string.Empty; // admin | user
 
         [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
         [MinLength(6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]

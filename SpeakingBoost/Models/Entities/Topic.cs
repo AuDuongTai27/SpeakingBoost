@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SpeakingBoost.Models.Entities
 {
+    // Topic dùng cho Practice view (IELTS Speaking forecast topics)
     public class Topic
     {
         public int TopicId { get; set; }
@@ -15,9 +16,6 @@ namespace SpeakingBoost.Models.Entities
         public DateTime ForecastDate { get; set; }
 
         public int Part { get; set; } // IELTS Speaking Part 1 / 2 / 3
-
-        public int? TeacherId { get; set; }
-        public User? Teacher { get; set; }
 
         public ICollection<Exercise>? Exercises { get; set; }
     }
