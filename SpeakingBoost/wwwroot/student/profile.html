@@ -6,137 +6,387 @@
     <title>Hồ sơ cá nhân - SpeakingBoost</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="/css/admin-layout.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/student-layout.css" rel="stylesheet">
     <style>
-        .profile-card {
-            background: #fff;
-            border-radius: 14px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            max-width: 600px;
-            margin: 0 auto;
+        /* ── Page-level tokens ── */
+        :root {
+            --brand-from: #6366f1;
+            --brand-to: #06b6d4;
+            --brand-mid: #818cf8;
+            --surface: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --font: 'Sora', sans-serif;
         }
+
+        body {
+            font-family: var(--font);
+            background: var(--surface);
+        }
+
+        /* ── Hero banner ── */
+        .profile-hero {
+            background: linear-gradient(135deg, var(--brand-from) 0%, var(--brand-to) 100%);
+            border-radius: var(--radius) var(--radius) 0 0;
+            padding: 3rem 2rem 4.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .profile-hero::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            }
+
+            .profile-hero::after {
+                content: '';
+                position: absolute;
+                top: -40px;
+                right: -40px;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.08);
+            }
+
+        /* ── Avatar ── */
+        .profile-avatar-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
         .profile-avatar {
-            width: 100px;
-            height: 100px;
+            width: 96px;
+            height: 96px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            background: rgba(255,255,255,0.2);
+            border: 3px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(4px);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 0 auto 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transition: transform .2s;
+        }
+
+            .profile-avatar:hover {
+                transform: scale(1.04);
+            }
+
+        .profile-name {
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: .75rem;
+            margin-bottom: .15rem;
+        }
+
+        .profile-email-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+            font-size: .8rem;
+            padding: .25rem .75rem;
+            border-radius: 99px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ── Card body ── */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 0 0 var(--radius) var(--radius);
+            padding: 2rem 2rem 2.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            position: relative;
+        }
+
+        /* Stats row */
+        .stat-pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .75rem 1.25rem;
+            text-align: center;
+            flex: 1;
+        }
+
+            .stat-pill .stat-val {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--text-main);
+            }
+
+            .stat-pill .stat-label {
+                font-size: .72rem;
+                color: var(--text-muted);
+                margin-top: .1rem;
+            }
+
+        /* Section divider */
+        .section-label {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--brand-from);
+            margin-bottom: .75rem;
+        }
+
+        /* Form tweaks */
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            padding: .65rem .9rem;
+            font-size: .9rem;
+            font-family: var(--font);
+            color: var(--text-main);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .form-control:focus {
+                border-color: var(--brand-from);
+                box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+            }
+
+            .form-control:disabled {
+                background: #f1f5f9;
+                color: var(--text-muted);
+                cursor: not-allowed;
+            }
+
+        .form-label {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: .35rem;
+        }
+
+        /* Input icon wrapper */
+        .input-icon-wrap {
+            position: relative;
+        }
+
+            .input-icon-wrap .bi {
+                position: absolute;
+                left: .85rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: .95rem;
+                pointer-events: none;
+            }
+
+            .input-icon-wrap .form-control {
+                padding-left: 2.4rem;
+            }
+
+        /* Save button */
+        .btn-save {
+            background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+            border: none;
+            color: #fff;
+            border-radius: 10px;
+            padding: .6rem 2rem;
+            font-weight: 600;
+            font-size: .9rem;
+            font-family: var(--font);
+            letter-spacing: .01em;
+            box-shadow: 0 4px 14px rgba(99,102,241,.35);
+            transition: opacity .2s, transform .15s;
+        }
+
+            .btn-save:hover {
+                opacity: .92;
+                transform: translateY(-1px);
+            }
+
+            .btn-save:active {
+                transform: translateY(0);
+            }
+
+            .btn-save:disabled {
+                opacity: .65;
+                transform: none;
+            }
+
+        /* Role badge */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: linear-gradient(135deg,rgba(99,102,241,.1),rgba(6,182,212,.1));
+            color: var(--brand-from);
+            border: 1px solid rgba(99,102,241,.25);
+            border-radius: 8px;
+            padding: .5rem .9rem;
+            font-size: .85rem;
+            font-weight: 600;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-wrapper {
+            animation: fadeUp .45s ease both;
+        }
+
+        /* Max-width centering */
+        .profile-outer {
+            max-width: 560px;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body>
 
-<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang tải...</p></div>
-<div id="sidebarPlaceholder"></div>
-<div id="topbarPlaceholder"></div>
+    <div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang tải...</p></div>
+    <div id="navbarPlaceholder"></div>
 
-<main id="main">
-    <div class="page-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1" style="font-weight:700;color:#0f172a;">Hồ sơ cá nhân</h4>
-                <p class="text-muted mb-0" style="font-size:0.9rem;">Quản lý thông tin tài khoản của bạn</p>
+    <main class="container py-5">
+        <div class="profile-outer profile-wrapper">
+
+            <!-- Hero -->
+            <div class="profile-hero text-center">
+                <div class="profile-avatar-wrap">
+                    <div class="profile-avatar" id="profileAvatar">…</div>
+                </div>
+                <div class="profile-name" id="profileName">…</div>
+                <span class="profile-email-badge">
+                    <i class="bi bi-envelope-fill"></i>
+                    <span id="profileEmail">…</span>
+                </span>
             </div>
+
+            <!-- Card body -->
+            <div class="profile-card">
+
+                <!-- Mini stats -->
+                <div class="d-flex gap-2 mb-4">
+                    <div class="stat-pill">
+                        <div class="stat-val" id="statRole">—</div>
+                        <div class="stat-label">Vai trò</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="stat-val" id="statJoined">—</div>
+                        <div class="stat-label">Ngày tham gia</div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <p class="section-label"><i class="bi bi-pencil-square me-1"></i>Chỉnh sửa thông tin</p>
+
+                <form id="profileForm" onsubmit="updateProfile(event)">
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-person"></i>
+                            <input type="text" class="form-control" id="fullName" placeholder="Nhập họ và tên" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Mật khẩu mới <span class="fw-normal text-muted">(để trống nếu không đổi)</span></label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-lock"></i>
+                            <input type="password" class="form-control" id="password" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-save" id="btnSave">
+                            <i class="bi bi-check2 me-1"></i>Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- /card body -->
+
         </div>
+    </main>
 
-        <div class="profile-card">
-            <div class="profile-avatar" id="profileAvatar">...</div>
-            <h5 class="text-center mb-4" id="profileEmail" style="color: #64748b; font-weight: normal;">...</h5>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/student.js"></script>
+    <script>
+        initStudentPage('profile', 'Hồ sơ cá nhân');
 
-            <form id="profileForm" onsubmit="updateProfile(event)">
-                <div class="mb-3">
-                    <label class="form-label text-muted" style="font-size:0.85rem;font-weight:600;">Họ và tên</label>
-                    <input type="text" class="form-control" id="fullName" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label text-muted" style="font-size:0.85rem;font-weight:600;">Mật khẩu mới (Để trống nếu không muốn đổi)</label>
-                    <input type="password" class="form-control" id="password" placeholder="••••••••">
-                </div>
+        AuthGuard.onReady(async () => {
+            loadProfile();
+        });
 
-                <div class="mb-4">
-                    <label class="form-label text-muted" style="font-size:0.85rem;font-weight:600;">Vai trò</label>
-                    <input type="text" class="form-control" id="role" disabled>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label text-muted" style="font-size:0.85rem;font-weight:600;">Ngày tham gia</label>
-                    <input type="text" class="form-control" id="createdAt" disabled>
-                </div>
+        async function loadProfile() {
+            const res = await Api.get('/api/profile');
+            if (!res.success) { Toast.err(res.message || 'Lỗi tải hồ sơ'); return; }
 
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary px-4 py-2" id="btnSave" style="border-radius:10px;font-weight:500;">
-                        Lưu thay đổi
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</main>
+            const d = res.data;
+            const initials = (d.fullName || 'User').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/auth.js"></script>
-<script src="/js/student.js"></script>
-<script>
-    initStudentPage('', 'Hồ sơ cá nhân');
-
-    AuthGuard.onReady(async user => {
-        loadProfile();
-    });
-
-    async function loadProfile() {
-        const res = await Api.get('/api/profile');
-        if (res.success) {
-            const data = res.data;
-            document.getElementById('fullName').value = data.fullName;
-            document.getElementById('profileEmail').textContent = data.email;
-            document.getElementById('role').value = data.role === 'student' ? 'Học sinh' : data.role;
-            document.getElementById('createdAt').value = fmtDateTime(data.createdAt);
-            
-            const initials = (data.fullName || 'User').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
             document.getElementById('profileAvatar').textContent = initials;
-        } else {
-            Toast.err(res.message || 'Lỗi tải hồ sơ');
+            document.getElementById('profileName').textContent = d.fullName;
+            document.getElementById('profileEmail').textContent = d.email;
+            document.getElementById('fullName').value = d.fullName;
+
+            const roleLabel = d.role === 'student' ? 'Học sinh' : d.role;
+            document.getElementById('statRole').textContent = roleLabel;
+            document.getElementById('statJoined').textContent = fmtDate(d.createdAt);
         }
-    }
 
-    async function updateProfile(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btnSave');
-        const oldText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
+        async function updateProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSave');
+            const original = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu…';
 
-        const payload = {
-            fullName: document.getElementById('fullName').value.trim(),
-            password: document.getElementById('password').value || null
-        };
+            const payload = {
+                fullName: document.getElementById('fullName').value.trim(),
+                password: document.getElementById('password').value || null
+            };
 
-        const res = await Api.put('/api/profile', payload);
-        btn.disabled = false;
-        btn.innerHTML = oldText;
+            const res = await Api.put('/api/profile', payload);
+            btn.disabled = false;
+            btn.innerHTML = original;
 
-        if (res.success) {
-            Toast.ok('Cập nhật thông tin thành công!');
-            document.getElementById('password').value = '';
-            // Update UI sidebar
-            const initials = payload.fullName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-            document.getElementById('sidebarName').textContent = payload.fullName;
-            document.getElementById('sidebarAvatar').textContent = initials;
-            document.getElementById('topbarName').textContent = payload.fullName;
-            document.getElementById('topbarAvatar').textContent = initials;
-        } else {
-            Toast.err(res.message || 'Lỗi cập nhật hồ sơ');
+            if (res.success) {
+                Toast.ok('Cập nhật thành công!');
+                document.getElementById('password').value = '';
+
+                // Reflect changes in hero
+                const initials = payload.fullName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('profileAvatar').textContent = initials;
+                document.getElementById('profileName').textContent = payload.fullName;
+
+                // Update navbar
+                const nb = document.getElementById('navbarName');
+                const na = document.getElementById('navbarAvatar');
+                if (nb) nb.textContent = payload.fullName;
+                if (na) na.textContent = initials;
+            } else {
+                Toast.err(res.message || 'Lỗi cập nhật hồ sơ');
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>

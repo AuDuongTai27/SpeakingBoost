@@ -89,10 +89,10 @@ function renderStudentNavbar(activePage, user) {
             <div class="collapse navbar-collapse" id="studentNav">
                 <ul class="navbar-nav mx-auto gap-1">${navItems}</ul>
                 <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:700;">${initials}</div>
-                        <span class="fw-medium" style="font-size:0.875rem;color:#1e293b;">${name}</span>
-                    </div>
+                    <a href="/student/profile.html" class="d-flex align-items-center gap-2 text-decoration-none" style="cursor:pointer;">
+                        <div id="navbarAvatar" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:700;">${initials}</div>
+                        <span id="navbarName" class="fw-medium" style="font-size:0.875rem;color:#1e293b;">${name}</span>
+                    </a>
                     <button onclick="AuthGuard.logout()" class="btn btn-outline-danger btn-sm rounded-pill fw-medium">Đăng xuất</button>
                 </div>
             </div>
