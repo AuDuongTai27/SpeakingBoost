@@ -36,18 +36,18 @@ namespace SpeakingBoost.Models.EF
                 var admin = new User
                 {
                     FullName     = "Quản Trị Viên",
-                    Email        = "admin@speakingboost.com",
+                    Email        = "admin@example.com",
                     Role         = "admin",
-                    PasswordHash = Hash("Admin@123")
+                    PasswordHash = Hash("123456")
                 };
 
                 var users = new[]
                 {
-                    new User { FullName = "Nguyễn Văn An",    Email = "user1@speakingboost.com", Role = "user", PasswordHash = Hash("User@123") },
-                    new User { FullName = "Trần Thị Bình",    Email = "user2@speakingboost.com", Role = "user", PasswordHash = Hash("User@123") },
-                    new User { FullName = "Lê Hoàng Cường",   Email = "user3@speakingboost.com", Role = "user", PasswordHash = Hash("User@123") },
-                    new User { FullName = "Phạm Minh Dũng",   Email = "user4@speakingboost.com", Role = "user", PasswordHash = Hash("User@123") },
-                    new User { FullName = "Hoàng Thị Lan",    Email = "user5@speakingboost.com", Role = "user", PasswordHash = Hash("User@123") },
+                    new User { FullName = "Nguyễn Văn An",    Email = "user1@example.com", Role = "user", PasswordHash = Hash("123456") },
+                    new User { FullName = "Trần Thị Bình",    Email = "user2@example.com", Role = "user", PasswordHash = Hash("123456") },
+                    new User { FullName = "Lê Hoàng Cường",   Email = "user3@example.com", Role = "user", PasswordHash = Hash("123456") },
+                    new User { FullName = "Phạm Minh Dũng",   Email = "user4@example.com", Role = "user", PasswordHash = Hash("123456") },
+                    new User { FullName = "Hoàng Thị Lan",    Email = "user5@example.com", Role = "user", PasswordHash = Hash("123456") },
                 };
 
                 db.Users.Add(admin);
