@@ -1,253 +1,161 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết bài nộp - SpeakingBoost</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="/css/admin-layout.css" rel="stylesheet">
-    <style>
-        .detail-card { background: #fff; border-radius: 16px; padding: 1.75rem; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-        .score-big { width: 110px; height: 110px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto; }
-        .score-big .val { font-size: 2.8rem; font-weight: 800; line-height: 1; }
-        .score-big .lbl { font-size: .7rem; font-weight: 600; opacity: .75; }
-        .criteria-row { display: flex; align-items: center; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid #f1f5f9; }
-        .criteria-row:last-child { border-bottom: none; }
-        .criteria-name { width: 140px; font-size: .85rem; color: #475569; font-weight: 500; flex-shrink: 0; }
-        .criteria-bar-wrap { flex: 1; }
-        .criteria-bg { height: 8px; border-radius: 99px; background: #e2e8f0; }
-        .criteria-fill { height: 8px; border-radius: 99px; transition: width 1.2s ease; }
-        .criteria-score { width: 36px; text-align: right; font-weight: 700; font-size: .9rem; flex-shrink: 0; }
-        .transcript-box { background: #f8fafc; border-radius: 12px; padding: 1.25rem; font-size: .9rem; color: #374151; line-height: 1.7; border-left: 4px solid #8b5cf6; }
-        .feedback-box { background: linear-gradient(135deg, #ede9fe, #e0f2fe); border-radius: 12px; padding: 1.25rem; font-size: .9rem; color: #374151; line-height: 1.7; }
-        .info-badge { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: 8px; background: #f8fafc; font-size: .8rem; color: #475569; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="/css/student-layout.css" rel="stylesheet">
 </head>
 <body>
-<div id="pageLoader"><div class="logo-spin"><i class="bi bi-mic-fill"></i></div><p>Đang tải...</p></div>
-<div id="sidebarPlaceholder"></div>
-<div id="topbarPlaceholder"></div>
-
-<main id="main">
-<div class="page-content">
-    <div class="d-flex align-items-center mb-4">
-        <button onclick="history.back()" class="btn btn-light rounded-circle me-3" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-arrow-left"></i></button>
-        <div>
-            <h1 class="page-title mb-0">Chi tiết bài nộp</h1>
-            <p class="text-muted mb-0" style="font-size:.85rem;" id="subMeta">Đang tải...</p>
-        </div>
-    </div>
-
-    <!-- Loading state -->
-    <div id="loadingArea" class="text-center py-5 text-muted">
-        <div class="spinner-border text-primary mb-3"></div>
-        <p>Đang tải dữ liệu bài nộp...</p>
-    </div>
-
-    <!-- Error state -->
-    <div id="errorArea" style="display:none;" class="text-center py-5 text-muted">
-        <i class="bi bi-exclamation-circle fs-1 d-block mb-2 text-danger"></i>
-        <p id="errorMsg">Không tìm thấy bài nộp.</p>
-        <a href="/student/history.html" class="btn btn-outline-primary rounded-pill">← Về lịch sử</a>
-    </div>
-
-    <!-- Content -->
-    <div id="contentArea" style="display:none;">
-        <div class="row g-4">
-            <!-- Left: Score + Criteria -->
-            <div class="col-lg-4">
-                <div class="detail-card text-center mb-4">
-                    <div class="score-big mb-3" id="scoreBig">
-                        <span class="val" id="overallScore">--</span>
-                        <span class="lbl">OVERALL BAND</span>
-                    </div>
-                    <div id="statusBadgeArea" class="mb-3"></div>
-                    <div class="d-flex flex-wrap gap-2 justify-content-center" id="infoBadges"></div>
-                </div>
-
-                <div class="detail-card">
-                    <h6 style="font-weight:700;margin-bottom:1rem;">📊 Tiêu chí đánh giá</h6>
-                    <div id="criteriaContainer"></div>
-                </div>
-            </div>
-
-            <!-- Right: Question, Audio, Transcript, Feedback -->
-            <div class="col-lg-8">
-                <!-- Câu hỏi -->
-                <div class="detail-card mb-4">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="badge bg-primary-subtle text-primary rounded-pill" id="exercisePart">Part</span>
-                        <h5 id="exerciseTitle" style="font-weight:700;color:#1e293b;margin:0;">Tiêu đề bài tập</h5>
-                    </div>
-                    <div class="p-3 rounded-3" style="background:#f8fafc;border-left:4px solid #8b5cf6;">
-                        <p id="exerciseQuestion" style="margin:0;color:#374151;line-height:1.7;"></p>
-                    </div>
-                </div>
-
-                <!-- Phát lại âm thanh -->
-                <div class="detail-card mb-4" id="audioCard">
-                    <h6 style="font-weight:700;margin-bottom:1rem;"><i class="bi bi-volume-up-fill me-2 text-primary"></i>Phát lại bài ghi âm</h6>
-                    <audio id="audioPlayer" controls style="width:100%;border-radius:8px;"></audio>
-                </div>
-
-                <!-- Transcript -->
-                <div class="detail-card mb-4" id="transcriptCard">
-                    <h6 style="font-weight:700;margin-bottom:1rem;"><i class="bi bi-chat-quote-fill me-2 text-success"></i>Transcript (Lời nói chuyển văn bản)</h6>
-                    <div class="transcript-box" id="transcriptText">Đang tải...</div>
-                </div>
-
-                <!-- AI Feedback -->
-                <div class="detail-card" id="feedbackCard">
-                    <h6 style="font-weight:700;margin-bottom:1rem;"><i class="bi bi-robot me-2 text-primary"></i>Nhận xét của AI</h6>
-                    <div class="feedback-box" id="feedbackText">Đang tải...</div>
-
-                    <!-- Sample Answer (nếu có) -->
-                    <div id="sampleAnswerBox" style="display:none;margin-top:1rem;">
-                        <h6 style="font-weight:600;color:#64748b;font-size:.85rem;margin-bottom:.5rem;">💡 Câu trả lời mẫu</h6>
-                        <div class="p-3 rounded-3" style="background:#f8fafc;font-size:.875rem;color:#374151;line-height:1.7;" id="sampleAnswerText"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Still Processing -->
-    <div id="processingArea" style="display:none;" class="text-center py-5">
-        <div class="spinner-border text-primary mb-3" style="width:3rem;height:3rem;"></div>
-        <h5 class="fw-bold">AI đang chấm điểm...</h5>
-        <p class="text-muted">Kết quả sẽ hiển thị sau vài giây. Trang sẽ tự động cập nhật.</p>
-    </div>
+<div id="pageLoader" class="page-loader">
+    <div class="loader-icon"><i class="bi bi-bar-chart-fill"></i></div>
+    <div class="loader-text">Đang tải...</div>
 </div>
+
+<div id="navbarPlaceholder"></div>
+
+<!-- ═══ PAGE HEADER ══════════════════════════════════════════════ -->
+<section style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:40px 0;" id="pageHeader">
+    <div class="container">
+        <div class="d-flex align-items-center gap-2 mb-2" style="font-size:0.82rem;color:rgba(255,255,255,0.7);">
+            <a href="/student/history.html" style="color:rgba(255,255,255,0.7);text-decoration:none;">Lịch sử nộp bài</a>
+            <i class="bi bi-chevron-right" style="font-size:0.7rem;"></i>
+            <span style="color:#fff;">Chi tiết bài nộp</span>
+        </div>
+        <h1 id="pageTitle" style="font-size:1.4rem;font-weight:800;color:#fff;margin:0;">Đang tải...</h1>
+    </div>
+</section>
+
+<!-- ═══ MAIN ═════════════════════════════════════════════════════ -->
+<main style="background:#f0f4f8;padding:28px 0;min-height:calc(100vh - 200px);">
+    <div class="container">
+        <!-- Info badges -->
+        <div id="infoBadges" class="d-flex flex-wrap gap-2 mb-4"></div>
+
+        <div class="row g-4" id="detailContent">
+            <div class="col-12 text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm me-2"></div>Đang tải chi tiết...
+            </div>
+        </div>
+    </div>
 </main>
+
+<footer style="background:#1e293b;color:#94a3b8;padding:28px 0;">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" style="font-size:0.78rem;">
+            <span>© 2026 SpeakingBoost. All rights reserved.</span>
+            <span>Made with <i class="bi bi-heart-fill text-danger"></i> for IELTS Learners</span>
+        </div>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/student.js"></script>
 <script>
-    initStudentPage('nav-history', 'Chi tiết bài nộp');
+    function criteriaBar(label, val, color) {
+        const pct = val != null ? ((val / 9) * 100).toFixed(1) : 0;
+        const display = val != null ? val.toFixed(1) : '—';
+        return `<div class="criteria-bar">
+            <div class="criteria-label"><span>${label}</span><span style="font-weight:700;color:${color};">${display}</span></div>
+            <div class="criteria-bg"><div class="criteria-fill" style="width:${pct}%;background:${color};"></div></div>
+        </div>`;
+    }
 
-    let pollingInterval = null;
+    initStudentPage('history', async () => {
+        const params = new URLSearchParams(location.search);
+        const id = params.get('id');
+        if (!id) { Toast.err('Không tìm thấy ID bài nộp.'); return; }
 
-    AuthGuard.onReady(async () => {
-        const p = new URLSearchParams(window.location.search);
-        const id = p.get('id');
-        if (!id) { showError('Không tìm thấy mã bài nộp.'); return; }
-
-        await loadSubmission(id);
-    });
-
-    async function loadSubmission(id) {
         const res = await Api.get(`/api/student/submissions/${id}`);
-        document.getElementById('loadingArea').style.display = 'none';
-
-        if (!res.success || !res.data) {
-            showError(res.message || 'Không tìm thấy bài nộp.');
-            return;
-        }
-
+        if (!res.success || !res.data) { Toast.err(res.message || 'Không tải được bài nộp.'); return; }
         const d = res.data;
 
-        // Đang xử lý
-        if (d.status === 'Processing' || d.status === 'Pending') {
-            document.getElementById('processingArea').style.display = 'block';
-            startPolling(id);
-            return;
-        }
+        document.getElementById('pageTitle').textContent = d.exerciseTitle || 'Chi tiết bài nộp';
 
-        document.getElementById('contentArea').style.display = 'block';
+        const isDeadline = !!d.classExerciseId;
+        const typeLabel = isDeadline
+            ? `<span style="background:#fef3c7;color:#92400e;padding:5px 14px;border-radius:9999px;font-size:0.82rem;font-weight:700;">Deadline</span>`
+            : `<span style="background:#ede9fe;color:#7c3aed;padding:5px 14px;border-radius:9999px;font-size:0.82rem;font-weight:700;">Practice</span>`;
+        const partLabel = d.type ? `<span style="background:#e0f2fe;color:#0284c7;padding:5px 14px;border-radius:9999px;font-size:0.82rem;font-weight:700;">${d.type.toUpperCase()}</span>` : '';
+        const statusLabel = statusBadge(d.status);
 
-        // Header meta
-        document.getElementById('subMeta').textContent = `Nộp lúc ${fmtDateTime(d.createdAt)} · Lần ${d.attemptNumber || 1}`;
-        document.title = (d.exerciseTitle || 'Bài nộp') + ' - SpeakingBoost';
+        document.getElementById('infoBadges').innerHTML = `
+            ${typeLabel}${partLabel}${statusLabel}
+            <span style="font-size:0.82rem;color:#64748b;display:flex;align-items:center;gap:4px;">
+                <i class="bi bi-clock"></i>${fmtDateTime(d.createdAt)} · Lần nộp #${d.attemptNumber}
+            </span>`;
 
-        // Score big
-        const score = d.overall;
-        const scoreColor = score >= 7 ? '#16a34a' : score >= 5 ? '#d97706' : '#dc2626';
-        const scoreBg = score >= 7 ? 'linear-gradient(135deg,#4ade80,#22c55e)' : score >= 5 ? 'linear-gradient(135deg,#fbbf24,#f59e0b)' : 'linear-gradient(135deg,#f87171,#ef4444)';
-        document.getElementById('scoreBig').style.background = scoreBg;
-        document.getElementById('scoreBig').style.color = '#fff';
-        document.getElementById('overallScore').textContent = score != null ? score.toFixed(1) : '--';
+        const sc = scoreStyle(d.overallScore);
+        const backHref = isDeadline ? '/student/deadlines.html' : '/student/practice.html';
+        const backLabel = isDeadline ? 'Quay lại Deadline' : 'Luyện lại';
 
-        // Status badge
-        document.getElementById('statusBadgeArea').innerHTML = statusBadge(d.status);
-
-        // Info badges
-        const badges = [
-            { icon: 'calendar', text: fmtDate(d.createdAt) },
-            { icon: 'arrow-repeat', text: `Lần ${d.attemptNumber || 1}` },
-            d.classExerciseId ? { icon: 'clock-fill', text: 'Deadline' } : { icon: 'mic', text: 'Practice' },
-        ];
-        document.getElementById('infoBadges').innerHTML = badges.map(b =>
-            `<div class="info-badge"><i class="bi bi-${b.icon}"></i>${b.text}</div>`
-        ).join('');
-
-        // Exercise info
-        document.getElementById('exercisePart').textContent = `Part ${(d.type || '').replace('Part','') || '?'}`;
-        document.getElementById('exerciseTitle').textContent = d.exerciseTitle || '--';
-        document.getElementById('exerciseQuestion').textContent = d.question || 'Không có câu hỏi.';
-
-        // Audio
-        if (d.audioPath) {
-            document.getElementById('audioPlayer').src = d.audioPath;
-        } else {
-            document.getElementById('audioCard').innerHTML = '<p class="text-muted text-center py-2"><i class="bi bi-mic-mute me-2"></i>Không có file âm thanh.</p>';
-        }
-
-        // Transcript
-        document.getElementById('transcriptText').textContent = d.transcript || 'Không có transcript.';
-
-        // Criteria bars
-        const criteria = [
-            { label: 'Pronunciation', val: d.pronunciation, color: '#8b5cf6' },
-            { label: 'Grammar', val: d.grammar, color: '#06b6d4' },
-            { label: 'Lexical Resource', val: d.lexicalResource, color: '#10b981' },
-            { label: 'Coherence', val: d.coherence, color: '#f59e0b' },
-        ];
-        document.getElementById('criteriaContainer').innerHTML = criteria.map(c => {
-            const v = c.val || 0;
-            return `<div class="criteria-row">
-                <div class="criteria-name">${c.label}</div>
-                <div class="criteria-bar-wrap">
-                    <div class="criteria-bg"><div class="criteria-fill" style="width:${(v/9)*100}%;background:${c.color};"></div></div>
-                </div>
-                <div class="criteria-score" style="color:${c.color};">${v.toFixed(1)}</div>
-            </div>`;
-        }).join('');
-
-        // AI Feedback
-        if (d.status === 'Error') {
-            document.getElementById('feedbackText').innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${d.errorMessage || 'Lỗi xử lý bài nộp.'}</span>`;
-        } else {
-            document.getElementById('feedbackText').innerHTML = d.aiFeedback
-                ? d.aiFeedback.replace(/\n/g, '<br>')
-                : '<span class="text-muted">Chưa có nhận xét chi tiết.</span>';
-        }
-
-        // Sample answer
-        if (d.sampleAnswer) {
-            document.getElementById('sampleAnswerBox').style.display = 'block';
-            document.getElementById('sampleAnswerText').textContent = d.sampleAnswer;
-        }
-    }
-
-    function startPolling(id) {
-        clearInterval(pollingInterval);
-        pollingInterval = setInterval(async () => {
-            const r = await Api.get(`/api/student/submissions/${id}/status`);
-            if (r.success && r.data && (r.data.status === 'Evaluated' || r.data.status === 'Error')) {
-                clearInterval(pollingInterval);
-                document.getElementById('processingArea').style.display = 'none';
-                await loadSubmission(id);
+        // Try parse AI feedback JSON
+        let feedbackText = d.aiFeedback || 'Chưa có phản hồi.';
+        try {
+            if (typeof d.feedbackJson === 'object' && d.feedbackJson !== null) {
+                const fb = d.feedbackJson;
+                feedbackText = fb.feedback || fb.Feedback || feedbackText;
             }
-        }, 4000);
-    }
+        } catch {}
 
-    function showError(msg) {
-        document.getElementById('loadingArea').style.display = 'none';
-        document.getElementById('errorArea').style.display = 'block';
-        document.getElementById('errorMsg').textContent = msg;
-    }
+        document.getElementById('detailContent').innerHTML = `
+            <!-- LEFT: Score -->
+            <div class="col-lg-5">
+                <div class="card-base text-center p-4 mb-3" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;">
+                    <div style="width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1rem;backdrop-filter:blur(4px);">
+                        <div style="font-size:2.8rem;font-weight:900;color:#fff;line-height:1;">${sc.text}</div>
+                        <div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.75);">Band Overall</div>
+                    </div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:2px;">${d.exerciseTitle}</h3>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.75);margin:0;">Đánh giá bởi AI · ${d.type || ''}</p>
+                </div>
+                <div class="card-base p-4">
+                    <h5 style="font-weight:700;font-size:0.95rem;margin-bottom:1.25rem;color:#1e293b;">
+                        <i class="bi bi-bar-chart-fill me-2" style="color:#6366f1;"></i>Chi tiết điểm số
+                    </h5>
+                    ${criteriaBar('Pronunciation', d.pronunciation, '#6366f1')}
+                    ${criteriaBar('Grammar', d.grammar, '#818cf8')}
+                    ${criteriaBar('Lexical Resource', d.lexicalResource, '#06b6d4')}
+                    ${criteriaBar('Coherence & Fluency', d.coherence, '#6366f1')}
+                </div>
+                ${d.audioPath ? `<div class="card-base p-4 mt-3">
+                    <div style="font-size:0.72rem;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:8px;"><i class="bi bi-volume-up me-1"></i>Audio đã nộp</div>
+                    <audio controls style="width:100%;border-radius:8px;" src="${d.audioPath}"></audio>
+                </div>` : ''}
+            </div>
+
+            <!-- RIGHT: Question + Transcript + Feedback -->
+            <div class="col-lg-7">
+                <div class="card-base p-4 mb-3" style="border-left:4px solid #6366f1;">
+                    <div style="font-size:0.72rem;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Câu hỏi</div>
+                    <h2 style="font-size:1.05rem;font-weight:600;color:#1e293b;line-height:1.6;margin:0;">"${d.question || ''}"</h2>
+                </div>
+
+                ${d.transcript ? `<div class="transcript-box mb-3">
+                    <div style="font-size:0.72rem;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:10px;"><i class="bi bi-card-text me-1"></i>Transcript (Bản ghi)</div>
+                    <p style="line-height:1.8;margin:0;color:#1e293b;font-size:0.9rem;">${d.transcript}</p>
+                </div>` : ''}
+
+                <div class="feedback-box mb-3">
+                    <div style="font-size:0.72rem;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:10px;"><i class="bi bi-robot me-1"></i>AI Feedback</div>
+                    <p style="line-height:1.8;margin:0;color:#1e293b;font-size:0.9rem;">${feedbackText}</p>
+                </div>
+
+                ${d.sampleAnswer ? `<div class="card-base p-4" style="border:1px dashed #cbd5e1;">
+                    <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:10px;"><i class="bi bi-lightbulb me-1"></i>Sample Answer</div>
+                    <p style="line-height:1.8;margin:0;color:#475569;font-size:0.875rem;font-style:italic;">"${d.sampleAnswer}"</p>
+                </div>` : ''}
+
+                <div class="d-flex gap-2 flex-wrap mt-3">
+                    <a href="${backHref}" class="btn btn-primary rounded-pill fw-semibold"><i class="bi bi-arrow-repeat me-2"></i>${backLabel}</a>
+                    <a href="/student/history.html" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Quay lại lịch sử</a>
+                </div>
+            </div>`;
+    });
 </script>
 </body>
 </html>

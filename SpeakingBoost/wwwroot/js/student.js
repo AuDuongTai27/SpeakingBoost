@@ -1,26 +1,19 @@
 /**
- * student.js — Shared utilities cho Student pages
- * Cung cấp: API helper, Toast, Sidebar render, và Auth Guard integration
+ * student.js — Shared utilities cho Student pages (v2 - Navbar layout)
+ * Api helper, Toast, Navbar render, Auth Guard integration
  */
 
-// ─── 1. API Helper (tự đính kèm Bearer token) ──────────────────────
+// ─── 1. API Helper ──────────────────────────────────────────────────
 const Api = {
     _h(extra = {}) {
         return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}`, ...extra };
     },
     async _safeJson(r) {
         if (r.status === 204) return { success: true };
-        if (r.status === 401) {
-            AuthGuard.logout();
-            return { success: false, message: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.' };
-        }
-        if (r.status === 403) return { success: false, message: 'Bạn không có quyền thực hiện hành động này.' };
-        if (r.status === 404) return { success: false, message: 'Không tìm thấy dữ liệu (404).' };
-        try {
-            return await r.json();
-        } catch {
-            return { success: false, message: `Lỗi server (HTTP ${r.status}). Vui lòng thử lại.` };
-        }
+        if (r.status === 401) { AuthGuard.logout(); return { success: false, message: 'Phiên đăng nhập hết hạn.' }; }
+        if (r.status === 403) return { success: false, message: 'Không có quyền thực hiện.' };
+        if (r.status === 404) return { success: false, message: 'Không tìm thấy dữ liệu.' };
+        try { return await r.json(); } catch { return { success: false, message: `Lỗi server (HTTP ${r.status}).` }; }
     },
     async get(url) {
         const r = await fetch(url, { headers: this._h() });
@@ -42,148 +35,150 @@ const Toast = {
     _init() {
         if (this._el) return;
         const wrap = document.createElement('div');
-        wrap.id = 'toastWrap';
         wrap.style.cssText = 'position:fixed;top:1.25rem;right:1.25rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;';
         document.body.appendChild(wrap);
         this._el = wrap;
     },
     show(msg, ok = true) {
         this._init();
-        const t = document.createElement('div');
         const color = ok ? '#10b981' : '#ef4444';
-        const icon  = ok ? 'check-circle-fill' : 'exclamation-triangle-fill';
-        t.style.cssText = `background:#fff;border-left:4px solid ${color};border-radius:10px;padding:0.85rem 1.1rem;
-            box-shadow:0 4px 20px rgba(0,0,0,0.12);display:flex;align-items:center;gap:0.6rem;
-            font-size:0.875rem;font-family:'Inter',sans-serif;min-width:280px;animation:slideIn .3s ease;`;
+        const icon = ok ? 'check-circle-fill' : 'exclamation-triangle-fill';
+        const t = document.createElement('div');
+        t.style.cssText = `background:#fff;border-left:4px solid ${color};border-radius:10px;padding:0.85rem 1.1rem;box-shadow:0 4px 20px rgba(0,0,0,0.12);display:flex;align-items:center;gap:0.6rem;font-size:0.875rem;font-family:'Inter',sans-serif;min-width:280px;animation:toastIn .3s ease;`;
         t.innerHTML = `<i class="bi bi-${icon}" style="color:${color};font-size:1rem;flex-shrink:0;"></i><span>${msg}</span>`;
         this._el.appendChild(t);
         setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
     },
-    ok(msg)  { this.show(msg, true);  },
+    ok(msg) { this.show(msg, true); },
     err(msg) { this.show(msg, false); }
 };
 
-if (!document.getElementById('toastKeyframes')) {
-    const ks = document.createElement('style');
-    ks.id = 'toastKeyframes';
-    ks.textContent = '@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}';
-    document.head.appendChild(ks);
+if (!document.getElementById('toastKf')) {
+    const s = document.createElement('style');
+    s.id = 'toastKf';
+    s.textContent = '@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}';
+    document.head.appendChild(s);
 }
 
-// ─── 3. Sidebar HTML ───────────────────────────────────────────────
-function renderStudentSidebar(activeId = '') {
-    const links = [
-        { id: 'nav-dashboard', href: '/student/dashboard.html',  icon: 'house-fill',         label: 'Trang chủ',      section: 'Tổng quan' },
-        { id: 'nav-practice',  href: '/student/practice.html',   icon: 'mic',                label: 'Luyện Speaking', section: 'Luyện tập' },
-        { id: 'nav-deadline',  href: '/student/deadlines.html',  icon: 'calendar-check',     label: 'Bài deadline',   section: null },
-        { id: 'nav-history',   href: '/student/history.html',    icon: 'clock-history',      label: 'Lịch sử nộp bài',section: null },
-        { id: 'nav-vocab',     href: '/student/vocabulary.html', icon: 'book',               label: 'Từ vựng',        section: 'Kết quả' },
+// ─── 3. Navbar Render ───────────────────────────────────────────────
+function renderStudentNavbar(activePage, user) {
+    const name = user ? (user.fullName || 'Học sinh') : '...';
+    const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+    const pages = [
+        { id: 'dashboard', href: '/student/dashboard.html', label: 'Trang chủ' },
+        { id: 'practice',  href: '/student/practice.html',  label: 'Luyện Speaking' },
+        { id: 'deadlines', href: '/student/deadlines.html', label: 'Bài Deadline' },
+        { id: 'history',   href: '/student/history.html',   label: 'Lịch sử' },
     ];
 
-    let html = `<nav id="sidebar">
-        <div class="sidebar-brand" style="cursor:pointer;" onclick="window.location.href='/student/profile.html'">
-            <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
-            <div><span>SpeakingBoost</span><small>Học sinh</small></div>
-        </div>`;
+    const navItems = pages.map(p => {
+        const active = p.id === activePage;
+        return `<li class="nav-item"><a class="nav-link fw-medium rounded-pill px-3" href="${p.href}" style="${active ? 'background:#6366f1;color:#fff;' : 'color:#64748b;'}">${p.label}</a></li>`;
+    }).join('');
 
-    let lastSection = '';
-    for (const l of links) {
-        if (l.section && l.section !== lastSection) {
-            html += `<div class="nav-section">${l.section}</div>`;
-            lastSection = l.section;
-        }
-        const active = l.id === activeId ? ' active' : '';
-        html += `<a href="${l.href}" class="nav-item-link${active}" id="${l.id}">
-            <i class="bi bi-${l.icon}"></i> ${l.label}
-        </a>`;
-    }
-
-    html += `<div class="sidebar-footer">
-            <div class="user-card" style="cursor:pointer;" onclick="window.location.href='/student/profile.html'">
-                <div class="user-avatar" id="sidebarAvatar">S</div>
-                <div class="user-info">
-                    <div class="name" id="sidebarName">...</div>
-                    <span class="role-badge">Học sinh</span>
+    return `<nav class="navbar navbar-expand-lg sticky-top shadow-sm" style="background:#fff;border-bottom:1px solid #e2e8f0;z-index:200;">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/student/dashboard.html" style="font-size:1.1rem;">
+                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;"><i class="bi bi-mic-fill"></i></span>
+                SpeakingBoost
+            </a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#studentNav">
+                <i class="bi bi-list" style="font-size:1.5rem;color:#64748b;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="studentNav">
+                <ul class="navbar-nav mx-auto gap-1">${navItems}</ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:700;">${initials}</div>
+                        <span class="fw-medium" style="font-size:0.875rem;color:#1e293b;">${name}</span>
+                    </div>
+                    <button onclick="AuthGuard.logout()" class="btn btn-outline-danger btn-sm rounded-pill fw-medium">Đăng xuất</button>
                 </div>
-                <button class="btn-logout" onclick="event.stopPropagation(); AuthGuard.logout()" title="Đăng xuất">
-                    <i class="bi bi-box-arrow-right"></i>
-                </button>
             </div>
         </div>
     </nav>`;
-    return html;
 }
 
-// ─── 4. Topbar HTML ──────────────────────────────────────────────────
-function renderStudentTopbar(title = '') {
-    return `<header id="topbar">
-        <button class="topbar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-            <i class="bi bi-list"></i>
-        </button>
-        <span class="topbar-title">${title}</span>
-        <div class="topbar-right">
-            <div class="topbar-user" style="cursor:pointer;" onclick="window.location.href='/student/profile.html'">
-                <div class="topbar-avatar" id="topbarAvatar">S</div>
-                <span id="topbarName">...</span>
-            </div>
-        </div>
-    </header>`;
-}
-
-// ─── 5. initStudentPage ───────────────────────────────────────────────
-function initStudentPage(activeNavId, topbarTitle) {
-    document.getElementById('sidebarPlaceholder').innerHTML = renderStudentSidebar(activeNavId);
-    document.getElementById('topbarPlaceholder').innerHTML  = renderStudentTopbar(topbarTitle);
-
-    AuthGuard.require(['student']);
+// ─── 4. Init Page (Auth guard + navbar) ────────────────────────────
+function initStudentPage(activePage, onReady) {
+    AuthGuard.require(['user']);
     AuthGuard.onReady(user => {
-        const name    = user.fullName || 'Học sinh';
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-
-        document.getElementById('sidebarName').textContent   = name;
-        document.getElementById('sidebarAvatar').textContent = initials;
-        document.getElementById('topbarName').textContent    = name;
-        document.getElementById('topbarAvatar').textContent  = initials;
-
+        const ph = document.getElementById('navbarPlaceholder');
+        if (ph) ph.innerHTML = renderStudentNavbar(activePage, user);
         const loader = document.getElementById('pageLoader');
         if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
+        if (onReady) onReady(user);
     });
 }
 
-// ─── 6. Sidebar toggle ──────────────────────────────────────────────
-let _sidebarOpen = window.innerWidth >= 768;
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const topbar  = document.getElementById('topbar');
-    const main    = document.getElementById('main');
-    if (window.innerWidth >= 768) {
-        _sidebarOpen = !_sidebarOpen;
-        sidebar.classList.toggle('collapsed', !_sidebarOpen);
-        topbar.classList.toggle('sidebar-collapsed', !_sidebarOpen);
-        main.classList.toggle('sidebar-collapsed', !_sidebarOpen);
-    } else {
-        sidebar.classList.toggle('open');
-    }
-}
-
-// ─── 7. Format helpers ──────────────────────────────────────────────
+// ─── 5. Format Helpers ──────────────────────────────────────────────
 function fmtDate(iso) {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
+    return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 function fmtDateTime(iso) {
     if (!iso) return '—';
-    return new Date(iso).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
+
+// ─── 6. Status Badge ────────────────────────────────────────────────
 function statusBadge(status) {
     const map = {
-        'Submitted': ['#dcfce7','#16a34a','Đã nộp'],
-        'Pending':   ['#fef3c7','#d97706','Chờ nộp'],
-        'Overdue':   ['#fee2e2','#dc2626','Quá hạn'],
-        'Processing': ['#e0f2fe','#0284c7','Đang chấm điểm'],
-        'Evaluated': ['#dcfce7','#16a34a','Đã chấm'],
-        'Error':     ['#fee2e2','#dc2626','Lỗi xử lý']
+        'Submitted':  ['#dcfce7','#16a34a','Đã nộp'],
+        'Pending':    ['#fef3c7','#d97706','Chờ nộp'],
+        'Overdue':    ['#fee2e2','#dc2626','Quá hạn'],
+        'Processing': ['#e0f2fe','#0284c7','Đang chấm'],
+        'Evaluated':  ['#dcfce7','#16a34a','Đã chấm'],
+        'Error':      ['#fee2e2','#dc2626','Lỗi xử lý'],
+        'Failed':     ['#fee2e2','#dc2626','Thất bại'],
     };
     const [bg, color, label] = map[status] || ['#f1f5f9','#64748b', status];
-    return `<span class="badge" style="background:${bg};color:${color};padding:0.35rem 0.6rem;font-weight:600;font-size:0.75rem;">${label}</span>`;
+    return `<span style="background:${bg};color:${color};padding:0.3rem 0.7rem;font-weight:600;font-size:0.72rem;border-radius:9999px;">${label}</span>`;
+}
+
+// ─── 7. Score Color Helper ───────────────────────────────────────────
+function scoreStyle(score) {
+    if (score == null) return { bg: '#f1f5f9', color: '#94a3b8', text: 'Chưa chấm' };
+    if (score >= 7) return { bg: '#dcfce7', color: '#16a34a', text: score.toFixed(1) };
+    if (score >= 5) return { bg: '#fef3c7', color: '#d97706', text: score.toFixed(1) };
+    return { bg: '#fee2e2', color: '#dc2626', text: score.toFixed(1) };
+}
+
+// ─── 8. Part Badge ───────────────────────────────────────────────────
+function partBadgeHtml(part) {
+    const map = { '1': ['#ede9fe','#7c3aed'], '2': ['#dcfce7','#16a34a'], '3': ['#e0f2fe','#0284c7'] };
+    const [bg, color] = map[String(part)] || ['#f1f5f9','#64748b'];
+    return `<span style="background:${bg};color:${color};padding:2px 10px;border-radius:9999px;font-size:0.68rem;font-weight:700;">Part ${part}</span>`;
+}
+
+// ─── 9. Topic Style (icon+color cycle for practice grid) ────────────
+function topicStyle(idx) {
+    const styles = [
+        { icon: 'palette-fill',        bg: 'linear-gradient(135deg,#ede9fe,#e0f2fe)', color: '#6366f1' },
+        { icon: 'briefcase-fill',      bg: 'linear-gradient(135deg,#dcfce7,#bbf7d0)', color: '#16a34a' },
+        { icon: 'laptop',              bg: 'linear-gradient(135deg,#e0f2fe,#bae6fd)', color: '#0284c7' },
+        { icon: 'airplane',            bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', color: '#d97706' },
+        { icon: 'people-fill',         bg: 'linear-gradient(135deg,#fce7f3,#fbcfe8)', color: '#db2777' },
+        { icon: 'cup-hot-fill',        bg: 'linear-gradient(135deg,#fee2e2,#fecaca)', color: '#dc2626' },
+        { icon: 'house-fill',          bg: 'linear-gradient(135deg,#dcfce7,#bbf7d0)', color: '#16a34a' },
+        { icon: 'compass',             bg: 'linear-gradient(135deg,#e0f2fe,#bae6fd)', color: '#0284c7' },
+        { icon: 'book-fill',           bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', color: '#d97706' },
+        { icon: 'cloud-sun-fill',      bg: 'linear-gradient(135deg,#ede9fe,#e0f2fe)', color: '#6366f1' },
+        { icon: 'graduation-cap-fill', bg: 'linear-gradient(135deg,#dcfce7,#bbf7d0)', color: '#16a34a' },
+        { icon: 'tree-fill',           bg: 'linear-gradient(135deg,#bbf7d0,#86efac)', color: '#16a34a' },
+    ];
+    return styles[idx % styles.length];
+}
+
+// ─── 10. Shared Footer HTML ─────────────────────────────────────────
+function studentFooterHtml() {
+    return `<footer style="background:#1e293b;color:#94a3b8;padding:28px 0;">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" style="font-size:0.78rem;">
+                <span>© 2026 SpeakingBoost. All rights reserved.</span>
+                <span>Made with <i class="bi bi-heart-fill text-danger"></i> for IELTS Learners</span>
+            </div>
+        </div>
+    </footer>`;
 }
