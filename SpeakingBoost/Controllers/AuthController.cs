@@ -154,7 +154,7 @@ namespace SpeakingBoost.Controllers
 
             string redirectUrl = role.Trim().ToLower() switch
             {
-                "user"  => "/student/dashboard.html",
+                "user"  => "/student/homepage.html",
                 "admin" => "/admin/dashboard.html",
                 _       => "/login.html"
             };
