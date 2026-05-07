@@ -98,9 +98,40 @@
         try {
             if (typeof d.feedbackJson === 'object' && d.feedbackJson !== null) {
                 const fb = d.feedbackJson;
-                feedbackText = fb.feedback || fb.Feedback || feedbackText;
+                let html = "";
+                
+                const renderIssues = (title, category) => {
+                    if (category && category.issues && category.issues.length > 0) {
+                        html += `<div class="mb-3"><h6 class="fw-bold" style="color:#6366f1;">${title}</h6>`;
+                        category.issues.forEach(issue => {
+                            html += `<div class="p-2 mb-2 rounded" style="background:#f8fafc; border-left:3px solid #f59e0b;">
+                                        <div><span class="text-danger text-decoration-line-through">${issue.wrong}</span> <i class="bi bi-arrow-right mx-1"></i> <span class="text-success fw-semibold">${issue.right}</span></div>
+                                        <div class="small text-muted mt-1">${issue.description}</div>
+                                     </div>`;
+                        });
+                        html += `</div>`;
+                    }
+                };
+
+                renderIssues("Fluency & Coherence", fb.fluency_coherence || fb.fluencyCoherence);
+                renderIssues("Lexical Resource", fb.lexical_resource || fb.lexicalResource);
+                renderIssues("Grammar", fb.grammar);
+
+                const suggest = fb.suggestion_answer || fb.suggestionAnswer;
+                if (suggest) {
+                    html += `<div class="mb-3"><h6 class="fw-bold" style="color:#10b981;">Câu trả lời gợi ý</h6>
+                             <div class="p-3 rounded" style="background:#ecfdf5; border:1px solid #d1fae5; font-size:0.9rem;">${suggest.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div></div>`;
+                }
+
+                if (html) {
+                    feedbackText = html;
+                } else if (fb.feedback || fb.Feedback) {
+                    feedbackText = fb.feedback || fb.Feedback;
+                }
             }
-        } catch {}
+        } catch (e) {
+            console.error("Lỗi parse AI feedback", e);
+        }
 
         document.getElementById('detailContent').innerHTML = `
             <!-- LEFT: Score -->
@@ -142,7 +173,7 @@
 
                 <div class="feedback-box mb-3">
                     <div style="font-size:0.72rem;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:10px;"><i class="bi bi-robot me-1"></i>AI Feedback</div>
-                    <p style="line-height:1.8;margin:0;color:#1e293b;font-size:0.9rem;">${feedbackText}</p>
+                    <div style="line-height:1.8;margin:0;color:#1e293b;font-size:0.9rem;">${feedbackText}</div>
                 </div>
 
                 ${d.sampleAnswer ? `<div class="card-base p-4" style="border:1px dashed #cbd5e1;">

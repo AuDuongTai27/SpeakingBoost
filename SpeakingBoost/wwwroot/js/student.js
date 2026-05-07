@@ -66,7 +66,7 @@ function renderStudentNavbar(activePage, user) {
     const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
     const pages = [
-        { id: 'dashboard', href: '/student/dashboard.html', label: 'Trang chủ' },
+        { id: 'dashboard', href: '/student/homepage.html', label: 'Trang chủ' },
         { id: 'practice',  href: '/student/practice.html',  label: 'Luyện Speaking' },
         { id: 'deadlines', href: '/student/deadlines.html', label: 'Bài Deadline' },
         { id: 'history',   href: '/student/history.html',   label: 'Lịch sử' },
@@ -79,7 +79,7 @@ function renderStudentNavbar(activePage, user) {
 
     return `<nav class="navbar navbar-expand-lg sticky-top shadow-sm" style="background:#fff;border-bottom:1px solid #e2e8f0;z-index:200;">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/student/dashboard.html" style="font-size:1.1rem;">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/student/homepage.html" style="font-size:1.1rem;">
                 <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;"><i class="bi bi-mic-fill"></i></span>
                 SpeakingBoost
             </a>
