@@ -70,7 +70,7 @@ namespace SpeakingBoost.Controllers
                 // Xác định redirect URL theo role
                 string redirectUrl = role switch
                 {
-                    "user"  => "/student/dashboard.html",
+                    "user"  => "/student/homepage.html",
                     "admin" => "/admin/dashboard.html",
                     _       => "/login.html"
                 };
