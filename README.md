@@ -1,6 +1,6 @@
 # SpeakingBoost - AI-Powered IELTS Speaking Practice Platform
 
-**SpeakingBoost** is a comprehensive web-based platform designed to assist students in practicing and improving their IELTS Speaking skills using Artificial Intelligence. This project is developed as a final requirement for the **CSW 306 (Backend Programming)** course.
+**SpeakingBoost** is a web-based platform that helps students practice IELTS Speaking through exercises, submissions, and teacher feedback. The system also includes basic AI scoring support for speaking evaluation. This project is developed as a final requirement for the **CSW 306 (Backend Programming)** course.
 
 ## 📖 Course Information
 - **Course Name:** Backend Programming
