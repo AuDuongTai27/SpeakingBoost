@@ -3,8 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpeakingBoost.Models.EF;
-using SpeakingBoost.Services;
+using SpeakingBoost.Services.Auth;
 using SpeakingBoost.Services.Email;
+using SpeakingBoost.Repositories.Interfaces.Student;
+using SpeakingBoost.Repositories.Implementations.Student;
+using SpeakingBoost.Services.Interfaces.Student;
+using SpeakingBoost.Services.Implementations.Student;
+using SpeakingBoost.Repositories.Interfaces.Admin;
+using SpeakingBoost.Repositories.Implementations.Admin;
+using SpeakingBoost.Services.Interfaces.Admin;
+using SpeakingBoost.Services.Implementations.Admin;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -113,6 +121,31 @@ builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.SpeechAnalyze
 builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.EvaluateService>();
 builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.AnalyzeOrchestratorService>();
 builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.SubmissionHandleService>();
+
+// Student Repositories & Services
+builder.Services.AddScoped<IStudentDashboardRepository, StudentDashboardRepository>();
+builder.Services.AddScoped<IStudentDeadlineRepository, StudentDeadlineRepository>();
+builder.Services.AddScoped<IPracticeRepository, PracticeRepository>();
+builder.Services.AddScoped<IStudentSubmissionRepository, StudentSubmissionRepository>();
+
+builder.Services.AddScoped<IStudentDashboardService, StudentDashboardService>();
+builder.Services.AddScoped<IStudentDeadlineService, StudentDeadlineService>();
+builder.Services.AddScoped<IPracticeService, PracticeService>();
+builder.Services.AddScoped<IStudentSubmissionService, StudentSubmissionService>();
+
+// Admin Repositories & Services
+builder.Services.AddScoped<IAdminDashboardRepository, AdminDashboardRepository>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IDeadlineRepository, DeadlineRepository>();
+builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IDeadlineService, DeadlineService>();
+builder.Services.AddScoped<IExerciseService, ExerciseService>();
+builder.Services.AddScoped<IStudentsAdminService, StudentsAdminService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // ============================================================
 // 6. BUILD

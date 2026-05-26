@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace SpeakingBoost.Services
+namespace SpeakingBoost.Services.Auth
 {
     /// <summary>
     /// Triển khai tạo JWT token — tương đương HttpContext.SignInAsync() bên MVC
