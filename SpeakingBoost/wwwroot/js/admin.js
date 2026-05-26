@@ -102,10 +102,14 @@ function renderAdminSidebar(activeId = '') {
         { id: 'nav-deadlines', href: '/admin/deadlines.html',  icon: 'clock-history', label: 'Deadline',    section: null },
     ];
 
-    let html = `<div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
-        <div><span>SpeakingBoost</span><small>Admin Portal</small></div>
-    </div>`;
+    let html = `
+        <a href="/admin/dashboard.html" class="sidebar-brand sidebar-brand-link">
+            <div class="brand-icon"><i class="bi bi-mic-fill"></i></div>
+            <div>
+                <span>SpeakingBoost</span>
+                <small>Admin Portal</small>
+            </div>
+        </a>`;
 
     let lastSection = '';
     for (const l of links) {
