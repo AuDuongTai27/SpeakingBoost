@@ -13,15 +13,50 @@
         * { font-family: 'Inter', sans-serif; }
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%);
-            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.35), transparent 30%), radial-gradient(circle at 80% 30%, rgba(6, 182, 212, 0.28), transparent 28%), radial-gradient(circle at 50% 85%, rgba(124, 58, 237, 0.25), transparent 35%), linear-gradient(135deg, #111827 0%, #1e1b4b 45%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
         }
+
+            body::before {
+                content: "";
+                position: fixed;
+                width: 420px;
+                height: 420px;
+                border-radius: 50%;
+                background: rgba(6, 182, 212, 0.18);
+                filter: blur(80px);
+                top: 18%;
+                left: 28%;
+                z-index: 0;
+            }
+
+            body::after {
+                content: "";
+                position: fixed;
+                width: 480px;
+                height: 480px;
+                border-radius: 50%;
+                background: rgba(79, 70, 229, 0.24);
+                filter: blur(90px);
+                bottom: 10%;
+                right: 22%;
+                z-index: 0;
+            }
+
+        .login-card {
+            position: relative;
+            z-index: 1;
+        }
+
         .login-card {
             background: rgba(255,255,255,0.07);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 20px; padding: 2.5rem;
-            width: 100%; max-width: 420px;
+            width: 100%; max-width: 450px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
         }
         .brand-logo {
@@ -71,6 +106,28 @@
         }
         .modal-content {
             background:#1e1b4b;border:1px solid rgba(255,255,255,0.15);border-radius:16px;
+        }
+
+        .modal-desc {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-content .form-label {
+            color: rgba(255, 255, 255, 0.88);
+            font-weight: 600;
+        }
+
+        .modal-content .form-control {
+            background: rgba(255, 255, 255, 0.11);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+        }
+
+        .modal-content .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.42);
         }
     </style>
 </head>
@@ -128,18 +185,24 @@
                 <h5 class="modal-title text-white"><i class="bi bi-key me-2"></i>Quên mật khẩu</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;">Nhập email, hệ thống sẽ gửi mật khẩu mới về hộp thư của bạn.</p>
-                <div id="forgotAlert" class="d-none mb-3"></div>
-                <label for="forgotEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="forgotEmail" placeholder="example@email.com">
-            </div>
-            <div class="modal-footer border-0">
-                <button class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-login px-4" style="width:auto;" id="forgotBtn" onclick="handleForgot()">
-                    Gửi mật khẩu mới
-                </button>
-            </div>
+            <form id="forgotForm">
+                <div class="modal-body">
+                    <p class="modal-desc">
+                        Nhập email đã đăng ký để nhận hướng dẫn khôi phục mật khẩu.
+                    </p>
+                    <div id="forgotAlert" class="d-none mb-3"></div>
+                    <label for="forgotEmail" class="form-label">Email</label>
+                    <input type="text" class="form-control" id="forgotEmail" placeholder="example@email.com"
+                           autocomplete="email"
+                           onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleForgot(); }">
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-login px-4" style="width:auto;" id="forgotBtn">
+                        Gửi mật khẩu mới
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -225,23 +288,53 @@
     // ─── Quên mật khẩu
     async function handleForgot() {
         const email = document.getElementById('forgotEmail').value.trim();
-        const btn   = document.getElementById('forgotBtn');
-        if (!email) { setAlert('forgotAlert', 'Vui lòng nhập email.'); return; }
-        btn.disabled = true; btn.textContent = 'Đang gửi...';
+        const btn = document.getElementById('forgotBtn');
+
+        if (!email) {
+            setAlert('forgotAlert', 'Vui lòng nhập email.');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setAlert('forgotAlert', 'Email không đúng định dạng.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Đang gửi...';
+
         try {
-            const res  = await fetch('/api/auth/forgot-password', {
+            const res = await fetch('/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             });
+
             const json = await res.json();
-            setAlert('forgotAlert', json.message, res.ok);
+
+            const message =
+                json.message ||
+                json.title ||
+                (Array.isArray(json.errors) ? json.errors[0] : null) ||
+                (json.errors && typeof json.errors === 'object'
+                    ? json.errors[Object.keys(json.errors)[0]]?.[0]
+                    : null) ||
+                'Không thể gửi mật khẩu mới. Vui lòng thử lại.';
+
+            setAlert('forgotAlert', message, res.ok);
         } catch {
             setAlert('forgotAlert', 'Lỗi kết nối. Vui lòng thử lại.');
         } finally {
-            btn.disabled = false; btn.textContent = 'Gửi mật khẩu mới';
+            btn.disabled = false;
+            btn.textContent = 'Gửi mật khẩu mới';
         }
     }
+
+    document.getElementById('forgotForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await handleForgot();
+    });
 </script>
 </body>
 </html>
