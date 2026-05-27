@@ -111,6 +111,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<ILoginServices, LoginServices>();
 builder.Services.AddScoped<IJwtService,    JwtService>();
 builder.Services.AddScoped<IEmailService,  EmailService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 // AI Speaking & Background Services
 builder.Services.AddSingleton<SpeakingBoost.Services.Background.BackgroundQueue>();
@@ -168,7 +169,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Phục vụ file HTML/JS/CSS trong wwwroot (login.html, dashboard.html...)
-app.UseDefaultFiles();
+// app.UseDefaultFiles();
+var defaultFilesOptions = new DefaultFilesOptions();
+defaultFilesOptions.DefaultFileNames.Clear();
+defaultFilesOptions.DefaultFileNames.Add("login.html");
+app.UseDefaultFiles(defaultFilesOptions);
 app.UseStaticFiles();
 
 app.UseCors("AllowAll");
@@ -190,9 +195,6 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         context.Database.Migrate();
 
-        // ── Seed tài khoản mẫu (chỉ chạy trong Development) ──────────
-        // student1@example.com / teacher1@example.com / admin1@example.com
-        // Mật khẩu chung: Password123
         if (app.Environment.IsDevelopment())
         {
             DbSeeder.Seed(context, logger);
