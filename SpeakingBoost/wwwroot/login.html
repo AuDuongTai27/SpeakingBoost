@@ -107,6 +107,28 @@
         .modal-content {
             background:#1e1b4b;border:1px solid rgba(255,255,255,0.15);border-radius:16px;
         }
+
+        .modal-desc {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-content .form-label {
+            color: rgba(255, 255, 255, 0.88);
+            font-weight: 600;
+        }
+
+        .modal-content .form-control {
+            background: rgba(255, 255, 255, 0.11);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+        }
+
+        .modal-content .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.42);
+        }
     </style>
 </head>
 <body>
@@ -163,18 +185,24 @@
                 <h5 class="modal-title text-white"><i class="bi bi-key me-2"></i>Quên mật khẩu</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;">Nhập email, hệ thống sẽ gửi mật khẩu mới về hộp thư của bạn.</p>
-                <div id="forgotAlert" class="d-none mb-3"></div>
-                <label for="forgotEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="forgotEmail" placeholder="example@email.com">
-            </div>
-            <div class="modal-footer border-0">
-                <button class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-login px-4" style="width:auto;" id="forgotBtn" onclick="handleForgot()">
-                    Gửi mật khẩu mới
-                </button>
-            </div>
+            <form id="forgotForm">
+                <div class="modal-body">
+                    <p class="modal-desc">
+                        Nhập email đã đăng ký để nhận hướng dẫn khôi phục mật khẩu.
+                    </p>
+                    <div id="forgotAlert" class="d-none mb-3"></div>
+                    <label for="forgotEmail" class="form-label">Email</label>
+                    <input type="text" class="form-control" id="forgotEmail" placeholder="example@email.com"
+                           autocomplete="email"
+                           onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleForgot(); }">
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-login px-4" style="width:auto;" id="forgotBtn">
+                        Gửi mật khẩu mới
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -260,23 +288,53 @@
     // ─── Quên mật khẩu
     async function handleForgot() {
         const email = document.getElementById('forgotEmail').value.trim();
-        const btn   = document.getElementById('forgotBtn');
-        if (!email) { setAlert('forgotAlert', 'Vui lòng nhập email.'); return; }
-        btn.disabled = true; btn.textContent = 'Đang gửi...';
+        const btn = document.getElementById('forgotBtn');
+
+        if (!email) {
+            setAlert('forgotAlert', 'Vui lòng nhập email.');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setAlert('forgotAlert', 'Email không đúng định dạng.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Đang gửi...';
+
         try {
-            const res  = await fetch('/api/auth/forgot-password', {
+            const res = await fetch('/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             });
+
             const json = await res.json();
-            setAlert('forgotAlert', json.message, res.ok);
+
+            const message =
+                json.message ||
+                json.title ||
+                (Array.isArray(json.errors) ? json.errors[0] : null) ||
+                (json.errors && typeof json.errors === 'object'
+                    ? json.errors[Object.keys(json.errors)[0]]?.[0]
+                    : null) ||
+                'Không thể gửi mật khẩu mới. Vui lòng thử lại.';
+
+            setAlert('forgotAlert', message, res.ok);
         } catch {
             setAlert('forgotAlert', 'Lỗi kết nối. Vui lòng thử lại.');
         } finally {
-            btn.disabled = false; btn.textContent = 'Gửi mật khẩu mới';
+            btn.disabled = false;
+            btn.textContent = 'Gửi mật khẩu mới';
         }
     }
+
+    document.getElementById('forgotForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await handleForgot();
+    });
 </script>
 </body>
 </html>
