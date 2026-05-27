@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SpeakingBoost.Models.DTOs;
 using SpeakingBoost.Models.DTOs.Auth;
 using SpeakingBoost.Models.EF;
-using SpeakingBoost.Services;
+using SpeakingBoost.Services.Auth;
 
 namespace SpeakingBoost.Controllers
 {

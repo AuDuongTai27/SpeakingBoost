@@ -3,7 +3,7 @@ using SpeakingBoost.Models.Entities;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SpeakingBoost.Services
+namespace SpeakingBoost.Services.Auth
 {
     public class LoginServices : ILoginServices
     {

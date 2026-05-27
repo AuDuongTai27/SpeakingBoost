@@ -1,6 +1,6 @@
 using SpeakingBoost.Models.Entities;
 
-namespace SpeakingBoost.Services
+namespace SpeakingBoost.Services.Auth
 {
     public interface ILoginServices
     {
