@@ -4,6 +4,7 @@ using SpeakingBoost.Models.DTOs;
 using SpeakingBoost.Models.DTOs.Auth;
 using SpeakingBoost.Services.Auth;
 using SpeakingBoost.Services.Email;
+using SpeakingBoost.Helpers;
 using System.Security.Claims;
 
 namespace SpeakingBoost.Controllers
@@ -46,7 +47,7 @@ namespace SpeakingBoost.Controllers
         // API mới: → GenerateToken(user) → return Ok(token)
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
-        {
+        {   
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -67,13 +68,15 @@ namespace SpeakingBoost.Controllers
                 string token = _jwtService.GenerateToken(account);
                 string role  = account.Role?.Trim().ToLower() ?? "";
 
-                // Xác định redirect URL theo role
-                string redirectUrl = role switch
-                {
-                    "user"  => "/student/homepage.html",
-                    "admin" => "/admin/dashboard.html",
-                    _       => "/login.html"
-                };
+                // Xác định redirect URL theo role sử dụng Helper
+                // CODE CŨ:
+                // string redirectUrl = role switch
+                // {
+                //     "user"  => "/student/homepage.html",
+                //     "admin" => "/admin/dashboard.html",
+                //     _       => "/login.html"
+                // };
+                string redirectUrl = ClaimHelper.GetRedirectUrl(role);
 
                 var response = new LoginResponse
                 {
@@ -148,20 +151,23 @@ namespace SpeakingBoost.Controllers
         public IActionResult Me()
         {
             var role     = User.FindFirst(ClaimTypes.Role)?.Value ?? "";
-            var userId   = User.FindFirst("StudentId")?.Value ?? "0";
+            // CODE CŨ: var userId   = User.FindFirst("StudentId")?.Value ?? "0";
+            var userId   = User.GetStudentId() ?? 0;
             var fullName = User.FindFirst(ClaimTypes.Name)?.Value ?? "";
             var email    = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
 
-            string redirectUrl = role.Trim().ToLower() switch
-            {
-                "user"  => "/student/homepage.html",
-                "admin" => "/admin/dashboard.html",
-                _       => "/login.html"
-            };
+            // CODE CŨ:
+            // string redirectUrl = role.Trim().ToLower() switch
+            // {
+            //     "user"  => "/student/homepage.html",
+            //     "admin" => "/admin/dashboard.html",
+            //     _       => "/login.html"
+            // };
+            string redirectUrl = ClaimHelper.GetRedirectUrl(role);
 
             return Ok(ApiResponse<object>.SuccessResponse(new
             {
-                UserId      = int.Parse(userId),
+                UserId      = userId,
                 FullName    = fullName,
                 Email       = email,
                 Role        = role,

@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SpeakingBoost.Models.DTOs;
 using SpeakingBoost.Models.DTOs.Auth;
-using SpeakingBoost.Models.EF;
 using SpeakingBoost.Services.Auth;
+using SpeakingBoost.Helpers;
 
 namespace SpeakingBoost.Controllers
 {
@@ -13,32 +12,37 @@ namespace SpeakingBoost.Controllers
     [Authorize]
     public class ProfileController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ILoginServices _loginServices;
+        // CODE CŨ:
+        // private readonly ApplicationDbContext _context;
+        // private readonly ILoginServices _loginServices;
+        private readonly IProfileService _profileService;
 
-        public ProfileController(ApplicationDbContext context, ILoginServices loginServices)
+        public ProfileController(IProfileService profileService)
         {
-            _context = context;
-            _loginServices = loginServices;
+            _profileService = profileService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetProfile()
         {
-            var userIdStr = User.FindFirst("StudentId")?.Value;
-            if (!int.TryParse(userIdStr, out int userId))
+            // CODE CŨ:
+            // var userIdStr = User.FindFirst("StudentId")?.Value;
+            // if (!int.TryParse(userIdStr, out int userId))
+            //     return Unauthorized(ApiResponse<object>.ErrorResponse("Không thể xác thực."));
+            //
+            // var user = await _context.Users.FindAsync(userId);
+            // if (user == null)
+            //     return NotFound(ApiResponse<object>.ErrorResponse("Người dùng không tồn tại."));
+            
+            var userId = User.GetStudentId();
+            if (userId == null)
                 return Unauthorized(ApiResponse<object>.ErrorResponse("Không thể xác thực."));
 
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
+            var profile = await _profileService.GetProfileAsync(userId.Value);
+            if (profile == null)
                 return NotFound(ApiResponse<object>.ErrorResponse("Người dùng không tồn tại."));
 
-            return Ok(ApiResponse<object>.SuccessResponse(new
-            {
-                FullName = user.FullName,
-                Email = user.Email,
-                Role = user.Role
-            }));
+            return Ok(ApiResponse<UserProfileDto>.SuccessResponse(profile));
         }
 
         [HttpPut]
@@ -50,22 +54,29 @@ namespace SpeakingBoost.Controllers
                 return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
             }
 
-            var userIdStr = User.FindFirst("StudentId")?.Value;
-            if (!int.TryParse(userIdStr, out int userId))
+            // CODE CŨ:
+            // var userIdStr = User.FindFirst("StudentId")?.Value;
+            // if (!int.TryParse(userIdStr, out int userId))
+            //     return Unauthorized(ApiResponse<object>.ErrorResponse("Không thể xác thực."));
+            //
+            // var user = await _context.Users.FindAsync(userId);
+            // if (user == null)
+            //     return NotFound(ApiResponse<object>.ErrorResponse("Người dùng không tồn tại."));
+            //
+            // user.FullName = request.FullName;
+            // if (!string.IsNullOrEmpty(request.Password))
+            // {
+            //     user.PasswordHash = _loginServices.HashPassword(request.Password);
+            // }
+            // await _context.SaveChangesAsync();
+
+            var userId = User.GetStudentId();
+            if (userId == null)
                 return Unauthorized(ApiResponse<object>.ErrorResponse("Không thể xác thực."));
 
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
+            var success = await _profileService.UpdateProfileAsync(userId.Value, request);
+            if (!success)
                 return NotFound(ApiResponse<object>.ErrorResponse("Người dùng không tồn tại."));
-
-            user.FullName = request.FullName;
-
-            if (!string.IsNullOrEmpty(request.Password))
-            {
-                user.PasswordHash = _loginServices.HashPassword(request.Password);
-            }
-
-            await _context.SaveChangesAsync();
 
             return Ok(ApiResponse<object>.SuccessResponse("Cập nhật thông tin thành công!"));
         }

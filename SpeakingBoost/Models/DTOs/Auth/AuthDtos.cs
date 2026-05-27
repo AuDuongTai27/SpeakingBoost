@@ -55,4 +55,14 @@ namespace SpeakingBoost.Models.DTOs.Auth
 
         public string? Password { get; set; }
     }
+
+    /// <summary>
+    /// Dữ liệu trả về khi lấy thông tin cá nhân
+    /// </summary>
+    public class UserProfileDto
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+    }
 }
