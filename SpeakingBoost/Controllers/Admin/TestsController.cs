@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SpeakingBoost.Models.DTOs;
+using SpeakingBoost.Helpers;
 using SpeakingBoost.Models.DTOs.Admin;
-using SpeakingBoost.Models.EF;
-using SpeakingBoost.Models.Entities;
-using ClosedXML.Excel;
+using SpeakingBoost.Services.Interfaces.Admin;
 
 namespace SpeakingBoost.Controllers.Admin
 {
@@ -13,11 +11,11 @@ namespace SpeakingBoost.Controllers.Admin
     [Authorize(Roles = "admin")]
     public class TestsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IExerciseService _exerciseService;
 
-        public TestsController(ApplicationDbContext context)
+        public TestsController(IExerciseService exerciseService)
         {
-            _context = context;
+            _exerciseService = exerciseService;
         }
 
         // ────────────────────────────────────────────────────────────
@@ -26,19 +24,8 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpGet("api/admin/tests/topics")]
         public async Task<IActionResult> GetTopics()
         {
-            var topics = await _context.VocabularyTopics
-                .Include(t => t.Exercises)
-                .OrderBy(t => t.Name)
-                .Select(t => new TopicDto
-                {
-                    TopicId       = t.TopicId,
-                    Name          = t.Name,
-                    Description   = t.Description,
-                    ExerciseCount = t.Exercises != null ? t.Exercises.Count : 0
-                })
-                .ToListAsync();
-
-            return Ok(ApiResponse<List<TopicDto>>.SuccessResponse(topics));
+            var topics = await _exerciseService.GetAllTopicsAsync();
+            return Ok(BaseResponse<List<TopicDto>>.Ok(topics));
         }
 
         // ────────────────────────────────────────────────────────────
@@ -51,33 +38,24 @@ namespace SpeakingBoost.Controllers.Admin
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ: " + string.Join(", ", errors), 400));
             }
 
-            if (await _context.VocabularyTopics.AnyAsync(t => t.Name.ToLower() == dto.Name.ToLower()))
-                return Conflict(ApiResponse<object>.ErrorResponse("Chủ đề này đã tồn tại."));
-
-            var topic = new VocabularyTopic
+            try
             {
-                Name        = dto.Name,
-                Description = dto.Description
-            };
-
-            _context.VocabularyTopics.Add(topic);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetTopicDetails), new { id = topic.TopicId },
-                ApiResponse<TopicDto>.SuccessResponse(new TopicDto
-                {
-                    TopicId     = topic.TopicId,
-                    Name        = topic.Name,
-                    Description = topic.Description
-                }, "Thêm chủ đề thành công!"));
+                var createdTopic = await _exerciseService.CreateTopicAsync(dto);
+                return CreatedAtAction(nameof(GetTopicDetails), new { id = createdTopic.TopicId },
+                    BaseResponse<TopicDto>.Ok(createdTopic, "Thêm chủ đề thành công!"));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(BaseResponse<object>.Fail(ex.Message, 409));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
         // PUT /api/admin/tests/topics/{id}
-        // Body: CreateTopicDto (reuse same fields: name, description)
+        // Body: CreateTopicDto
         // ────────────────────────────────────────────────────────────
         [HttpPut("api/admin/tests/topics/{id}")]
         public async Task<IActionResult> UpdateTopic(int id, [FromBody] CreateTopicDto dto)
@@ -85,21 +63,22 @@ namespace SpeakingBoost.Controllers.Admin
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ: " + string.Join(", ", errors), 400));
             }
 
-            var topic = await _context.VocabularyTopics.FindAsync(id);
-            if (topic == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy chủ đề."));
-
-            if (await _context.VocabularyTopics.AnyAsync(t => t.Name.ToLower() == dto.Name.ToLower() && t.TopicId != id))
-                return Conflict(ApiResponse<object>.ErrorResponse("Tên chủ đề này đã tồn tại."));
-
-            topic.Name        = dto.Name;
-            topic.Description = dto.Description;
-            await _context.SaveChangesAsync();
-
-            return Ok(ApiResponse<object>.SuccessResponse("Cập nhật chủ đề thành công!"));
+            try
+            {
+                await _exerciseService.UpdateTopicAsync(id, dto);
+                return Ok(BaseResponse<object>.Ok("Cập nhật chủ đề thành công!"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(BaseResponse<object>.Fail(ex.Message, 409));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -108,33 +87,22 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpDelete("api/admin/tests/topics/{id}")]
         public async Task<IActionResult> DeleteTopic(int id)
         {
-            var topic = await _context.VocabularyTopics
-                .Include(t => t.Exercises)
-                .FirstOrDefaultAsync(t => t.TopicId == id);
-
-            if (topic == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy chủ đề."));
-
-            var exerciseIds = topic.Exercises?.Select(e => e.ExerciseId).ToList() ?? new List<int>();
-            var hasSubmissions = await _context.Submissions.AnyAsync(s => exerciseIds.Contains(s.ExerciseId));
-
-            if (hasSubmissions)
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    "Không thể xóa chủ đề này vì đã có học viên nộp bài."));
-
             try
             {
-                if (topic.Exercises != null)
-                    _context.Exercises.RemoveRange(topic.Exercises);
-
-                _context.VocabularyTopics.Remove(topic);
-                await _context.SaveChangesAsync();
-
+                await _exerciseService.DeleteTopicAsync(id);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(BaseResponse<object>.Fail(ex.Message, 400));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Lỗi khi xóa: " + ex.Message));
+                return StatusCode(500, BaseResponse<object>.Fail("Lỗi khi xóa: " + ex.Message, 500));
             }
         }
 
@@ -144,31 +112,15 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpGet("api/admin/tests/topics/{id}")]
         public async Task<IActionResult> GetTopicDetails(int id)
         {
-            var topic = await _context.VocabularyTopics
-                .Include(t => t.Exercises)
-                .FirstOrDefaultAsync(t => t.TopicId == id);
-
-            if (topic == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy chủ đề."));
-
-            var dto = new TopicDetailsDto
+            try
             {
-                TopicId     = topic.TopicId,
-                Name        = topic.Name,
-                Description = topic.Description,
-                Exercises   = topic.Exercises?.Select(e => new ExerciseDto
-                {
-                    ExerciseId   = e.ExerciseId,
-                    Title        = e.Title,
-                    Type         = e.Type,
-                    Question     = e.Question,
-                    SampleAnswer = e.SampleAnswer,
-                    MaxAttempts  = e.MaxAttempts,
-                    TopicId      = e.TopicId
-                }).ToList() ?? new List<ExerciseDto>()
-            };
-
-            return Ok(ApiResponse<TopicDetailsDto>.SuccessResponse(dto));
+                var details = await _exerciseService.GetTopicDetailsAsync(id);
+                return Ok(BaseResponse<TopicDetailsDto>.Ok(details));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -181,33 +133,19 @@ namespace SpeakingBoost.Controllers.Admin
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ: " + string.Join(", ", errors), 400));
             }
 
-            var exercise = new Exercise
+            try
             {
-                Title        = dto.Title,
-                Type         = dto.Type,
-                Question     = dto.Question,
-                SampleAnswer = dto.SampleAnswer,
-                MaxAttempts  = dto.MaxAttempts,
-                TopicId      = id
-            };
-
-            _context.Exercises.Add(exercise);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetExercise), new { id = exercise.ExerciseId },
-                ApiResponse<ExerciseDto>.SuccessResponse(new ExerciseDto
-                {
-                    ExerciseId   = exercise.ExerciseId,
-                    Title        = exercise.Title,
-                    Type         = exercise.Type,
-                    Question     = exercise.Question,
-                    SampleAnswer = exercise.SampleAnswer,
-                    MaxAttempts  = exercise.MaxAttempts,
-                    TopicId      = exercise.TopicId
-                }, "Thêm câu hỏi thành công!"));
+                var createdExercise = await _exerciseService.AddExerciseAsync(id, dto);
+                return CreatedAtAction(nameof(GetExercise), new { id = createdExercise.ExerciseId },
+                    BaseResponse<ExerciseDto>.Ok(createdExercise, "Thêm câu hỏi thành công!"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -216,24 +154,15 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpGet("api/admin/tests/exercises/{id}")]
         public async Task<IActionResult> GetExercise(int id)
         {
-            var exercise = await _context.Exercises
-                .Include(e => e.VocabularyTopic)
-                .FirstOrDefaultAsync(e => e.ExerciseId == id);
-
-            if (exercise == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy câu hỏi."));
-
-            return Ok(ApiResponse<ExerciseDto>.SuccessResponse(new ExerciseDto
+            try
             {
-                ExerciseId   = exercise.ExerciseId,
-                Title        = exercise.Title,
-                Type         = exercise.Type,
-                Question     = exercise.Question,
-                SampleAnswer = exercise.SampleAnswer,
-                MaxAttempts  = exercise.MaxAttempts,
-                TopicId      = exercise.TopicId,
-                TopicName    = exercise.VocabularyTopic?.Name
-            }));
+                var exercise = await _exerciseService.GetExerciseAsync(id);
+                return Ok(BaseResponse<ExerciseDto>.Ok(exercise));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -246,23 +175,18 @@ namespace SpeakingBoost.Controllers.Admin
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ: " + string.Join(", ", errors), 400));
             }
 
-            var exercise = await _context.Exercises.FindAsync(id);
-            if (exercise == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy câu hỏi."));
-
-            exercise.Title        = dto.Title;
-            exercise.Type         = dto.Type;
-            exercise.Question     = dto.Question;
-            exercise.SampleAnswer = dto.SampleAnswer;
-            exercise.MaxAttempts  = dto.MaxAttempts;
-            exercise.TopicId      = dto.TopicId;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(ApiResponse<object>.SuccessResponse("Cập nhật câu hỏi thành công!"));
+            try
+            {
+                await _exerciseService.UpdateExerciseAsync(id, dto);
+                return Ok(BaseResponse<object>.Ok("Cập nhật câu hỏi thành công!"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -271,26 +195,18 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpDelete("api/admin/tests/exercises/{id}")]
         public async Task<IActionResult> DeleteExercise(int id)
         {
-            var exercise = await _context.Exercises
-                .Include(e => e.Submissions)
-                .FirstOrDefaultAsync(e => e.ExerciseId == id);
-
-            if (exercise == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy câu hỏi."));
-
             try
             {
-                if (exercise.Submissions != null && exercise.Submissions.Any())
-                    _context.Submissions.RemoveRange(exercise.Submissions);
-
-                _context.Exercises.Remove(exercise);
-                await _context.SaveChangesAsync();
-
+                await _exerciseService.DeleteExerciseAsync(id);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Lỗi khi xóa: " + ex.Message));
+                return StatusCode(500, BaseResponse<object>.Fail("Lỗi khi xóa: " + ex.Message, 500));
             }
         }
 
@@ -302,61 +218,27 @@ namespace SpeakingBoost.Controllers.Admin
         public async Task<IActionResult> ImportFromExcel(int id, IFormFile excelFile)
         {
             if (excelFile == null || excelFile.Length == 0)
-                return BadRequest(ApiResponse<object>.ErrorResponse("Vui lòng chọn file Excel."));
-
-            int successCount = 0;
-            int currentRow = 2;
+            {
+                return BadRequest(BaseResponse<object>.Fail("Vui lòng chọn file Excel.", 400));
+            }
 
             try
             {
-                using var stream = new MemoryStream();
-                await excelFile.CopyToAsync(stream);
-
-                using var workbook = new XLWorkbook(stream);
-                var worksheet = workbook.Worksheet(1);
-                var lastRow   = worksheet.LastRowUsed()?.RowNumber() ?? 1;
-
-                for (int row = 2; row <= lastRow; row++)
-                {
-                    currentRow = row;
-                    var excelRow = worksheet.Row(row);
-
-                    var title        = excelRow.Cell(1).GetValue<string>()?.Trim();
-                    var partVal      = excelRow.Cell(2).GetValue<string>()?.Trim();
-                    var questionText = excelRow.Cell(3).GetValue<string>()?.Trim();
-                    var sampleAnswer = excelRow.Cell(4).GetValue<string>()?.Trim();
-                    var maxVal       = excelRow.Cell(5).GetValue<string>()?.Trim();
-
-                    if (string.IsNullOrEmpty(questionText)) continue;
-
-                    int.TryParse(partVal, out int partNumber);
-                    string typeString = partNumber switch { 2 => "Part2", 3 => "Part3", _ => "Part1" };
-
-                    if (!int.TryParse(maxVal, out int maxAttempts) || maxAttempts <= 0)
-                        maxAttempts = 3;
-
-                    _context.Exercises.Add(new Exercise
-                    {
-                        TopicId      = id,
-                        Title        = string.IsNullOrEmpty(title) ? $"Câu hỏi (Dòng {row})" : title,
-                        Type         = typeString,
-                        Question     = questionText,
-                        SampleAnswer = sampleAnswer,
-                        MaxAttempts  = maxAttempts
-                    });
-                    successCount++;
-                }
-
-                if (successCount > 0)
-                    await _context.SaveChangesAsync();
-                else
-                    return BadRequest(ApiResponse<object>.ErrorResponse("File không có dữ liệu hợp lệ."));
-
-                return Ok(ApiResponse<object>.SuccessResponse($"Đã nhập thành công {successCount} câu hỏi!"));
+                using var stream = excelFile.OpenReadStream();
+                int successCount = await _exerciseService.ImportFromExcelAsync(id, stream);
+                return Ok(BaseResponse<object>.Ok(null, $"Đã nhập thành công {successCount} câu hỏi!"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(BaseResponse<object>.Fail(ex.Message, 400));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse($"Lỗi tại dòng {currentRow}: {ex.Message}"));
+                return StatusCode(500, BaseResponse<object>.Fail("Lỗi nhập dữ liệu: " + ex.Message, 500));
             }
         }
     }

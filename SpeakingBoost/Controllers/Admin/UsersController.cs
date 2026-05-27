@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SpeakingBoost.Models.DTOs;
+using SpeakingBoost.Helpers;
 using SpeakingBoost.Models.DTOs.Admin;
-using SpeakingBoost.Models.EF;
-using SpeakingBoost.Models.Entities;
-using SpeakingBoost.Services;
+using SpeakingBoost.Services.Interfaces.Admin;
 
 namespace SpeakingBoost.Controllers.Admin
 {
@@ -14,13 +11,11 @@ namespace SpeakingBoost.Controllers.Admin
     [Authorize(Roles = "admin")]
     public class UsersController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ILoginServices _loginServices;
+        private readonly IUserService _userService;
 
-        public UsersController(ApplicationDbContext context, ILoginServices loginServices)
+        public UsersController(IUserService userService)
         {
-            _context = context;
-            _loginServices = loginServices;
+            _userService = userService;
         }
 
         // ────────────────────────────────────────────────────────────
@@ -30,19 +25,8 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _context.Users
-                .Where(u => u.Role == "user")  // Chỉ lấy học sinh
-                .OrderBy(u => u.FullName)
-                .Select(u => new UserDto
-                {
-                    UserId = u.UserId,
-                    FullName = u.FullName,
-                    Email = u.Email,
-                    Role = u.Role
-                })
-                .ToListAsync();
-
-            return Ok(ApiResponse<List<UserDto>>.SuccessResponse(users));
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(BaseResponse<List<UserDto>>.Ok(users));
         }
 
         // ────────────────────────────────────────────────────────────
@@ -51,17 +35,15 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null || user.Role != "user")
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy học sinh."));
-
-            return Ok(ApiResponse<UserDto>.SuccessResponse(new UserDto
+            try
             {
-                UserId = user.UserId,
-                FullName = user.FullName,
-                Email = user.Email,
-                Role = user.Role
-            }));
+                var user = await _userService.GetUserByIdAsync(id);
+                return Ok(BaseResponse<UserDto>.Ok(user));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -74,28 +56,19 @@ namespace SpeakingBoost.Controllers.Admin
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ: " + string.Join(", ", errors), 400));
             }
 
-            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                return Conflict(ApiResponse<object>.ErrorResponse("Email này đã được sử dụng."));
-
-            // Tạo mới luôn là học sinh (user)
-            var user = new User
+            try
             {
-                FullName = dto.FullName,
-                Email = dto.Email.ToLower().Trim(),
-                Role = "user",  // Luôn tạo với role = user
-                PasswordHash = _loginServices.HashPassword(dto.Password)
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            var result = new UserDto { UserId = user.UserId, FullName = user.FullName, Email = user.Email, Role = user.Role };
-
-            return CreatedAtAction(nameof(GetUser), new { id = user.UserId },
-                ApiResponse<UserDto>.SuccessResponse(result, "Tạo học sinh thành công!"));
+                var user = await _userService.CreateUserAsync(dto);
+                return CreatedAtAction(nameof(GetUser), new { id = user.UserId },
+                    BaseResponse<UserDto>.Ok(user, "Tạo học sinh thành công!"));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(BaseResponse<object>.Fail(ex.Message, 409));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -108,23 +81,22 @@ namespace SpeakingBoost.Controllers.Admin
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ: " + string.Join(", ", errors), 400));
             }
 
-            var user = await _context.Users.FindAsync(id);
-            if (user == null || user.Role != "user")
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy học sinh."));
-
-            if (await _context.Users.AnyAsync(u => u.Email == dto.Email && u.UserId != id))
-                return Conflict(ApiResponse<object>.ErrorResponse("Email này đã được sử dụng."));
-
-            user.FullName = dto.FullName;
-            user.Email = dto.Email.ToLower().Trim();
-            // Không cho phép thay đổi Role, luôn giữ nguyên "user"
-
-            await _context.SaveChangesAsync();
-
-            return Ok(ApiResponse<object>.SuccessResponse("Cập nhật thông tin thành công!"));
+            try
+            {
+                await _userService.UpdateUserAsync(id, dto);
+                return Ok(BaseResponse<object>.Ok("Cập nhật thông tin thành công!"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(BaseResponse<object>.Fail(ex.Message, 409));
+            }
         }
 
         // ────────────────────────────────────────────────────────────
@@ -133,29 +105,18 @@ namespace SpeakingBoost.Controllers.Admin
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users
-                .Include(u => u.StudentClasses)
-                .Include(u => u.Submissions)
-                .Include(u => u.Notifications)
-                .FirstOrDefaultAsync(u => u.UserId == id);
-
-            if (user == null || user.Role != "user")
-                return NotFound(ApiResponse<object>.ErrorResponse("Không tìm thấy học sinh."));
-
             try
             {
-                if (user.StudentClasses?.Any() == true) _context.StudentClasses.RemoveRange(user.StudentClasses);
-                if (user.Notifications?.Any() == true) _context.Notifications.RemoveRange(user.Notifications);
-                if (user.Submissions?.Any() == true) _context.Submissions.RemoveRange(user.Submissions);
-
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-
+                await _userService.DeleteUserAsync(id);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Lỗi hệ thống khi xóa.", new List<string> { ex.Message }));
+                return StatusCode(500, BaseResponse<object>.Fail("Lỗi hệ thống khi xóa: " + ex.Message, 500));
             }
         }
     }

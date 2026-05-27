@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpeakingBoost.Models.DTOs;
 using SpeakingBoost.Models.DTOs.Auth;
-using SpeakingBoost.Services;
+using SpeakingBoost.Services.Auth;
 using SpeakingBoost.Services.Email;
 using System.Security.Claims;
 
