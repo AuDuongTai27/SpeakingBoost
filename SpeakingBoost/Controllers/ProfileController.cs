@@ -36,13 +36,13 @@ namespace SpeakingBoost.Controllers
             
             var userId = User.GetStudentId();
             if (userId == null)
-                return Unauthorized(ApiResponse<object>.ErrorResponse("Không thể xác thực."));
+                return Unauthorized(BaseResponse<object>.Fail("Không thể xác thực.", 401));
 
             var profile = await _profileService.GetProfileAsync(userId.Value);
             if (profile == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Người dùng không tồn tại."));
+                return NotFound(BaseResponse<object>.Fail("Người dùng không tồn tại.", 404));
 
-            return Ok(ApiResponse<UserProfileDto>.SuccessResponse(profile));
+            return Ok(BaseResponse<UserProfileDto>.Ok(profile));
         }
 
         [HttpPut]
@@ -51,7 +51,7 @@ namespace SpeakingBoost.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ", errors, 400));
             }
 
             // CODE CŨ:
@@ -72,13 +72,13 @@ namespace SpeakingBoost.Controllers
 
             var userId = User.GetStudentId();
             if (userId == null)
-                return Unauthorized(ApiResponse<object>.ErrorResponse("Không thể xác thực."));
+                return Unauthorized(BaseResponse<object>.Fail("Không thể xác thực.", 401));
 
             var success = await _profileService.UpdateProfileAsync(userId.Value, request);
             if (!success)
-                return NotFound(ApiResponse<object>.ErrorResponse("Người dùng không tồn tại."));
+                return NotFound(BaseResponse<object>.Fail("Người dùng không tồn tại.", 404));
 
-            return Ok(ApiResponse<object>.SuccessResponse("Cập nhật thông tin thành công!"));
+            return Ok(BaseResponse<object>.Ok("Cập nhật thông tin thành công!"));
         }
     }
 }
