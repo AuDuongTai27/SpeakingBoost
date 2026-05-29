@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Diagnostics;
 
-namespace SpeakingBoost.Services.SpeakingServices
+namespace SpeakingBoost.Services.Implementations.Speaking
 {
     public class EvaluateService
     {

@@ -1,7 +1,8 @@
 using SpeakingBoost.Models.DTOs.Admin;
 using SpeakingBoost.Models.Entities;
 using SpeakingBoost.Repositories.Interfaces.Admin;
-using SpeakingBoost.Services.Auth;
+using SpeakingBoost.Services.Interfaces.Auth;
+using SpeakingBoost.Services.Implementations.Auth;
 using SpeakingBoost.Services.Interfaces.Admin;
 
 namespace SpeakingBoost.Services.Implementations.Admin

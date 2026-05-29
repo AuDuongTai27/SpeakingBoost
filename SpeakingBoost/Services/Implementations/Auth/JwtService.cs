@@ -1,10 +1,15 @@
 using Microsoft.IdentityModel.Tokens;
+using SpeakingBoost.Services.Interfaces.Auth;
 using SpeakingBoost.Models.Entities;
+using SpeakingBoost.Services.Interfaces.Auth;
 using System.IdentityModel.Tokens.Jwt;
+using SpeakingBoost.Services.Interfaces.Auth;
 using System.Security.Claims;
+using SpeakingBoost.Services.Interfaces.Auth;
 using System.Text;
 
-namespace SpeakingBoost.Services.Auth
+using SpeakingBoost.Services.Interfaces.Auth;
+namespace SpeakingBoost.Services.Implementations.Auth
 {
     /// <summary>
     /// Triển khai tạo JWT token — tương đương HttpContext.SignInAsync() bên MVC

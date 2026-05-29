@@ -1,5 +1,5 @@
 // File: Services/Background/GradingBackgroundService.cs
-using SpeakingBoost.Services.SpeakingServices;
+using SpeakingBoost.Services.Implementations.Speaking;
 using SpeakingBoost.Models.EF;
 using SpeakingBoost.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using static SpeakingBoost.Models.Entities.Submission;
 
-namespace SpeakingBoost.Services.Background
+namespace SpeakingBoost.Services.Implementations.Background
 {
     public class GradingBackgroundService : BackgroundService
     {

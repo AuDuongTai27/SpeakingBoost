@@ -1,6 +1,6 @@
 using SpeakingBoost.Models.Entities;
 
-namespace SpeakingBoost.Services.Auth
+namespace SpeakingBoost.Services.Interfaces.Auth
 {
     /// <summary>
     /// Interface tạo và xác thực JWT token

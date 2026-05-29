@@ -2,8 +2,9 @@ using SpeakingBoost.Models.EF;
 using SpeakingBoost.Models.Entities;
 using System.Security.Cryptography;
 using System.Text;
+using SpeakingBoost.Services.Interfaces.Auth;
 
-namespace SpeakingBoost.Services.Auth
+namespace SpeakingBoost.Services.Implementations.Auth
 {
     public class LoginServices : ILoginServices
     {

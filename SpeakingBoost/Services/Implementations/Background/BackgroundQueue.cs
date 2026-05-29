@@ -3,7 +3,7 @@ using System.Threading.Channels;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
 
-namespace SpeakingBoost.Services.Background
+namespace SpeakingBoost.Services.Implementations.Background
 {
     public class BackgroundQueue
     {

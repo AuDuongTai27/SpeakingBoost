@@ -1,4 +1,4 @@
-namespace SpeakingBoost.Services.Email
+namespace SpeakingBoost.Services.Interfaces.Email
 {
     public interface IEmailService
     {

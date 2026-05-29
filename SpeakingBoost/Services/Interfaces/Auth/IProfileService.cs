@@ -1,6 +1,6 @@
 using SpeakingBoost.Models.DTOs.Auth;
 
-namespace SpeakingBoost.Services.Auth
+namespace SpeakingBoost.Services.Interfaces.Auth
 {
     public interface IProfileService
     {

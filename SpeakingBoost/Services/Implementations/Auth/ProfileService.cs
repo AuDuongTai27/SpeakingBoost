@@ -1,7 +1,9 @@
 using SpeakingBoost.Models.DTOs.Auth;
+using SpeakingBoost.Services.Interfaces.Auth;
 using SpeakingBoost.Repositories.Interfaces.Admin;
 
-namespace SpeakingBoost.Services.Auth
+using SpeakingBoost.Services.Interfaces.Auth;
+namespace SpeakingBoost.Services.Implementations.Auth
 {
     public class ProfileService : IProfileService
     {

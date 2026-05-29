@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using NAudio.Wave;
 using System.Text.Json.Nodes;
 
-namespace SpeakingBoost.Services.SpeakingServices
+namespace SpeakingBoost.Services.Implementations.Speaking
 {
     public class AnalyzeOrchestratorService
     {
