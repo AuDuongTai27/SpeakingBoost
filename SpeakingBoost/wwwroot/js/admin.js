@@ -16,12 +16,12 @@ const Api = {
         try { return await r.json(); }
         catch { return { success: false, message: `Lỗi server (HTTP ${r.status}).` }; }
     },
-    async get(url)          { return this._safeJson(await fetch(url, { headers: this._h() })); },
-    async post(url, body)   { return this._safeJson(await fetch(url, { method: 'POST',   headers: this._h(), body: JSON.stringify(body) })); },
-    async put(url, body)    { return this._safeJson(await fetch(url, { method: 'PUT',    headers: this._h(), body: JSON.stringify(body) })); },
-    async patch(url, body)  { return this._safeJson(await fetch(url, { method: 'PATCH',  headers: this._h(), body: JSON.stringify(body) })); },
-    async del(url)          { return this._safeJson(await fetch(url, { method: 'DELETE', headers: this._h() })); },
-    async postForm(url, fd) { return this._safeJson(await fetch(url, { method: 'POST',   headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }, body: fd })); },
+    async get(url) { return this._safeJson(await fetch(url, { headers: this._h() })); },
+    async post(url, body) { return this._safeJson(await fetch(url, { method: 'POST', headers: this._h(), body: JSON.stringify(body) })); },
+    async put(url, body) { return this._safeJson(await fetch(url, { method: 'PUT', headers: this._h(), body: JSON.stringify(body) })); },
+    async patch(url, body) { return this._safeJson(await fetch(url, { method: 'PATCH', headers: this._h(), body: JSON.stringify(body) })); },
+    async del(url) { return this._safeJson(await fetch(url, { method: 'DELETE', headers: this._h() })); },
+    async postForm(url, fd) { return this._safeJson(await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }, body: fd })); },
 };
 
 // ─── 2. Toast notification ───────────────────────────────────────────
@@ -39,7 +39,7 @@ const Toast = {
         this._init();
         const t = document.createElement('div');
         const color = ok ? '#10b981' : '#ef4444';
-        const icon  = ok ? 'check-circle-fill' : 'exclamation-triangle-fill';
+        const icon = ok ? 'check-circle-fill' : 'exclamation-triangle-fill';
         t.style.cssText = `background:#fff;border-left:4px solid ${color};border-radius:10px;padding:.85rem 1.1rem;
             box-shadow:0 4px 20px rgba(0,0,0,.12);display:flex;align-items:center;gap:.6rem;
             font-size:.875rem;font-family:'Inter',sans-serif;min-width:280px;animation:toastIn .3s ease;`;
@@ -47,7 +47,7 @@ const Toast = {
         this._el.appendChild(t);
         setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3500);
     },
-    ok(msg)  { this.show(msg, true);  },
+    ok(msg) { this.show(msg, true); },
     err(msg) { this.show(msg, false); },
 };
 // Inject keyframe for toast animation
@@ -85,21 +85,21 @@ function adminConfirm(msg) {
         const modal = new bootstrap.Modal(el);
         modal.show();
         const yes = document.getElementById('confirmYes');
-        const no  = document.getElementById('confirmNo');
+        const no = document.getElementById('confirmNo');
         const done = (v) => { modal.hide(); resolve(v); yes.onclick = null; no.onclick = null; };
         yes.onclick = () => done(true);
-        no.onclick  = () => done(false);
+        no.onclick = () => done(false);
     });
 }
 
 // ─── 4. Sidebar HTML ─────────────────────────────────────────────────
 function renderAdminSidebar(activeId = '') {
     const links = [
-        { id: 'nav-dashboard', href: '/admin/dashboard.html',  icon: 'speedometer2',  label: 'Dashboard',   section: 'Tổng quan' },
-        { id: 'nav-users',     href: '/admin/users.html',      icon: 'people-fill',   label: 'Người dùng',  section: 'Quản lý' },
-        { id: 'nav-classes',   href: '/admin/classes.html',    icon: 'building',      label: 'Lớp học',     section: null },
-        { id: 'nav-tests',     href: '/admin/tests.html',      icon: 'journal-text',  label: 'Đề thi',      section: null },
-        { id: 'nav-deadlines', href: '/admin/deadlines.html',  icon: 'clock-history', label: 'Deadline',    section: null },
+        { id: 'nav-dashboard',  href: '/admin/dashboard.html',  icon: 'speedometer2',   label: 'Dashboard',     section: 'Tổng quan' },
+        { id: 'nav-users',      href: '/admin/users.html',      icon: 'people-fill',    label: 'Người dùng',    section: 'Quản lý' },
+        { id: 'nav-classes',    href: '/admin/classes.html',    icon: 'building',       label: 'Lớp học',       section: null },
+        { id: 'nav-tests',      href: '/admin/tests.html',      icon: 'journal-text',   label: 'Đề thi',        section: 'Hoạt động' },
+        { id: 'nav-deadlines',  href: '/admin/deadlines.html',  icon: 'clock-history',  label: 'Deadline',      section: null },
     ];
 
     let html = `
@@ -152,15 +152,15 @@ function renderAdminTopbar(title = '') {
 // ─── 6. initAdminPage — call after DOM ready ─────────────────────────
 function initAdminPage(activeNavId, topbarTitle) {
     document.getElementById('sidebarPlaceholder').innerHTML = renderAdminSidebar(activeNavId);
-    document.getElementById('topbarPlaceholder').innerHTML  = renderAdminTopbar(topbarTitle);
+    document.getElementById('topbarPlaceholder').innerHTML = renderAdminTopbar(topbarTitle);
 
     AuthGuard.require(['admin']);
     AuthGuard.onReady(user => {
-        const name     = user.fullName || 'Admin';
+        const name = user.fullName || 'Admin';
         const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
-        document.getElementById('sidebarName').textContent   = name;
-        document.getElementById('sidebarRole').textContent   = 'Admin';
+        document.getElementById('sidebarName').textContent = name;
+        document.getElementById('sidebarRole').textContent = 'Admin';
         document.getElementById('sidebarAvatar').textContent = initials;
 
         const loader = document.getElementById('pageLoader');
@@ -172,8 +172,8 @@ function initAdminPage(activeNavId, topbarTitle) {
 let _sidebarOpen = window.innerWidth >= 768;
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const topbar  = document.getElementById('topbar');
-    const main    = document.getElementById('main');
+    const topbar = document.getElementById('topbar');
+    const main = document.getElementById('main');
     if (window.innerWidth >= 768) {
         _sidebarOpen = !_sidebarOpen;
         sidebar.classList.toggle('collapsed', !_sidebarOpen);
@@ -197,7 +197,7 @@ function fmtDateTime(iso) {
 // ─── 9. Badge helpers ────────────────────────────────────────────────
 function roleBadge(role) {
     const map = {
-        user:  ['#dcfce7', '#16a34a', 'Học sinh'],
+        user: ['#dcfce7', '#16a34a', 'Học sinh'],
         admin: ['#ede9fe', '#7c3aed', 'Admin'],
     };
     const [bg, color, label] = map[(role || '').toLowerCase()] || ['#f1f5f9', '#64748b', role];
@@ -207,8 +207,8 @@ function roleBadge(role) {
 function statusBadge(status) {
     const map = {
         'Submitted': ['#dcfce7', '#16a34a', 'Đã nộp'],
-        'Pending':   ['#fef3c7', '#d97706', 'Chờ nộp'],
-        'Overdue':   ['#fee2e2', '#dc2626', 'Quá hạn'],
+        'Pending': ['#fef3c7', '#d97706', 'Chờ nộp'],
+        'Overdue': ['#fee2e2', '#dc2626', 'Quá hạn'],
     };
     const [bg, color, label] = map[status] || ['#f1f5f9', '#64748b', status];
     return `<span class="pill-badge" style="background:${bg};color:${color};">${label}</span>`;
