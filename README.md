@@ -50,7 +50,10 @@ SpeakingBoost utilizes a decoupled architecture, separating the **Backend API** 
 SpeakingBoost/
 ├── Controllers/         # API Endpoints (Login, User, Exercise, etc.)
 ├── Models/              # Database Entities & Data Transfer Objects (DTOs)
+├── Repositories/        # Database Access Layer
 ├── Services/            # Business Logic & Infrastructure (Auth, Email)
 ├── wwwroot/             # Frontend Static Files (HTML, JS, CSS)
+├── Helpers/             # Utility Classes (ClaimHelper, BaseResponse)
 ├── Program.cs           # Main Application Entry & Middleware Configuration
 └── appsettings.json     # Configuration (Database connection, JWT keys)
+
