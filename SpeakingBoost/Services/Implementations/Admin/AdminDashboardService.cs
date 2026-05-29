@@ -91,18 +91,23 @@ namespace SpeakingBoost.Services.Implementations.Admin
                     }
 
                     // Recent activities
-                    dto.RecentActivities = classSubmissions
-                        .OrderByDescending(s => s.CreatedAt)
-                        .Take(5)
-                        .Select(s => new RecentActivityDto
-                        {
-                            SubmissionId  = s.SubmissionId,
-                            StudentName   = s.Student?.FullName ?? "",
-                            ExerciseTitle = s.Exercise?.Title ?? "",
-                            CreatedAt     = s.CreatedAt,
-                            Overall       = s.Scores?.OrderByDescending(sc => sc.CreatedAt).FirstOrDefault()?.Overall
-                        })
-                        .ToList();
+
+                    //dto.RecentActivities = classSubmissions
+                    //    .OrderByDescending(s => s.CreatedAt)
+                    //    .Take(5)
+                    //    .Select(s => new RecentActivityDto
+                    //    {
+                    //        SubmissionId  = s.SubmissionId,
+                    //        StudentName   = s.Student?.FullName ?? "",
+                    //        ExerciseTitle = s.Exercise?.Title ?? "",
+                    //        CreatedAt     = s.CreatedAt,
+                    //        Overall       = s.Scores?.OrderByDescending(sc => sc.CreatedAt).FirstOrDefault()?.Overall
+                    //    })
+                    //    .ToList();
+
+
+
+
                 }
                 else
                 {
@@ -110,9 +115,22 @@ namespace SpeakingBoost.Services.Implementations.Admin
                     dto.AverageOverallScore = 0;
                     dto.ProgressChartData = new List<ChartDataPointDto>();
                     dto.SkillsChartData = new List<ChartDataPointDto>();
-                    dto.RecentActivities = new List<RecentActivityDto>();
                 }
             }
+
+            // Recent activities — latest submissions across the whole system
+            var recentSubmissions = await _dashboardRepository.GetRecentSubmissionsAsync(5, 7);
+
+            dto.RecentActivities = recentSubmissions
+                .Select(s => new RecentActivityDto
+                {
+                    SubmissionId = s.SubmissionId,
+                    StudentName = s.Student?.FullName ?? "",
+                    ExerciseTitle = s.Exercise?.Title ?? "",
+                    CreatedAt = s.CreatedAt,
+                    Overall = s.Scores?.OrderByDescending(sc => sc.CreatedAt).FirstOrDefault()?.Overall
+                })
+                .ToList();
 
             return dto;
         }

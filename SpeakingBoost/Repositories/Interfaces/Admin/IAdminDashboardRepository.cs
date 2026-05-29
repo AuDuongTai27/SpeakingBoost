@@ -8,5 +8,6 @@ namespace SpeakingBoost.Repositories.Interfaces.Admin
         Task<SchoolClass?> GetClassWithStudentClassesAsync(int classId);
         Task<List<Submission>> GetSubmissionsByStudentIdsAsync(List<int> studentIds);
         Task<int> CountClassExercisesWithDeadlinesAsync(int classId);
+        Task<List<Submission>> GetRecentSubmissionsAsync(int take = 5, int days = 7);
     }
 }
