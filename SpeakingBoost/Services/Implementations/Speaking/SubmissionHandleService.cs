@@ -3,7 +3,7 @@ using SpeakingBoost.Models.Entities;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace SpeakingBoost.Services.SpeakingServices
+namespace SpeakingBoost.Services.Implementations.Speaking
 {
     public class SubmissionHandleService
     {

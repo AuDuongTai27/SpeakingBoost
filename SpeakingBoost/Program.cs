@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpeakingBoost.Models.EF;
-using SpeakingBoost.Services.Auth;
-using SpeakingBoost.Services.Email;
+using SpeakingBoost.Services.Interfaces.Auth;
+using SpeakingBoost.Services.Implementations.Auth;
+using SpeakingBoost.Services.Interfaces.Email;
+using SpeakingBoost.Services.Implementations.Email;
 using SpeakingBoost.Repositories.Interfaces.Student;
 using SpeakingBoost.Repositories.Implementations.Student;
 using SpeakingBoost.Services.Interfaces.Student;
@@ -114,14 +116,14 @@ builder.Services.AddScoped<IEmailService,  EmailService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 
 // AI Speaking & Background Services
-builder.Services.AddSingleton<SpeakingBoost.Services.Background.BackgroundQueue>();
-builder.Services.AddHostedService<SpeakingBoost.Services.Background.GradingBackgroundService>();
-builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.WebmToWavService>();
-builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.TranscriptService>();
-builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.SpeechAnalyzeServiceHybrid>();
-builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.EvaluateService>();
-builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.AnalyzeOrchestratorService>();
-builder.Services.AddScoped<SpeakingBoost.Services.SpeakingServices.SubmissionHandleService>();
+builder.Services.AddSingleton<SpeakingBoost.Services.Implementations.Background.BackgroundQueue>();
+builder.Services.AddHostedService<SpeakingBoost.Services.Implementations.Background.GradingBackgroundService>();
+builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.WebmToWavService>();
+builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.TranscriptService>();
+builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.SpeechAnalyzeServiceHybrid>();
+builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.EvaluateService>();
+builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.AnalyzeOrchestratorService>();
+builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.SubmissionHandleService>();
 
 // Student Repositories & Services
 builder.Services.AddScoped<IStudentDashboardRepository, StudentDashboardRepository>();

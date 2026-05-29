@@ -1,8 +1,9 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using SpeakingBoost.Services.Interfaces.Email;
 
-namespace SpeakingBoost.Services.Email
+namespace SpeakingBoost.Services.Implementations.Email
 {
     public class EmailService : IEmailService
     {

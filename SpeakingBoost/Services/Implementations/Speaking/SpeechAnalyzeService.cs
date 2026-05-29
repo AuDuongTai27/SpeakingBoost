@@ -12,7 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
-namespace SpeakingBoost.Services.SpeakingServices
+namespace SpeakingBoost.Services.Implementations.Speaking
 {
     public class SpeechAnalyzeServiceHybrid
     {

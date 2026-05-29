@@ -1,6 +1,6 @@
 using NAudio.Wave;
 
-namespace SpeakingBoost.Services.SpeakingServices
+namespace SpeakingBoost.Services.Implementations.Speaking
 {
     public class WebmToWavService
     {

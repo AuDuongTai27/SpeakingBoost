@@ -88,7 +88,7 @@ namespace SpeakingBoost.Services.Implementations.Student
 
             var saved = await _repo.AddSubmissionAsync(submission);
 
-            var queue = serviceProvider.GetRequiredService<SpeakingBoost.Services.Background.BackgroundQueue>();
+            var queue = serviceProvider.GetRequiredService<SpeakingBoost.Services.Implementations.Background.BackgroundQueue>();
             var queued = queue.TryQueueBackgroundWorkItem(saved.SubmissionId);
 
             if (!queued)

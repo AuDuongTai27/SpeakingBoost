@@ -1,7 +1,8 @@
 using SpeakingBoost.Models.DTOs.Admin;
 using SpeakingBoost.Models.Entities;
 using SpeakingBoost.Repositories.Interfaces.Admin;
-using SpeakingBoost.Services.Email;
+using SpeakingBoost.Services.Interfaces.Email;
+using SpeakingBoost.Services.Implementations.Email;
 using SpeakingBoost.Services.Interfaces.Admin;
 
 namespace SpeakingBoost.Services.Implementations.Admin
