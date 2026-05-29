@@ -647,8 +647,14 @@ overflow: hidden;
 }
 
 .welcome-icon {
-font-size: 3.5rem;
-opacity: .25;
+    font-size: 3.5rem;
+    opacity: .25;
+    transition: transform .25s ease, opacity .25s ease;
+}
+
+.welcome-banner:hover .welcome-icon {
+    transform: scale(1.06) rotate(-3deg);
+    opacity: .32;
 }
 
 /* ── 12. Modal shared style ─────────────────────────────── */
