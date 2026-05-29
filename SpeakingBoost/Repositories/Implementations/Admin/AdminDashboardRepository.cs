@@ -45,5 +45,19 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
                 .Where(ce => ce.ClassId == classId && ce.Deadline.HasValue)
                 .CountAsync();
         }
+
+        public async Task<List<Submission>> GetRecentSubmissionsAsync(int take = 5, int days = 7)
+        {
+            var fromDate = DateTime.Now.AddDays(-days);
+
+            return await _context.Submissions
+                .Where(s => s.CreatedAt >= fromDate)
+                .Include(s => s.Student)
+                .Include(s => s.Exercise)
+                .Include(s => s.Scores)
+                .OrderByDescending(s => s.CreatedAt)
+                .Take(take)
+                .ToListAsync();
+        }
     }
 }
