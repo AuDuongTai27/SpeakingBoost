@@ -54,7 +54,7 @@ namespace SpeakingBoost.Controllers
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ", errors, 400));
             }
 
             try
@@ -62,7 +62,7 @@ namespace SpeakingBoost.Controllers
                 var account = _loginServices.Login(request.Email, request.Password);
 
                 if (account == null)
-                    return Unauthorized(ApiResponse<object>.ErrorResponse("Tài khoản hoặc mật khẩu không chính xác."));
+                    return Unauthorized(BaseResponse<object>.Fail("Tài khoản hoặc mật khẩu không chính xác.", 401));
 
                 // Tạo JWT token (thay thế HttpContext.SignInAsync)
                 string token = _jwtService.GenerateToken(account);
@@ -88,11 +88,11 @@ namespace SpeakingBoost.Controllers
                     RedirectUrl = redirectUrl
                 };
 
-                return Ok(ApiResponse<LoginResponse>.SuccessResponse(response, "Đăng nhập thành công!"));
+                return Ok(BaseResponse<LoginResponse>.Ok(response, "Đăng nhập thành công!"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Lỗi hệ thống khi đăng nhập.", new List<string> { ex.Message }));
+                return StatusCode(500, BaseResponse<object>.Fail("Lỗi hệ thống khi đăng nhập.", new List<string> { ex.Message }, 500));
             }
         }
 
@@ -111,14 +111,14 @@ namespace SpeakingBoost.Controllers
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
-                return BadRequest(ApiResponse<object>.ErrorResponse("Dữ liệu không hợp lệ", errors));
+                return BadRequest(BaseResponse<object>.Fail("Dữ liệu không hợp lệ", errors, 400));
             }
 
             try
             {
                 var user = _loginServices.GetUserByEmail(request.Email);
                 if (user == null)
-                    return BadRequest(ApiResponse<object>.ErrorResponse("Email không được cấp phép hoặc nhập sai."));
+                    return BadRequest(BaseResponse<object>.Fail("Email không được cấp phép hoặc nhập sai.", 400));
 
                 // Tạo mật khẩu mới ngẫu nhiên
                 string newPassword = Guid.NewGuid().ToString()[..8];
@@ -126,16 +126,16 @@ namespace SpeakingBoost.Controllers
                 bool updated       = _loginServices.UpdatePassword(user.UserId, hashedPass);
 
                 if (!updated)
-                    return BadRequest(ApiResponse<object>.ErrorResponse("Không thể cập nhật mật khẩu."));
+                    return BadRequest(BaseResponse<object>.Fail("Không thể cập nhật mật khẩu.", 400));
 
                 // Gửi email mật khẩu mới
                 await _emailService.SendRecoveredPassword(user.Email, newPassword);
 
-                return Ok(ApiResponse<object>.SuccessResponse("Mật khẩu mới đã được gửi về email của bạn. Vui lòng kiểm tra hộp thư!"));
+                return Ok(BaseResponse<object>.Ok("Mật khẩu mới đã được gửi về email của bạn. Vui lòng kiểm tra hộp thư!"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Lỗi hệ thống.", new List<string> { ex.Message }));
+                return StatusCode(500, BaseResponse<object>.Fail("Lỗi hệ thống.", new List<string> { ex.Message }, 500));
             }
         }
 
@@ -165,7 +165,7 @@ namespace SpeakingBoost.Controllers
             // };
             string redirectUrl = ClaimHelper.GetRedirectUrl(role);
 
-            return Ok(ApiResponse<object>.SuccessResponse(new
+            return Ok(BaseResponse<object>.Ok(new
             {
                 UserId      = userId,
                 FullName    = fullName,
