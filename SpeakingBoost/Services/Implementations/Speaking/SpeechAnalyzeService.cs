@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
@@ -14,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace SpeakingBoost.Services.Implementations.Speaking
 {
-    public class SpeechAnalyzeServiceHybrid
+    public class SpeechAnalyzeServiceHybrid : ISpeechAnalyzeService
     {
         private readonly string _speechKey;
         private readonly string _region;

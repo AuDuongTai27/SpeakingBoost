@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
@@ -8,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace SpeakingBoost.Services.Implementations.Speaking
 {
-    public class TranscriptService
+    public class TranscriptService : ITranscriptService
     {
         private readonly HttpClient _client;
         private readonly string _apiKey;

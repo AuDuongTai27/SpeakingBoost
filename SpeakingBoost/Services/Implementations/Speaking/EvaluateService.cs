@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -7,7 +8,7 @@ using System.Diagnostics;
 
 namespace SpeakingBoost.Services.Implementations.Speaking
 {
-    public class EvaluateService
+    public class EvaluateService : IEvaluateService
     {
         private readonly HttpClient _client;
         private readonly string _apiKey;
