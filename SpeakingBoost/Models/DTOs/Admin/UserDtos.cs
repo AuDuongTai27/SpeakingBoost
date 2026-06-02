@@ -47,7 +47,6 @@ namespace SpeakingBoost.Models.DTOs.Admin
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Vai trò là bắt buộc")]
         public string Role { get; set; } = string.Empty;
     }
 }
