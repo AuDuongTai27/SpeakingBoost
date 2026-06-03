@@ -112,6 +112,10 @@ namespace SpeakingBoost.Controllers.Admin
             {
                 return NotFound(BaseResponse<object>.Fail(ex.Message, 404));
             }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(BaseResponse<object>.Fail(ex.Message, 409));
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, BaseResponse<object>.Fail("Không thể xóa lớp: " + ex.Message, 500));

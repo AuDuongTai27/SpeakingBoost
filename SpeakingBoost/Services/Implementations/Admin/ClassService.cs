@@ -82,10 +82,21 @@ namespace SpeakingBoost.Services.Implementations.Admin
         public async Task DeleteClassAsync(int id)
         {
             var schoolClass = await _classRepository.GetClassByIdAsync(id);
+            var assignedExercises = await _classRepository.GetAssignedExercisesByClassIdAsync(id);
+
             if (schoolClass == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy lớp học.");
             }
+            if (schoolClass.StudentClasses != null && schoolClass.StudentClasses.Count > 0)
+            {
+                throw new InvalidOperationException("Lớp đang có học viên. Vui lòng xóa hoặc chuyển các học viên trước khi xóa lớp.");
+            }
+            if (assignedExercises != null && assignedExercises.Count > 0)
+            {
+                throw new InvalidOperationException("Lớp đang có bài tập được giao. Vui lòng gỡ bài tập trước khi xóa lớp.");
+            }
+
 
             await _classRepository.DeleteClassAsync(schoolClass);
         }
