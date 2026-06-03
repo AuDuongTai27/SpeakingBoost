@@ -80,6 +80,9 @@
 
         if (!fullName || !email) { Toast.err('Vui lòng điền đầy đủ thông tin.'); return; }
 
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) { Toast.err('Email không hợp lệ. Vui lòng kiểm tra lại.'); return; }
+
         const btn = document.getElementById('btnSaveUser');
         btn.disabled = true;
 
@@ -90,6 +93,7 @@
         } else {
             // Tạo mới học sinh (không gửi role, backend tự set = "user")
             if (!password) { Toast.err('Vui lòng nhập mật khẩu.'); btn.disabled = false; return; }
+            if (password.length < 6) { Toast.err('Mật khẩu phải chứa tối thiểu 6 ký tự.'); btn.disabled = false; return; }
             res = await Api.post('/api/admin/users', { fullName, email, password });
         }
 
