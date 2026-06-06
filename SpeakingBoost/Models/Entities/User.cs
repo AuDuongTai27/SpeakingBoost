@@ -27,6 +27,8 @@ namespace SpeakingBoost.Models.Entities
         [StringLength(10)]
         public string Role { get; set; }  // admin | user
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         // 🔗 Quan hệ
         [InverseProperty("Student")]
         public virtual ICollection<Submission> Submissions { get; set; } = new List<Submission>();

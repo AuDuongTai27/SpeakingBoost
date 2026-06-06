@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    initStudentPage('profile', 'Hồ sơ cá nhân');
+    initStudentPage('profile');
 
     AuthGuard.onReady(async () => {
         loadProfile();

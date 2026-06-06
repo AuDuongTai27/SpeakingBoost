@@ -148,6 +148,11 @@ namespace SpeakingBoost.Services.Implementations.Admin
                         deadline);
                 }
                 catch { /* Bỏ qua lỗi email từng học sinh */ }
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine(ex.ToString());
+                //    throw;
+                //}
             }
         }
     }
