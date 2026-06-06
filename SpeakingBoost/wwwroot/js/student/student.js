@@ -108,7 +108,7 @@ function initStudentPage(activePage, onReady) {
         if (ph) ph.innerHTML = renderStudentNavbar(activePage, user);
         const loader = document.getElementById('pageLoader');
         if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
-        if (onReady) onReady(user);
+        if (typeof onReady === 'function') onReady(user);
     });
 }
 

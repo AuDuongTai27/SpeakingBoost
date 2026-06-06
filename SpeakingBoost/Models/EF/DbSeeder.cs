@@ -43,11 +43,11 @@ namespace SpeakingBoost.Models.EF
 
                 var users = new[]
                 {
-                    new User { FullName = "Nguyễn Văn An",    Email = "user1@example.com", Role = "user", PasswordHash = Hash("123456") },
-                    new User { FullName = "Trần Thị Bình",    Email = "user2@example.com", Role = "user", PasswordHash = Hash("123456") },
-                    new User { FullName = "Lê Hoàng Cường",   Email = "user3@example.com", Role = "user", PasswordHash = Hash("123456") },
-                    new User { FullName = "Phạm Minh Dũng",   Email = "user4@example.com", Role = "user", PasswordHash = Hash("123456") },
-                    new User { FullName = "Hoàng Thị Lan",    Email = "user5@example.com", Role = "user", PasswordHash = Hash("123456") },
+                    new User { FullName = "Nguyễn Văn An",    Email = "user1@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-120) },
+                    new User { FullName = "Trần Thị Bình",    Email = "user2@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-10) },
+                    new User { FullName = "Lê Hoàng Cường",   Email = "user3@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-20) },
+                    new User { FullName = "Phạm Minh Dũng",   Email = "user4@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-70) },
+                    new User { FullName = "Hoàng Thị Lan",    Email = "user5@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-90) },
                 };
 
                 db.Users.Add(admin);
