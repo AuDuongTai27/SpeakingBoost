@@ -26,6 +26,10 @@ const Api = {
     async postForm(url, formData) {
         const r = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }, body: formData });
         return this._safeJson(r);
+    },
+    async put(url, body) {
+        const r = await fetch(url, { method: 'PUT', headers: this._h(), body: JSON.stringify(body) });
+        return this._safeJson(r);
     }
 };
 
