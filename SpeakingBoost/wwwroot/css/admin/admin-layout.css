@@ -25,10 +25,11 @@ box-sizing: border-box;
 }
 
 body {
-font-family: 'Inter', sans-serif;
-background: var(--page-bg);
-margin: 0;
-overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
+    background: var(--page-bg);
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* ── 2. Page loading overlay ───────────────────────────── */
@@ -292,10 +293,12 @@ gap: .75rem;
 
 /* ── 5. Main content area ──────────────────────────────── */
 #main {
-margin-left: var(--sidebar-w);
-padding-top: var(--navbar-h);
-min-height: 100vh;
-transition: margin-left .3s ease;
+    margin-left: var(--sidebar-w);
+    padding-top: var(--navbar-h);
+    min-height: 100vh;
+    transition: margin-left .3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #main.sidebar-collapsed {
@@ -766,20 +769,24 @@ pointer-events: none;
 
 
 /* ── 16. Body ─────────────────────────────────────── */
-/* Dashboard fixed page */
+/* Dashboard page */
 .dashboard-page {
-overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .dashboard-page #main {
-height: 100vh;
-overflow: hidden;
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .dashboard-page .page-content {
-height: calc(100vh - var(--navbar-h));
-overflow: hidden;
-padding-bottom: 1rem;
+    min-height: calc(100vh - var(--navbar-h));
+    height: auto;
+    overflow: visible;
+    padding-bottom: 1.5rem;
 }
 
 .dashboard-page .welcome-banner {
