@@ -26,6 +26,10 @@ const Api = {
     async postForm(url, formData) {
         const r = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }, body: formData });
         return this._safeJson(r);
+    },
+    async put(url, body) {
+        const r = await fetch(url, { method: 'PUT', headers: this._h(), body: JSON.stringify(body) });
+        return this._safeJson(r);
     }
 };
 
@@ -108,7 +112,7 @@ function initStudentPage(activePage, onReady) {
         if (ph) ph.innerHTML = renderStudentNavbar(activePage, user);
         const loader = document.getElementById('pageLoader');
         if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
-        if (onReady) onReady(user);
+        if (typeof onReady === 'function') onReady(user);
     });
 }
 
