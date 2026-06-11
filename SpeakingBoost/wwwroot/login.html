@@ -92,12 +92,57 @@
         }
         .btn-login:hover { opacity:0.9;transform:translateY(-1px);color:#fff; }
         .btn-login:disabled { opacity:0.6;transform:none; }
+        .btn-google {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f2937;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .btn-google:hover {
+            background: #ffffff;
+            transform: translateY(-1px);
+            color: #111827;
+        }
+
+        .btn-google i {
+            color: #ea4335;
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0.9rem 0;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.8rem;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+        }
         .forgot-link { color:var(--accent);text-decoration:none;font-size:0.85rem; }
         .forgot-link:hover { text-decoration:underline;color:var(--accent); }
         .alert-err {
             border-radius:10px;font-size:0.875rem;
             background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;
             padding:0.75rem 1rem;
+        }
+        .alert-warn {
+            border-radius: 10px;
+            font-size: 0.875rem;
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.35);
+            color: #fcd34d;
+            padding: 0.75rem 1rem;
         }
         .alert-ok {
             border-radius:10px;font-size:0.875rem;
@@ -167,6 +212,14 @@
             <span id="btnSpinner" class="d-none">
                 <span class="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...
             </span>
+        </button>
+
+        <div class="login-divider">
+            <span>hoặc</span>
+        </div>
+
+        <button type="button" class="btn btn-google" onclick="showGoogleLoginComingSoon()">
+            <i class="bi bi-google me-2"></i>Đăng nhập với Google
         </button>
 
         <div class="text-center mt-3">
@@ -241,6 +294,15 @@
         const el = document.getElementById(id);
         el.className = ok ? 'alert-ok mb-3' : 'alert-err mb-3';
         el.innerHTML = `<i class="bi bi-${ok ? 'check-circle' : 'exclamation-triangle'}-fill me-2"></i>${msg}`;
+    }
+    function setWarnAlert(id, msg) {
+        const el = document.getElementById(id);
+        el.className = 'alert-warn mb-3';
+        el.innerHTML = `<i class="bi bi-info-circle-fill me-2"></i>${msg}`;
+    }
+
+    function showGoogleLoginComingSoon() {
+        setWarnAlert('alertBox', 'Tính năng đăng nhập bằng Google đang được phát triển.');
     }
 
     // ─── Login
