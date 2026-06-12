@@ -6,7 +6,7 @@ using SpeakingBoost.Services.Implementations.Admin;
 using SpeakingBoost.Services.Interfaces.Auth;
 using Xunit;
 
-namespace SpeakingBoost.Tests.Admin
+namespace SpeakingBoost.Tests.Services
 {
     /// <summary>
     /// Unit Tests cho UserService — dùng Moq để mock IUserRepository và ILoginServices
@@ -187,7 +187,6 @@ namespace SpeakingBoost.Tests.Admin
             await _service.DeleteUserAsync(4);
 
             // Assert: phải gọi DeleteUserRelationsAsync TRƯỚC DeleteUserAsync
-            var callOrder = new MockSequence();
             _mockUserRepo.Verify(r => r.DeleteUserRelationsAsync(user), Times.Once);
             _mockUserRepo.Verify(r => r.DeleteUserAsync(user), Times.Once);
         }

@@ -5,7 +5,7 @@ using SpeakingBoost.Repositories.Interfaces.Admin;
 using SpeakingBoost.Services.Implementations.Admin;
 using Xunit;
 
-namespace SpeakingBoost.Tests.Admin
+namespace SpeakingBoost.Tests.Services
 {
     /// <summary>
     /// Unit Tests cho ExerciseService — dùng Moq để mock IExerciseRepository
@@ -189,10 +189,10 @@ namespace SpeakingBoost.Tests.Admin
             var exercise = new Exercise { ExerciseId = 1, Title = "Old Title" };
             var dto = new UpdateExerciseDto
             {
-                Title   = "New Title",
-                Type    = "Part2",
+                Title    = "New Title",
+                Type     = "Part2",
                 Question = "New Q?",
-                TopicId = null  // ← không có TopicId
+                TopicId  = null  // ← không có TopicId
             };
 
             _mockRepo.Setup(r => r.GetExerciseByIdAsync(1)).ReturnsAsync(exercise);

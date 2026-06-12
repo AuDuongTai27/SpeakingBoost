@@ -4,7 +4,7 @@ using SpeakingBoost.Services.Implementations.Auth;
 using System.IdentityModel.Tokens.Jwt;
 using Xunit;
 
-namespace SpeakingBoost.Tests.Auth
+namespace SpeakingBoost.Tests.Services
 {
     /// <summary>
     /// Unit Tests cho JwtService — kiểm tra token sinh ra hợp lệ
@@ -42,7 +42,7 @@ namespace SpeakingBoost.Tests.Auth
         }
 
         // ─────────────────────────────────────────────────────
-        // TC-L09 (JwtService): GenerateToken sinh ra chuỗi JWT hợp lệ (có 3 phần ngăn bởi dấu chấm)
+        // TC-JWT-01: GenerateToken sinh ra chuỗi JWT hợp lệ (có 3 phần ngăn bởi dấu chấm)
         // JWT format: Header.Payload.Signature
         // ─────────────────────────────────────────────────────
         [Fact]

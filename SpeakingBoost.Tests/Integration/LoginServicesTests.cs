@@ -4,10 +4,12 @@ using SpeakingBoost.Services.Implementations.Auth;
 using SpeakingBoost.Tests._Helpers;
 using Xunit;
 
-namespace SpeakingBoost.Tests.Auth
+namespace SpeakingBoost.Tests.Integration
 {
     /// <summary>
-    /// Unit Tests cho LoginServices — dùng EF Core InMemory Database
+    /// Integration Tests cho LoginServices — dùng EF Core InMemory Database
+    /// Xếp vào Integration Tests vì service phụ thuộc trực tiếp vào ApplicationDbContext
+    /// (không qua Interface/Repository), buộc phải chạy qua EF Core engine thật (in-memory).
     /// AAA Pattern: Arrange (chuẩn bị) → Act (thực thi) → Assert (kiểm tra)
     /// </summary>
     public class LoginServicesTests : IDisposable
@@ -147,7 +149,7 @@ namespace SpeakingBoost.Tests.Auth
 
             // Assert
             Assert.True(result);
-            // Verify password was actually updated
+            // Verify password was actually updated in the in-memory DB
             var updatedUser = _context.Users.Find(1);
             Assert.Equal(newHash, updatedUser!.PasswordHash);
         }

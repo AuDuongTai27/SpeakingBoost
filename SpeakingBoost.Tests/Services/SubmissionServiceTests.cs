@@ -4,7 +4,7 @@ using SpeakingBoost.Repositories.Interfaces.Student;
 using SpeakingBoost.Services.Implementations.Student;
 using Xunit;
 
-namespace SpeakingBoost.Tests.Student
+namespace SpeakingBoost.Tests.Services
 {
     /// <summary>
     /// Unit Tests cho StudentSubmissionService
