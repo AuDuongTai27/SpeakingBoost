@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -118,12 +119,12 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 // AI Speaking & Background Services
 builder.Services.AddSingleton<SpeakingBoost.Services.Implementations.Background.BackgroundQueue>();
 builder.Services.AddHostedService<SpeakingBoost.Services.Implementations.Background.GradingBackgroundService>();
-builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.WebmToWavService>();
-builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.TranscriptService>();
-builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.SpeechAnalyzeServiceHybrid>();
-builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.EvaluateService>();
-builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.AnalyzeOrchestratorService>();
-builder.Services.AddScoped<SpeakingBoost.Services.Implementations.Speaking.SubmissionHandleService>();
+builder.Services.AddScoped<IWebmToWavService, SpeakingBoost.Services.Implementations.Speaking.WebmToWavService>();
+builder.Services.AddScoped<ITranscriptService, SpeakingBoost.Services.Implementations.Speaking.TranscriptService>();
+builder.Services.AddScoped<ISpeechAnalyzeService, SpeakingBoost.Services.Implementations.Speaking.SpeechAnalyzeServiceHybrid>();
+builder.Services.AddScoped<IEvaluateService, SpeakingBoost.Services.Implementations.Speaking.EvaluateService>();
+builder.Services.AddScoped<IAnalyzeOrchestratorService, SpeakingBoost.Services.Implementations.Speaking.AnalyzeOrchestratorService>();
+builder.Services.AddScoped<ISubmissionHandleService, SpeakingBoost.Services.Implementations.Speaking.SubmissionHandleService>();
 
 // Student Repositories & Services
 builder.Services.AddScoped<IStudentDashboardRepository, StudentDashboardRepository>();

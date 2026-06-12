@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using SpeakingBoost.Models.DTOs.Student;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -6,17 +7,17 @@ using System.Text.Json.Nodes;
 
 namespace SpeakingBoost.Services.Implementations.Speaking
 {
-    public class AnalyzeOrchestratorService
+    public class AnalyzeOrchestratorService : IAnalyzeOrchestratorService
     {
-        private readonly SpeechAnalyzeServiceHybrid _speechAnalyze; // Azure STT + Pron
-        private readonly EvaluateService _evaluate;                 // OpenAI GPT
-        private readonly WebmToWavService _converter;
+        private readonly ISpeechAnalyzeService _speechAnalyze; // Azure STT + Pron
+        private readonly IEvaluateService _evaluate;                 // OpenAI GPT
+        private readonly IWebmToWavService _converter;
         private readonly ILogger<AnalyzeOrchestratorService> _logger;
 
         public AnalyzeOrchestratorService(
-            SpeechAnalyzeServiceHybrid speechAnalyze,
-            EvaluateService evaluate,
-            WebmToWavService converter,
+            ISpeechAnalyzeService speechAnalyze,
+            IEvaluateService evaluate,
+            IWebmToWavService converter,
             ILogger<AnalyzeOrchestratorService> logger)
         {
             _speechAnalyze = speechAnalyze;

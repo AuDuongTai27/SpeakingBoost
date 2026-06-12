@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 // File: Services/Background/GradingBackgroundService.cs
 using SpeakingBoost.Services.Implementations.Speaking;
 using SpeakingBoost.Models.EF;
@@ -129,8 +130,8 @@ namespace SpeakingBoost.Services.Implementations.Background
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var orchestrator = scope.ServiceProvider.GetRequiredService<AnalyzeOrchestratorService>();
-            var submissionHandle = scope.ServiceProvider.GetRequiredService<SubmissionHandleService>();
+            var orchestrator = scope.ServiceProvider.GetRequiredService<IAnalyzeOrchestratorService>();
+            var submissionHandle = scope.ServiceProvider.GetRequiredService<ISubmissionHandleService>();
 
             var submission = await context.Submissions.FindAsync(new object[] { submissionId }, cancellationToken);
             if (submission == null) return;

@@ -1,3 +1,4 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using SpeakingBoost.Models.EF;
 using SpeakingBoost.Models.Entities;
 using Microsoft.Extensions.Logging;
@@ -5,7 +6,7 @@ using System.Text.Json;
 
 namespace SpeakingBoost.Services.Implementations.Speaking
 {
-    public class SubmissionHandleService
+    public class SubmissionHandleService : ISubmissionHandleService
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SubmissionHandleService> _logger;

@@ -1,8 +1,9 @@
+using SpeakingBoost.Services.Interfaces.Speaking;
 using NAudio.Wave;
 
 namespace SpeakingBoost.Services.Implementations.Speaking
 {
-    public class WebmToWavService
+    public class WebmToWavService : IWebmToWavService
     {
         public class NoiseGateProvider : ISampleProvider
         {
