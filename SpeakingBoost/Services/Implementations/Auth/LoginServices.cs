@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SpeakingBoost.Models.EF;
 using SpeakingBoost.Models.Entities;
 using System.Security.Cryptography;
@@ -20,9 +21,12 @@ namespace SpeakingBoost.Services.Implementations.Auth
             try
             {
                 string hashedPassword = HashPassword(password);
-                return _context.Users.SingleOrDefault(t =>
-                    t.Email == username.ToLower().Trim() &&
-                    t.PasswordHash == hashedPassword.ToLower().Trim());
+                return _context.Users
+                    .Include(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
+                    .SingleOrDefault(t =>
+                        t.Email == username.ToLower().Trim() &&
+                        t.PasswordHash == hashedPassword.ToLower().Trim());
             }
             catch
             {
@@ -34,8 +38,11 @@ namespace SpeakingBoost.Services.Implementations.Auth
         {
             try
             {
-                return _context.Users.SingleOrDefault(u =>
-                    u.Email == email.ToLower().Trim());
+                return _context.Users
+                    .Include(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
+                    .SingleOrDefault(u =>
+                        u.Email == email.ToLower().Trim());
             }
             catch
             {

@@ -17,14 +17,19 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
         public async Task<List<User>> GetAllStudentsAsync()
         {
             return await _context.Users
-                .Where(u => u.Role == "user")
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Where(u => u.UserRoles.Any(ur => ur.Role.RoleName == "user"))
                 .OrderByDescending(u => u.UserId)
                 .ToListAsync();
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.UserId == id);
         }
 
         public async Task<bool> EmailExistsAsync(string email)
@@ -54,6 +59,8 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
         public async Task<User?> GetUserWithRelationsByIdAsync(int id)
         {
             return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
                 .Include(u => u.StudentClasses)
                 .Include(u => u.Notifications)
                 .Include(u => u.Submissions)
@@ -62,6 +69,10 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
 
         public async Task DeleteUserRelationsAsync(User user)
         {
+            // Xóa UserRoles trước
+            var userRoles = _context.UserRoles.Where(ur => ur.UserId == user.UserId);
+            _context.UserRoles.RemoveRange(userRoles);
+
             if (user.StudentClasses?.Any() == true)
             {
                 _context.StudentClasses.RemoveRange(user.StudentClasses);
@@ -86,7 +97,9 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
         public async Task<List<User>> GetStudentsWithSubmissionsAndClassesAsync()
         {
             return await _context.Users
-                .Where(u => u.Role == "user")
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Where(u => u.UserRoles.Any(ur => ur.Role.RoleName == "user"))
                 .Include(u => u.Submissions)
                 .Include(u => u.StudentClasses)
                 .ToListAsync();
@@ -102,11 +115,14 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
         public async Task<User?> GetStudentWithSubmissionsAndScoresAsync(int studentId)
         {
             return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
                 .Include(u => u.Submissions)
                     .ThenInclude(s => s.Exercise)
                 .Include(u => u.Submissions)
                     .ThenInclude(s => s.Scores)
-                .FirstOrDefaultAsync(u => u.UserId == studentId && u.Role == "user");
+                .FirstOrDefaultAsync(u => u.UserId == studentId
+                    && u.UserRoles.Any(ur => ur.Role.RoleName == "user"));
         }
 
         public async Task<List<Submission>> GetSubmissionsWithScoresAsync(int studentId, int exerciseId)
@@ -125,6 +141,16 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
                 .Include(s => s.Student)
                 .Include(s => s.Scores)
                 .FirstOrDefaultAsync(s => s.SubmissionId == submissionId);
+        }
+
+        public async Task AddUserRoleAsync(int userId, string roleName)
+        {
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName)
+                       ?? throw new InvalidOperationException($"Role '{roleName}' not found in database.");
+
+            var userRole = new UserRole { UserId = userId, RoleId = role.RoleId };
+            _context.UserRoles.Add(userRole);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -33,7 +33,7 @@ namespace SpeakingBoost.Services.Implementations.Auth
                 new Claim(ClaimTypes.Email,          user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Email),
                 new Claim("StudentId",               user.UserId.ToString()),   // ← dùng User.FindFirst("StudentId") như MVC
-                new Claim(ClaimTypes.Role,           user.Role.Trim().ToLower())
+                new Claim(ClaimTypes.Role,           (user.UserRoles.FirstOrDefault()?.Role?.RoleName ?? "user").Trim().ToLower())
             };
 
             var key = new SymmetricSecurityKey(

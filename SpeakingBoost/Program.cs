@@ -196,6 +196,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
+
         context.Database.Migrate();
 
         if (app.Environment.IsDevelopment())

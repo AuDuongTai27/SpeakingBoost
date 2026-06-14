@@ -20,5 +20,6 @@ namespace SpeakingBoost.Repositories.Interfaces.Admin
         Task<User?> GetStudentWithSubmissionsAndScoresAsync(int studentId);
         Task<List<Submission>> GetSubmissionsWithScoresAsync(int studentId, int exerciseId);
         Task<Submission?> GetSubmissionWithExerciseAndScoresAsync(int submissionId);
+        Task AddUserRoleAsync(int userId, string roleName);
     }
 }

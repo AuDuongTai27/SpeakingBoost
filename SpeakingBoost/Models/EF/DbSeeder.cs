@@ -31,29 +31,46 @@ namespace SpeakingBoost.Models.EF
                 logger.LogInformation("[DbSeeder] Bắt đầu seed dữ liệu mẫu...");
 
                 // ══════════════════════════════════════════════════════
-                // 1. USERS — 1 admin + 5 users
+                // 0. ROLES — seed 2 roles cố định
+                // ══════════════════════════════════════════════════════
+                var roleAdmin = new Role { RoleName = "admin" };
+                var roleUser  = new Role { RoleName = "user" };
+                db.Roles.AddRange(roleAdmin, roleUser);
+                db.SaveChanges();
+                logger.LogInformation("[DbSeeder] ✅ Đã thêm 2 Roles.");
+
+                // ══════════════════════════════════════════════════════
+                // 1. USERS — 1 admin + 5 users (không có Role string nữa)
                 // ══════════════════════════════════════════════════════
                 var admin = new User
                 {
                     FullName     = "Quản Trị Viên",
                     Email        = "admin@example.com",
-                    Role         = "admin",
                     PasswordHash = Hash("123456")
                 };
 
                 var users = new[]
                 {
-                    new User { FullName = "Nguyễn Văn An",    Email = "user1@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-120) },
-                    new User { FullName = "Trần Thị Bình",    Email = "user2@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-10) },
-                    new User { FullName = "Lê Hoàng Cường",   Email = "user3@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-20) },
-                    new User { FullName = "Phạm Minh Dũng",   Email = "user4@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-70) },
-                    new User { FullName = "Hoàng Thị Lan",    Email = "user5@example.com", Role = "user", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-90) },
+                    new User { FullName = "Nguyễn Văn An",    Email = "user1@example.com", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-120) },
+                    new User { FullName = "Trần Thị Bình",    Email = "user2@example.com", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-10) },
+                    new User { FullName = "Lê Hoàng Cường",   Email = "user3@example.com", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-20) },
+                    new User { FullName = "Phạm Minh Dũng",   Email = "user4@example.com", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-70) },
+                    new User { FullName = "Hoàng Thị Lan",    Email = "user5@example.com", PasswordHash = Hash("123456"), CreatedAt = DateTime.UtcNow.AddDays(-90) },
                 };
 
                 db.Users.Add(admin);
                 db.Users.AddRange(users);
                 db.SaveChanges();
                 logger.LogInformation("[DbSeeder] ✅ Đã thêm 1 admin + 5 users.");
+
+                // ══════════════════════════════════════════════════════
+                // 1b. USER ROLES — gán role cho từng user
+                // ══════════════════════════════════════════════════════
+                db.UserRoles.Add(new UserRole { UserId = admin.UserId, RoleId = roleAdmin.RoleId });
+                foreach (var u in users)
+                    db.UserRoles.Add(new UserRole { UserId = u.UserId, RoleId = roleUser.RoleId });
+                db.SaveChanges();
+                logger.LogInformation("[DbSeeder] ✅ Đã gán UserRoles.");
 
                 // ══════════════════════════════════════════════════════
                 // 2. VOCABULARY TOPICS — 3 chủ đề IELTS Speaking

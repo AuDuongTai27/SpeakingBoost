@@ -103,7 +103,10 @@ namespace SpeakingBoost.Repositories.Implementations.Admin
         {
             return await _context.StudentClasses
                 .Include(sc => sc.Student)
-                .Where(sc => sc.ClassId == classId && sc.Student.Role == "user")
+                    .ThenInclude(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
+                .Where(sc => sc.ClassId == classId
+                    && sc.Student.UserRoles.Any(ur => ur.Role.RoleName == "user"))
                 .Select(sc => sc.Student)
                 .ToListAsync();
         }

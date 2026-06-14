@@ -12,8 +12,8 @@ using SpeakingBoost.Models.EF;
 namespace SpeakingBoost.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260606112526_AddUserCreatedAt")]
-    partial class AddUserCreatedAt
+    [Migration("20260614055048_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,6 +117,24 @@ namespace SpeakingBoost.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("SpeakingBoost.Models.Entities.Role", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("RoleId");
+
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.SchoolClass", b =>
@@ -272,14 +290,33 @@ namespace SpeakingBoost.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SpeakingBoost.Models.Entities.UserRole", b =>
+                {
+                    b.Property<int>("UserRoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRoleId"));
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserRoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId", "RoleId")
+                        .IsUnique();
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.VocabularyTopic", b =>
@@ -398,11 +435,35 @@ namespace SpeakingBoost.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("SpeakingBoost.Models.Entities.UserRole", b =>
+                {
+                    b.HasOne("SpeakingBoost.Models.Entities.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SpeakingBoost.Models.Entities.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SpeakingBoost.Models.Entities.Exercise", b =>
                 {
                     b.Navigation("ClassExercises");
 
                     b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("SpeakingBoost.Models.Entities.Role", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.SchoolClass", b =>
@@ -424,6 +485,8 @@ namespace SpeakingBoost.Migrations
                     b.Navigation("StudentClasses");
 
                     b.Navigation("Submissions");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SpeakingBoost.Models.Entities.VocabularyTopic", b =>

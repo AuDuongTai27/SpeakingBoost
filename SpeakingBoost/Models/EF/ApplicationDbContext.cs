@@ -13,6 +13,8 @@ namespace SpeakingBoost.Models.EF
         public DbSet<SchoolClass> Classes { get; set; }
         public DbSet<StudentClass> StudentClasses { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Submission> Submissions { get; set; }
         public DbSet<Score> Scores { get; set; }
@@ -66,6 +68,25 @@ namespace SpeakingBoost.Models.EF
             modelBuilder.Entity<Notification>()
                 .Property(n => n.IsRead)
                 .HasDefaultValue(false);
+
+            // UserRole: unique per (UserId, RoleId)
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(ur => ur.UserRoleId);
+
+                entity.HasIndex(ur => new { ur.UserId, ur.RoleId })
+                      .IsUnique();
+
+                entity.HasOne(ur => ur.User)
+                      .WithMany(u => u.UserRoles)
+                      .HasForeignKey(ur => ur.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(ur => ur.Role)
+                      .WithMany(r => r.UserRoles)
+                      .HasForeignKey(ur => ur.RoleId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
