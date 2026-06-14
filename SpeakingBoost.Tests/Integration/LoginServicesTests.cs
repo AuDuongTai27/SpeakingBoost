@@ -32,23 +32,35 @@ namespace SpeakingBoost.Tests.Integration
             // Hash password "Password123" trước để insert đúng format
             var hashedPassword = _service.HashPassword("Password123");
 
+            // Seed roles
+            var roleUser  = new Role { RoleId = 1, RoleName = "user" };
+            var roleAdmin = new Role { RoleId = 2, RoleName = "admin" };
+            _context.Roles.AddRange(roleUser, roleAdmin);
+            _context.SaveChanges();
+
+            // Seed users (không có Role string nữa)
             _context.Users.AddRange(
                 new User
                 {
                     UserId       = 1,
                     FullName     = "Nguyễn Văn A",
                     Email        = "student@test.com",
-                    PasswordHash = hashedPassword,
-                    Role         = "user"
+                    PasswordHash = hashedPassword
                 },
                 new User
                 {
                     UserId       = 2,
                     FullName     = "Admin Test",
                     Email        = "admin@test.com",
-                    PasswordHash = _service.HashPassword("AdminPass"),
-                    Role         = "admin"
+                    PasswordHash = _service.HashPassword("AdminPass")
                 }
+            );
+            _context.SaveChanges();
+
+            // Seed UserRoles
+            _context.UserRoles.AddRange(
+                new UserRole { UserId = 1, RoleId = roleUser.RoleId },
+                new UserRole { UserId = 2, RoleId = roleAdmin.RoleId }
             );
             _context.SaveChanges();
         }
@@ -178,7 +190,7 @@ namespace SpeakingBoost.Tests.Integration
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("admin", result.Role);
+            Assert.Equal("admin", result.UserRoles.FirstOrDefault()?.Role?.RoleName);
             Assert.Equal("Admin Test", result.FullName);
         }
 

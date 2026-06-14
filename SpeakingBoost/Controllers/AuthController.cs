@@ -68,7 +68,7 @@ namespace SpeakingBoost.Controllers
 
                 // Tạo JWT token (thay thế HttpContext.SignInAsync)
                 string token = _jwtService.GenerateToken(account);
-                string role  = account.Role?.Trim().ToLower() ?? "";
+                string role  = (account.UserRoles.FirstOrDefault()?.Role?.RoleName ?? "user").Trim().ToLower();
 
                 // Xác định redirect URL theo role sử dụng Helper
                 // CODE CŨ:

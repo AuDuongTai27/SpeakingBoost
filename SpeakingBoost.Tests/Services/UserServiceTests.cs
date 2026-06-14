@@ -4,6 +4,7 @@ using SpeakingBoost.Models.Entities;
 using SpeakingBoost.Repositories.Interfaces.Admin;
 using SpeakingBoost.Services.Implementations.Admin;
 using SpeakingBoost.Services.Interfaces.Auth;
+using System.Collections.Generic;
 using Xunit;
 
 namespace SpeakingBoost.Tests.Services
@@ -41,6 +42,7 @@ namespace SpeakingBoost.Tests.Services
             _mockUserRepo.Setup(r => r.EmailExistsAsync("student@example.com")).ReturnsAsync(false);
             _mockLoginSvc.Setup(s => s.HashPassword("secret123")).Returns("hashed_value");
             _mockUserRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
+            _mockUserRepo.Setup(r => r.AddUserRoleAsync(It.IsAny<int>(), "user")).Returns(Task.CompletedTask);
 
             // Act
             var result = await _service.CreateUserAsync(dto);
@@ -75,7 +77,8 @@ namespace SpeakingBoost.Tests.Services
         public async Task GetUserByIdAsync_ValidStudentId_ReturnsUserDto()
         {
             // Arrange
-            var user = new User { UserId = 5, FullName = "Học Sinh", Email = "hs@test.com", Role = "user" };
+            var user = new User { UserId = 5, FullName = "Học Sinh", Email = "hs@test.com",
+                UserRoles = new List<UserRole> { new UserRole { RoleId = 1, Role = new Role { RoleName = "user" } } } };
             _mockUserRepo.Setup(r => r.GetUserByIdAsync(5)).ReturnsAsync(user);
 
             // Act
@@ -95,7 +98,8 @@ namespace SpeakingBoost.Tests.Services
         public async Task GetUserByIdAsync_AdminRole_ThrowsKeyNotFoundException()
         {
             // Arrange
-            var adminUser = new User { UserId = 1, FullName = "Admin", Email = "admin@test.com", Role = "admin" };
+            var adminUser = new User { UserId = 1, FullName = "Admin", Email = "admin@test.com",
+                UserRoles = new List<UserRole> { new UserRole { RoleId = 2, Role = new Role { RoleName = "admin" } } } };
             _mockUserRepo.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(adminUser);
 
             // Act & Assert
@@ -124,7 +128,8 @@ namespace SpeakingBoost.Tests.Services
         public async Task UpdateUserAsync_EmailTakenByOther_ThrowsInvalidOperationException()
         {
             // Arrange
-            var user = new User { UserId = 2, Email = "original@test.com", Role = "user" };
+            var user = new User { UserId = 2, Email = "original@test.com",
+                UserRoles = new List<UserRole> { new UserRole { RoleId = 1, Role = new Role { RoleName = "user" } } } };
             var dto  = new UpdateUserDto { FullName = "New Name", Email = "TAKEN@TEST.COM" };
 
             _mockUserRepo.Setup(r => r.GetUserByIdAsync(2)).ReturnsAsync(user);
@@ -142,7 +147,8 @@ namespace SpeakingBoost.Tests.Services
         public async Task UpdateUserAsync_ValidData_NormalizesEmail()
         {
             // Arrange
-            var user = new User { UserId = 3, Email = "old@test.com", FullName = "Old Name", Role = "user" };
+            var user = new User { UserId = 3, Email = "old@test.com", FullName = "Old Name",
+                UserRoles = new List<UserRole> { new UserRole { RoleId = 1, Role = new Role { RoleName = "user" } } } };
             var dto  = new UpdateUserDto { FullName = "New Name", Email = "  NEW@TEST.COM  " };
 
             _mockUserRepo.Setup(r => r.GetUserByIdAsync(3)).ReturnsAsync(user);
@@ -178,7 +184,8 @@ namespace SpeakingBoost.Tests.Services
         public async Task DeleteUserAsync_ValidId_DeletesRelationsBeforeUser()
         {
             // Arrange
-            var user = new User { UserId = 4, Role = "user", FullName = "Student To Delete", Email = "del@test.com" };
+            var user = new User { UserId = 4, FullName = "Student To Delete", Email = "del@test.com",
+                UserRoles = new List<UserRole> { new UserRole { RoleId = 1, Role = new Role { RoleName = "user" } } } };
             _mockUserRepo.Setup(r => r.GetUserWithRelationsByIdAsync(4)).ReturnsAsync(user);
             _mockUserRepo.Setup(r => r.DeleteUserRelationsAsync(user)).Returns(Task.CompletedTask);
             _mockUserRepo.Setup(r => r.DeleteUserAsync(user)).Returns(Task.CompletedTask);

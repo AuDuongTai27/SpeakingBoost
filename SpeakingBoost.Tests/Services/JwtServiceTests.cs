@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using SpeakingBoost.Models.Entities;
 using SpeakingBoost.Services.Implementations.Auth;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using Xunit;
 
@@ -36,8 +37,11 @@ namespace SpeakingBoost.Tests.Services
                 UserId   = 1,
                 FullName = "Test Student",
                 Email    = "test@student.com",
-                Role     = "user",
-                PasswordHash = "hashed"
+                PasswordHash = "hashed",
+                UserRoles = new List<UserRole>
+                {
+                    new UserRole { RoleId = 1, Role = new Role { RoleName = "user" } }
+                }
             };
         }
 

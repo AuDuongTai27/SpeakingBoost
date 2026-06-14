@@ -23,9 +23,8 @@ namespace SpeakingBoost.Models.Entities
         [StringLength(64)]
         public string PasswordHash { get; set; }
 
-        [Required]
-        [StringLength(10)]
-        public string Role { get; set; }  // admin | user
+        // Role is now managed via UserRoles join table
+        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

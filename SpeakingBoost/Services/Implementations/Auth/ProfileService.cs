@@ -26,7 +26,7 @@ namespace SpeakingBoost.Services.Implementations.Auth
             {
                 FullName = user.FullName,
                 Email = user.Email,
-                Role = user.Role,
+                Role = user.UserRoles.FirstOrDefault()?.Role?.RoleName ?? string.Empty,
                 CreatedAt = user.CreatedAt
             };
         }

@@ -26,14 +26,15 @@ namespace SpeakingBoost.Services.Implementations.Admin
                 UserId   = u.UserId,
                 FullName = u.FullName,
                 Email    = u.Email,
-                Role     = u.Role
+                Role     = u.UserRoles.FirstOrDefault()?.Role?.RoleName ?? "user"
             }).ToList();
         }
 
         public async Task<UserDto> GetUserByIdAsync(int id)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null || user.Role != "user")
+            var userRole = user?.UserRoles.FirstOrDefault()?.Role?.RoleName;
+            if (user == null || userRole != "user")
             {
                 throw new KeyNotFoundException("Không tìm thấy học sinh.");
             }
@@ -43,7 +44,7 @@ namespace SpeakingBoost.Services.Implementations.Admin
                 UserId   = user.UserId,
                 FullName = user.FullName,
                 Email    = user.Email,
-                Role     = user.Role
+                Role     = userRole
             };
         }
 
@@ -59,25 +60,27 @@ namespace SpeakingBoost.Services.Implementations.Admin
             {
                 FullName     = dto.FullName,
                 Email        = normalizedEmail,
-                Role         = "user",
                 PasswordHash = _loginServices.HashPassword(dto.Password)
             };
 
             await _userRepository.AddUserAsync(user);
+            // Gán role "user" qua bảng UserRoles
+            await _userRepository.AddUserRoleAsync(user.UserId, roleName: "user");
 
             return new UserDto
             {
                 UserId   = user.UserId,
                 FullName = user.FullName,
                 Email    = user.Email,
-                Role     = user.Role
+                Role     = "user"
             };
         }
 
         public async Task UpdateUserAsync(int id, UpdateUserDto dto)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null || user.Role != "user")
+            var userRole = user?.UserRoles.FirstOrDefault()?.Role?.RoleName;
+            if (user == null || userRole != "user")
             {
                 throw new KeyNotFoundException("Không tìm thấy học sinh.");
             }
@@ -97,7 +100,8 @@ namespace SpeakingBoost.Services.Implementations.Admin
         public async Task DeleteUserAsync(int id)
         {
             var user = await _userRepository.GetUserWithRelationsByIdAsync(id);
-            if (user == null || user.Role != "user")
+            var userRole = user?.UserRoles.FirstOrDefault()?.Role?.RoleName;
+            if (user == null || userRole != "user")
             {
                 throw new KeyNotFoundException("Không tìm thấy học sinh.");
             }
